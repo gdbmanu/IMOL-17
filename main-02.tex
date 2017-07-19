@@ -61,8 +61,44 @@
 \maketitle
 	
 	The oculo-motor activity is an essential component of man and animal behavior, subserving most of daily displacements and interactions with objects, devices or people. By moving gaze with the eyes, the center of sight is constantly and actively moving around during all waking time.  %Though taking a large part in brain activity, the principles underlying those visually guided movements are still a subject of debate in neurosciences.
+	Object recognition through saccades links to the case of a living system having to react at sort notice in a complex environment with limited sensors and limited computational resources. Under survival constraints and resource consuming optimization, not all the visual surroundings need to be scanned, but only the critical features, shapes and displacements. Few critical signals need to be interpreted fast, and many others can be ignored with no harm. This is the essence of visual orienting, a.k.a "active vision", that is present across most living species.  
+	
+	Understanding how robust and efficient visual orienting is achieved is important not only for neuroscience, but also for robotics, which faces similar constraints, in particular in the case of light and low-power sensing devices.  The active sensing framework primarily relies on emitting a signal to sense the environment, as is typically done by a radar or echolocation. Active vision (or active perception in general) generalizes to the concept of action-for-perception where a low resolution/low range sensing device is moved around to increase its range an/or its resolution, so that the computational and motor power may supplement the initial lack of sensing power. If the resulting device is significantly more complex, the resulting gain of power consumption may be substantial.
+	  
+	Similar problematic is emerging in various other fields, like e.g. machine learning, where the ever-growing  learning databases suggest to scan the data in a way that should retain only the critical examples and features to perform learning. Similarly, the active exploration of high-resolution image may allow to overcome limitation of current convolutional neural networks capabilities. Learning \emph{where to look at} seems to be an important field of investigation that may subserve large applicative outcomes in the future.
+	
+	%is very popular in the field of robotics, and has gained significant revival in recent years through the development of   %both topics, both at the level of each objective  but also globally. %However, a property of the generic systems we propose is that they should 
+	%As such, it is necessary to extend this problem to a generic set of conditions which are relevant to the trajectory of objects' contours in natural scenes, that is, for different configurations of the scene such as the presence of different types of objects.
+	
+	The concept of active vision and/or active perception is present robotic literature under different acceptances. In \cite{aloimonos1988active}, the authors address the case of multi-view image processing of a scene, i.e. show that some ill-posed object recognition problems become well-posed problems as soon as several views one the  same object ar considered. Also proposed in 1988 \cite{bajcsy1988active} is a roadmap for the development of active vision systems, that provides a first interpretation of active vision in the terms of sequential Bayesian estimation : \emph{{\color{blue} ``the problem  of Active Sensing can be stated as a problem of controlling strategies 
+	applied to the data acquisition process which will depend on the current state 
+	of the data interpretation and  the  goal  or the  task of  the  process.''}}.
+	 
+
+    {\color{magenta} Andrew Dankers, Alexander Zelinsky --> Cedar (Hardware)
+    
+    Ballard D (1991) Animate vision. Artif Intell 48:57–86
+    
+    Brooks A, Abdallah S, Zelinsky A, Kieffer J (1998) A mul-
+    timodal approach to real-time active vision. In: International
+    conference on intelligent robotics --> chez Brooks, l'orientation du regard est en lien avec l'interaction et la communication homme/machine.
+    
+    Dickmanns ED (1999) An exception-based, multi-focal, sac-
+    cadic (ems) vision system for vehicle guidance. In: Proc. inter-
+    national symposium on robotics and researc
+    
+    Computer vision
+    
+	Event-based coding and event-based  sensors?
+	
+	Foveated vision (and models)
+	
+	Idee de simuler les conséquences de l'action (voir le chapitre de Berthoz dans le bouquin de Damasio) --> "perception is a decision"}
+
+	{\color{blue} La vision active pour le computer vision ne s'est pas tellement développée du fait du coût decroissant du traitement d'images et de la facilité à paralléliser les traitements.}
+
 	The {\it active vision paradigm}~\cite{friston2012perceptions}, recently developed in neuroscience, relies on a longstanding history of probabilistic modelling in signal processing and control \cite{Kalman1960,Baum1966,friston1994statistical}. 
-	It considers an organization of the visual space in objects (or causes), whose presence and position is continuously checked by visual inspection. For instance, saccades are considered in this theory to be probing a particular region of the visual space, with the objective of reducing the uncertainty about the identity and position of particular objects. %This theory takes for granted that an a priori knowledge exists on all possible objects and locations but also for the repertoire of movements.
+	It considers an organization of the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. For instance, saccades are considered in this theory to be probing a particular region of the visual scene, with the objective of reducing the uncertainty about the identity and position of particular objects. %This theory takes for granted that an a priori knowledge exists on all possible objects and locations but also for the repertoire of movements.
 	
 	Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. The cause of the current visual field $y$ is both the object identity $o$, its position in the peripersonal space $x$, and the current visual orientation $u$, i.e. $y \sim P(Y|x,o,u)$, each variable counting for a distinct degree of freedom. % and the generative process  for every possible composition of object identity $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
 	In a model-based approach, with $P$ the generative process, the active vision paradigm mainly considers optimizing the choice of $u$ for reducing uncertainty about $x$ and $o$, which are the undisclosed constituents of the scene. For simplicity $x$ and $o$ are here reduced to a single variable $z = (x, o)$. Considering now that a certain prior $\pi(z)$ has been formed about $z$, choosing  $u$ conducts the sight in a region of the visual field that provides $y$, which in turn allows to refine the expectations about the cause of the perception, i.e.
@@ -78,13 +114,15 @@
 	%the part of the scene where he thinks his assumption should receive confirmation, i.e. 
 	the part of the scene that is the most discriminative toward confirming $\tilde{z}$ against all other possibilities. 
 	
-	This series of operations can be repeated in a sequence, where the visual orientation $\tilde{u}$ is followed by reading the effective visual field $y$, allowing to update the priors about the cause of perception, i.e. $\forall z, \pi'(z) \propto  P(y|z,\tilde{u}) \pi(z)$. In that framework, saccadic exploration means thus to define a sequence of visuo-motor commands $\tilde{u}$, $\tilde{u}'$, $\tilde{u}''$, ... This sequence should ultimately provide a final estimate $\pi^{(n)}(z)$ such that a single cause $\hat{z}$ may dominate the other ones, allowing the system to reach a final decision.   
+	This series of operations can be repeated in a sequence, where the visual orientation $\tilde{u}$ is followed by reading the effective visual field $y$, allowing to update the priors about the cause of perception, i.e. $\forall z, \pi'(z) \propto  P(y|z,\tilde{u}) \pi(z)$. In that framework, saccadic exploration means thus to define a sequence of visuo-motor commands $\tilde{u}$, $\tilde{u}'$, $\tilde{u}''$, ... This sequence should ultimately provide a final estimate $\pi^{(n)}(z)$ such that a single cause $\hat{z}$ may dominate the other ones, allowing the system to reach a final decision.  
+	
+	{\color{magenta} Sequential Bayesian estimation with stopping criterion} 
 	
 	For illustrative purpose, this setup was tested on a classic machine learning image processing setup, namely the MNIST dataset. In order to mimic a foveated exploration, a 2D-wavelet decomposition is performed on the images, providing a series of triplets of wavelet coefficients organized in space and in different levels. A visual orientation command $u = (i,j)$ then allows to read out several wavelets coefficient triplets associated with the considered coordinate (at different levels). Given a model $P(y|u,z)$, each  wavelet coefficients triplet $y$ is thus expected to participate in uncovering the underlying object $z$ (here a digit between 0 and 9).
 
 	\begin{figure}[t!]
 		\centerline{
-				\includegraphics[width = \linewidth]{figure.png} 
+				\includegraphics[width = \linewidth]{img/figure.png} 
 		}
 		\centerline{\bf a \hspace{4cm} b \hspace{4cm} c \hspace{4cm} d}
 		\caption{\footnotesize{{\bf Saccadic exploration for digit image recognition}~. {\bf a.} Saccades trajectory (from red to orange) superimposed over an original digit. {\bf b.} Saccades trajectory over reconstructed image from available visual information. {\bf c.} Posterior probability update, in function of the number of wavelet triplets observed. {\bf d.} Entropy of the posterior, in function of the number of wavelet triplets observed. } }
@@ -100,10 +138,12 @@
 		This idea 
 		Regarding the artificial curiosity thematic, the model presented her posits that the model is attracted by regions of the visual field that should maximize the surprise if the current assumption is wrong}
 	
-	This account of image recognition through saccades links to the case of a living system having to react at sort notice in a complex environment with limited resources. Some critical signals need to be interpreted fast, and many others need to be ignored. Not all the visual surroundings need to be scanned, but only the critical features, shapes and displacements. This is the essence of visual orientation, and our hypothesis is that efficient object-specific saccade sequences may be pre-learned to facilitate recognition under prior assumptions about the state of the environment. 
+	{\color{magenta} Our hypothesis is that efficient object-specific saccade sequences may be pre-learned to facilitate recognition under prior assumptions about the state of the environment. }
+		
+		
 	
-	%How robust and efficient such decision making is achieved is not only important for neuroscience, but also for robotics, which faces similar constraints.   %both topics, both at the level of each objective  but also globally. %However, a property of the generic systems we propose is that they should 
-	%As such, it is necessary to extend this problem to a generic set of conditions which are relevant to the trajectory of objects' contours in natural scenes, that is, for different configurations of the scene such as the presence of different types of objects.
+	
+	%
 	
 	%Taking guidance from the biological observations, the idea is to consider the natural strategies adopted to deal with limited sensors and limited computing resources.
 	%: how use at best low sensory bitrate and noisy sensors? how much memory use, what motor decisions make to maintain a consistent model of the outside scene? 
