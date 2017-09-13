@@ -63,81 +63,138 @@
 	The oculo-motor activity is an essential component of man and animal behavior, subserving most of daily displacements and interactions with objects, devices or people. By moving gaze with the eyes, the center of sight is constantly and actively moving around during all waking time.  %Though taking a large part in brain activity, the principles underlying those visually guided movements are still a subject of debate in neurosciences.
 	Object recognition through saccades links to the case of a living system having to react at sort notice in a complex environment with limited sensors and limited computational resources. Under survival constraints and resource consuming optimization, not all the visual surroundings need to be scanned, but only the critical features, shapes and displacements. Few critical signals need to be interpreted fast, and many others can be ignored with no harm. This is the essence of visual orienting, a.k.a "active vision", that is present across most living species.  
 	
-	Understanding how robust and efficient visual orienting is achieved is important not only for neuroscience, but also for robotics, which faces similar constraints, in particular in the case of light and low-power sensing devices.  The active sensing framework primarily relies on emitting a signal to sense the environment, as is typically done by a radar or echolocation. Active vision (or active perception in general) generalizes to the concept of action-for-perception where a low resolution/low range sensing device is moved around to increase its range an/or its resolution, so that the computational and motor power may supplement the initial lack of sensing power. If the resulting device is significantly more complex, the resulting gain of power consumption may be substantial.
+	Understanding how robust and efficient visual orienting is achieved is important not only for neuroscience, but also for robotics, which faces similar constraints, in particular in the case of light and low-power sensing devices.  The active sensing framework primarily relies on emitting a signal to sense the environment, as is typically done by a radar or echolocation. Active vision (or active perception in general) generalizes to the concept of action-for-perception where a low resolution/low range sensing device is moved around to increase its range an/or its resolution, so that the computational and motor power may supplement the initial lack of sensing power. {\color{magenta} If the resulting device is significantly more complex, the global gain of sensing capabilities may be substantial.}
 	  
-	Similar problematic is emerging in various other fields, like e.g. machine learning, where the ever-growing  learning databases suggest to scan the data in a way that should retain only the critical examples and features to perform learning. Similarly, the active exploration of high-resolution image may allow to overcome limitation of current convolutional neural networks capabilities. Learning \emph{where to look at} seems to be an important field of investigation that may subserve large applicative outcomes in the future.
+	A similar problematic is emerging in various other fields, like e.g. machine learning, where the ever-growing  learning databases suggest to scan the data in a way that should retain only the critical examples and features to perform learning. Similarly, in computer vision, an active scan of high-resolution images may allow to overcome the limitations of current convolutional neural networks. Learning \emph{where to look at} seems to be an important field of investigation that may subserve large applicative outcomes.
 	
 	%is very popular in the field of robotics, and has gained significant revival in recent years through the development of   %both topics, both at the level of each objective  but also globally. %However, a property of the generic systems we propose is that they should 
 	%As such, it is necessary to extend this problem to a generic set of conditions which are relevant to the trajectory of objects' contours in natural scenes, that is, for different configurations of the scene such as the presence of different types of objects.
 	
-	The concept of active vision and/or active perception is present robotic literature under different acceptances. In \cite{aloimonos1988active}, the authors address the case of multi-view image processing of a scene, i.e. show that some ill-posed object recognition problems become well-posed problems as soon as several views on the  same object are considered. Also proposed in 1988 \cite{bajcsy1988active} is a roadmap for the development of active vision systems, that provides a first interpretation of active vision in the terms of sequential Bayesian estimation : \emph{{\color{blue} ``the problem  of Active Sensing can be stated as a problem of controlling strategies 
+	The concept of active vision and/or active perception is present in robotic literature under different acceptances. In \cite{aloimonos1988active}, the authors address the case of multi-view image processing of a scene, i.e. show that some ill-posed object recognition problems become well-posed problems as soon as several views on the  same object are considered. The term was also proposed in \cite{bajcsy1988active} as a roadmap for the development of artificial vision systems, that provides a first interpretation of active vision in the terms of sequential Bayesian estimation : \emph{{\color{blue} ``the problem  of Active Sensing can be stated as a problem of controlling strategies 
 	applied to the data acquisition process which will depend on the current state 
 	of the data interpretation and  the  goal  or the  task of  the  process.''}}.
 
-	The most documented case of active perception is gaze orienting, primarily studied in man and animal physiology \cite{yarbus1967eye,robinson1968eye}. Gaze orienting decomposes in several passive low-level reflex compensatory movements (vestibulo-ocular reflex, head stabilization, ...) as well as at least three active voluntary eye control modalities, i.e. visual anchoring, smooth pursuit and saccades that are at the core of vertebrate vision.  A nice review of principal findings in in relation to computer vision applications is proposed in \cite{ballard1991animate},  which stresses the importance of \emph{animate} vision against passive vision in relation with eye-hand coordination.
+	In physiology, the most documented case of active perception is gaze orienting, primarily studied in both man and animal \cite{yarbus1967eye,robinson1968eye}. Gaze orienting decomposes in several passive low-level reflex compensatory movements (vestibulo-ocular reflex, head stabilization, ...) as well as at least three active voluntary eye control modalities, i.e. visual anchoring, smooth pursuit and saccades that are at the core of vertebrate vision.  A nice review of principal promises of \emph{animate} vision against passive vision  is presented in \cite{ballard1991animate},  in relation with eye-hand coordination in computer vision.
 	
-	A saliant feature of vertebrate visual apparatus is the foveated retina that concentrates light photoreceptors over a small central portion of the visual field, following an approximate exponential decrease of resolution from the center to the periphery. The non-uniform distribution of photoreceptors across the retina provides both central high resolution and a wide field of view, but also imposes the animal to scan its visual surroundings to grab high spatial frequency information from different parts of the scene. This scan of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. 
+	A saliant feature in superior vertebrates visual apparatus is the foveated retina that concentrates light photoreceptors over a small central portion of the visual field, {\color{magenta} following an approximate exponential decrease of resolution from the center to the periphery [REF?]}. The non-uniform distribution of photoreceptors across the retina provides both central high resolution and a wide field of view, but also imposes the animal to scan its visual surroundings to grab high spatial frequency information from different parts of the scene. This scan of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. 
 	
-	The modelling of saccadic control offers thus an excellent testbed for adressing the more general active perception paradigm. It still presents many challenges, among which :
+	The modelling of saccadic control offers thus an excellent testbed for addressing the more general active perception paradigm. It still presents many challenges, among which :
 	\begin{itemize}
 		\item efficiency
 		\item oculomotor control and adaptation
 		\item modelling and prediction
 	\end{itemize}
 	
-	{\color{blue} Most importantly, for efficiency reasons, the scanning of the scene through saccades needs to be sparse, i.e. select the parts of the scene
-	active vision needs to be encompassed in a full perception-action system view including the visual consequences of action, which emphasizes the importance of \emph{prediction} in visuomotor control \cite{Robinson1975, berthoz1996neural} (attention Robison propose un modele de prediction du mouvement lui-meme, pas des consequences visuelles du mouvement).}
+	{\color{blue} Most importantly, for efficiency reasons, the scanning of the scene through saccades needs to be sparse, i.e. select the parts of the scene.
+	Active vision needs to be encompassed in a full perception-action system view including the visual consequences of action, which emphasizes the importance of \emph{prediction} in visuomotor control \cite{Robinson1975,berthoz1996neural}} {\color{green} (attention Robinson propose un modele de prediction du mouvement lui-meme, pas des consequences visuelles du mouvement).}
 
-    {\color{magenta} Andrew Dankers, Alexander Zelinsky --> Cedar (Hardware)
-    
-    {\bf Ballard D (1991) Animate vision. Artif Intell 48:57–86} : stresses the importance of animate vision against passive vision. 
+    {\color{magenta} \uline{\bf NOTES BIBLIO  :}
     \begin{itemize}
-    	\item \emph{``At any rate, having a particular embodiment forces
-    	one to deal with performance issues: One has to act in a timely manner under resource constraints.
-    	One way to do this would be to have an elaborate internal representation as a form or "table lookup." But in a dynamic world, the cost of maintaining the correspondence between the representation and the world becomes prohibitive. For this reason animate vision systems may have to travel light and depend on highly adaptive behaviors that can quickly discover how to use current context.''}
-        \item \emph{`` Gaze control mechanisms fundamentally change computational models of vision. Without
-        	them the visual system must work in isolation, with the burden of solving difficult problems with
-        	many degrees of freedom. With them a new paradigm emerges in which the visual calculations are
-        	embedded in a sensory-motor behavioral repertoire. Rather than thinking of visual
-        	processing as separate from cognitive or motor processing, they are interlinked
-        	in terms of integral behaviors''}
-    	\item independant controllers operating in parallel	(Yamauchi 1989)
-    	\item \emph{``A gross distinction that
-    	can be made is between identification algorithms that analyze the foveated area during fixation and
-    	location algorithms that direct the eyes to new targets. Support for this WHAT/WHERE distinction, made by Mishkin [Mishkin 1982; Mishkin et al. 1983].''}
-    \end{itemize}
+    	\item {\bf Andrew Dankers, Alexander Zelinsky} --> Cedar (Hardware)
+    	\item {\bf Ballard D (1991) Animate vision. Artif Intell 48:57–86} : stresses the importance of animate vision against passive vision. 
+    	\begin{itemize}
+    		\item \emph{``At any rate, having a particular embodiment forces
+    			one to deal with performance issues: One has to act in a timely manner under resource constraints.
+    			One way to do this would be to have an elaborate internal representation as a form or "table lookup." But in a dynamic world, the cost of maintaining the correspondence between the representation and the world becomes prohibitive. For this reason animate vision systems \uline{may have to travel light} and depend on highly adaptive behaviors that can quickly discover how to use current context.''}
+    		\item \emph{`` Gaze control mechanisms fundamentally change computational models of vision. Without
+    			them the visual system must work in isolation, with the burden of solving difficult problems with
+    			many degrees of freedom. With them a new paradigm emerges in which the visual calculations are
+    			embedded in a sensory-motor behavioral repertoire. Rather than thinking of visual
+    			processing as separate from cognitive or motor processing, they are interlinked
+    			in terms of integral behaviors''}
+    		\item independant controllers operating in parallel	(Yamauchi 1989)
+    		\item \emph{``A gross distinction that
+    			can be made is between identification algorithms that analyze the foveated area during fixation and
+    			location algorithms that direct the eyes to new targets. Support for this WHAT/WHERE distinction, made by Mishkin [Mishkin 1982; Mishkin et al. 1983].''}
+    	\end{itemize}
+    	\item  {\bf Brooks A, Abdallah S, Zelinsky A, Kieffer J (1998)} A mul-
+    	timodal approach to real-time active vision. In: International
+    	conference on intelligent robotics --> chez Brooks, l'orientation du regard est en lien avec l'interaction et la communication homme/machine.
+    	\item {\bf Dickmanns ED (1999) An exception-based, multi-focal, sac-
+    		cadic (ems) vision system for vehicle guidance. In: Proc. inter-
+    		national symposium on robotics and research}
+    	\item Computer vision
+    	\item Event-based coding and event-based  sensors?
+    	\item Foveated vision (and models)
+    \end{itemize}	}
     
-    {\bf Brooks A, Abdallah S, Zelinsky A, Kieffer J (1998)} A mul-
-    timodal approach to real-time active vision. In: International
-    conference on intelligent robotics --> chez Brooks, l'orientation du regard est en lien avec l'interaction et la communication homme/machine.
     
-    {\bf Dickmanns ED (1999) An exception-based, multi-focal, sac-
-    cadic (ems) vision system for vehicle guidance. In: Proc. inter-
-    national symposium on robotics and research}
-    
-    Computer vision
-    
-	Event-based coding and event-based  sensors?
-	
-	Foveated vision (and models)
-	
-	Idee de simuler les conséquences de l'action (voir le chapitre de Berthoz dans le bouquin de Damasio) --> "perception is a decision"}
+	{\color{green} Idee de simuler les conséquences de l'action (voir le chapitre de Berthoz dans le bouquin de Damasio) --> "perception is a decision"}
 
-	{\color{blue} La vision active pour le computer vision ne s'est pas tellement développée du fait du coût decroissant du traitement d'images et de la facilité à paralléliser les traitements.}
+	{\color{green} La vision active pour le computer vision ne s'est pas tellement développée du fait du coût decroissant du traitement d'images et de la facilité à paralléliser les traitements.}
 
-	The active vision paradigm was recently revivified in neuroscience through the work of ~\cite{friston2012perceptions} that relies on a longstanding history of probabilistic modelling in signal processing and control \cite{Kalman1960,Baum1966,friston1994statistical}. 
+	The active vision paradigm was recently refreshed in neuroscience through the work of ~\cite{friston2010free,friston2012perceptions} that relies on a longstanding history of probabilistic modelling in signal processing and control \cite{Kalman1960,Baum1966,friston1994statistical}. 
 	The general setup proposed by Friston and colleagues is that of a general tendency of the brain to counteract surprising and unpredictible sensory events through building generative models that improve their predictions over time and render the world more amenable. This improvement is mainly done through sampling the environment and extracting statistical invariants that are used in return to predict upcoming events.
 	Building a model thus rests on extracting a repertoire of invariants and organizing them so as to process the incoming sensory data efficiently through predictive coding \cite{rao1999predictive}. This proposition, gathered under the ``Variational Free Energy Minimization'' umbrella, has important consequences for it formally links two important domains of investigation, namely dictionary construction from data through machine learning and (optimal) motor control.
-	In particular, motor control is here considered as a particular implementation of a \emph{sampling process}, that is at the core of the estimation of a complex posterior distribution $q$. 
+	In particular, motor control is here considered as a particular implementation of a \emph{sampling process}, that is at the core of the estimation of a complex posterior distribution. 
 	
-	Put formally, the world  takes the form of a generative model $p$ that is the cause of the sensory stream. A variational distribution $q$ (the approximate posterior) is made to contribute refine the estimation of $p$. From the classical image processing and machine learning standpoint, $q(z|x)$ is the \emph{encoder} that maps a feature vector $x$ toward its redescription $z \in \mathcal{Z}$ (in the latent variable space). In control theory, $q$ is an inverse model that maps the input $x$ toward its hidden cause $z$ etc. Conversely, $p(x,z)$ (the generative distribution) is a \emph{decoder} that generates samples from their causes (namely carries out the visual consequence of a certain emitter $z$), or a \emph{forward model} in the terms of control theory.
+	Put formally, the physical world  takes the form of a generative process $p$ that is the cause of the sensory stream. This process is not visible in itself but is only sensed through a (non reliable) measure process that provides an observation vector $x$. The inference problem consists in estimating the real underlying causes of the observation, that rests on a latent state vector $z$. In a feedback control framework, the visual capture relies on a mobile device that is controllable through a certain number of degrees of freedom (pan, tilt and roll for a visual sensor for instance). A command is a control vector $u$ that has an effect on the generative process through an actuator. Then, the evolution of $x$ relies on both $u$ and $z$ in the form of a stochastic dynamical system undergoing an external forcing command $u$, i.e. :
+	\begin{align}
+	  \dot{z} &= A(z) + B(u) + \text{process noise}\nonumber\\
+	  x &= C(z) + D(u) + \text{measurement noise} 
+	  \label{eq:kalman}
+	\end{align}  
+	where $A$, $B$, $C$ and $D$ constitute a generative model $p(x,u,(z,\dot{z}))$ that explicits the dependencies between $u$, $x$ and $z$ \footnote{We note for simplicity $p(x,u,z)$ in the following, with each variable counting for its state vector and possible higher moments.}. 
 	
-	In an \emph{active inference} framework, the visual capture relies on a mobile device that is controllable through a certain number of degrees of freedom (pan, tilt and roll for a visual sensor for instance).
+	In the following, $z$ is called the \emph{sensory scene}, corresponding to the positions of sensible objects surrounding the controller, independently of the sensors orientation, by opposition to $x$ which is the ``data stream'' or ``sensory field'' provided by the sensors.
+	
+	In an \emph{active inference} framework, the funding assumption is that the choice of $u$ (i.e the control law) should rest on minimizing the entropy of the sensory field, i.e. minimizing the surprise caused by a new visual input $x$ knowing that $z$ is under the control of $u$. This quantity, called the ``surprise'', is the negative log evidence of the data stream, i.e $-\log p(x)$ (the marginal over $z$ and $u$), so that choosing $u$ means to optimize $-\log p(x|u)$:
+	
+	$$ \hat{u} = \underset{u \in \mathcal{U}}{\text{argmin}} \langle -\log p(x|u)\rangle_{z\sim p}$$
+	
+	{\color{blue} This assumption of surprise minimization needs to be done under certain known conditions (the priors) about the generative process $p$. Those priors need to be set at some point, otherwise active inference should reduce to orienting the sensors toward region of the sensory scene that is the easiest to predict  (for instance orientate sight toward the darkest  part of the scene (dark room problem) [REF]). }
+	
+	%{\color{green}
+	%For instance, let us consider $z$ be a "real" state of the world ("perfect" prior). Then the optimal choice of $u$ should rest on maximizing the accuracy of predicting $x$ given $u$ and $z$, i.e. 
+	%$$ \hat{u \in \mathcal{U}} = \underset{u}{\text{argmax}} \log p(x|z,u)$$
+	%}
+	
+	Setting a prior over the generative process rests on the design of a ``variational'' distribution $q$ that puts a bias on the generative process according to either an a priori knowledge or on parts of the world that are actually known or sensed.
+	$$ \hat{u} = \underset{u \in \mathcal{U}}{\text{argmin}} \langle -\log p(x|u)\rangle_{z\sim q}$$ 
+	Then the reduction of surprise can rest on optimizing $q$ with respect to $u$ (instead of $p$).  In practice, the surprise caused by $x$ will be minimized if the \emph{entropy} of $q$ is minimized \cite{friston2012perceptions}, i.e.:
+	$$ \hat{u} = \underset{u \in \mathcal{U}}{\text{argmin}} \langle -\log q(z)\rangle_{z \sim q\text{, }x\sim p(.|z,u)}$$ 
+	with $x$ corresponding to one sample observation and $q$ approaching the ``real'' posterior with its estimate $p(.|x,u)$, so that finally:
+	$$\hat{u} = \underset{u \in \mathcal{U}}{\text{argmin }} H$$ 
+	with:
+	$$H = E_z(-\log p(z|x,u))$$
+	
+	%Put in the terms of a control law, the choice of $u$ relies on optimizing $u$ with respect to the objective $F$, i.e. finding the $x$ that is maximally consistent with $z$ given $u$ :
+	%$$ u = \underset{u'}{\text{argmin }} \langle - \log p(x, z, u')\rangle_{z\sim q}$$ 
+	%which is generally not tractable. Instead a control policy $u \sim \pi(z)$ needs to be set, that approximates the previous expression, depending on the control setup at stake.    
+	
+	From this general standpoint, many familiar methods and principles naturally derive when considering additional details or simplifying assumptions... MODEL-BASED, SAMPLING, LEARNING (post-hoc optimization), ...
+	
+	{\color{blue} from sampling $x$ from the generative process through $u$, which entail well-described form of exploration-exploitation optimization learning process [REF].}
+	
+	{\color{magenta} Instead, one need to consider an estimate $\tilde{u}$ that should rely on sampling from the generative processes $p$ and $q$ to 
+	predict the effect of $u$,  i.e. 
+	$$ \tilde{u} = \underset{u'}{\text{argmin}} - \frac{1}{N} \sum_{\{z_i, x_i\}_{i = 1..N, z \sim q, x \sim p}} \log p(x_i, z_i, u') $$ or on direct estimation through maximum likelihood estimates (point estimate):
+	\begin{align*}
+	&z_\text{max} = \underset{z}{\text{argmax }}q(z)\\
+	&x_\text{max} = \underset{x}{\text{argmax }} p(x|z,u')\\
+	&\hat{u} = \underset{u'}{\text{argmin }} - \log p(x_\text{max}, z_\text{max}, u')
+	\end{align*}
+	}
+	
+	Instead, $u$ should be sampled from a an estimation of $L = - \log p(x, z, u')$ needs to be defined to approximate one should consider sampling the 
+	
+	{\color{blue}
+	LEARNING (ici on sépare le modèleinterne (estimation) du modèle externe ==> model free, encodage...) The variational distribution $q$ (the approximate posterior) also provides a way to refine the estimation of $p$. From the classical image processing and machine learning standpoint, $q(z|x)$ is called the \emph{encoder} that maps a feature vector $x$ toward its redescription $z \in \mathcal{Z}$ (in the latent variable space). In control theory, $q$ is an inverse model that maps the input $x$ toward its hidden cause $z$ etc. Conversely, $p(x,z)$ (the generative distribution) is a \emph{decoder} that generates samples from their causes (namely carries out the visual consequence of a certain emitter $z$), or a \emph{forward model} in the terms of control theory.}
+	
+	{\color{blue} (ORIGINAL? Voir COMMENT CA SE DEMARQUE DE FRISTON?) 
+		
+	Friston/Perrinet : \emph{``The brain minimizes the free energy of sensory inputs defined by a generative model. This model includes prior expectations about hidden controls that maximize salience.	 
+	The prior beliefs considered below pertain to these hidden controls and dictate how we engage actively with the environment to minimize the uncertainty of our perceptual inferences. Crucially, this means that prior beliefs have to be encoded physically (neuronally) leading to the notion of fictive or counterfactual representations; in other words, what we would infer about the world, if we sample it in a particularly way. This leads naturally to the internal representation of prior beliefs about fictive sampling and the emergence of things like intention and salience.''} --> c'est l'idée de simulation (semble-t-il) des consequences de l'action avec le modele generatif. La lien avec l'intention et la saillance n'est pas clair (a moins qu'il s'agisse d'extraire les caracteristiques saillantes de l'objet suposé). En ce qui concerne le prior, il s'agitrait simplement d'un modele generatif sur (z,u). il faut voir dans quelle mesure l'hypothèse de "steady state" est exploitée)
+		
+	In order to XXX, we propose to split the generative process in two parts, namely the controlled generative process and the uncontrolled generative process. The controlled emitter is named $u$ while the uncontrolled emitter is named $z$. The value of $u$ refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The value of $z$ refers to the remaining part of the physical world, i.e. the "environment". This restricted setup, that separates a body and an environment the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake.  	
+	
+	An additional assumption is that the controlled generative process is relatively "fast" in comparison with the uncontrolled one. In consequence we reduce $u$ to  a motor setpoint (a motor command) that is supposed to be realized by the motor apparatus at short notice under classical stability/controllability constraints.
+	
+	Another assumption : \emph{steady state hypothesis}, i.e. $\dot{z} = 0$.  
+	
 	Then the latent state space (the cause of the visual field) decomposes in a hidden cause $z$ and an explicit motor control $u$. The generative distribution becomes $p(x, z, u)$ so that activating the motor effectors updates the state of the plant as well as its visual sensory outcome. In comparison,  changing the state of an external (uncontrolled) emitter would also modify the visual sensory outcome. The command $u$ here participates in a feedback loop that in return updates the visual stream.
-	
-	Then, the general active inference assumption is that the agent should try to minimize the entropy of the visual stream, i.e. minimize the surprise caused by a new visual input $x$ under control $u$. This quantity $-\log p(x)$ (the marginal over $z$ and $u$) is called the log evidence. It is not necessarily tractable and is approached in the variational scheme by a quantity called the variational free energy $F = \langle - \log p(x, z, u) + \log q (z, u| x)\rangle_q$ (lower bound of the negative log evidence) that also needs to be minimized. 
-	
-	{\color{blue} (ORIGINAL? Voir COMMENT CA SE DEMARQUE DE FRISTON?) In the particular case where $u$ and $z$ can be set independently, a prior $\pi(z)$ can be set on $z$ so that $q(z,u|x)$ rewrites $q(u|z,x)\pi(z)$ and $p(x, z, u)$ rewrites $p(x, u |z) \pi(z)$. In that particular setup, the hidden cause $z$ plays the role of a generative model on $x$ and $u$. The free energy minimization assumption tells that $u$ should minimize the surprise caused by the future observation $x$, where $x$ is the actualization of the generative process $p$ given the control $u$. 
+		
+	In the particular case where $u$ and $z$ can be set independently, a prior $\pi(z)$ can be set on $z$ so that $q(z,u|x)$ rewrites $q(u|z,x)\pi(z)$ and $p(x, z, u)$ rewrites $p(x, u |z) \pi(z)$. In that particular setup, the hidden cause $z$ plays the role of a generative model on $x$ and $u$. The free energy minimization assumption tells that $u$ should minimize the surprise caused by the future observation $x$, where $x$ is the actualization of the generative process $p$ given the control $u$. 
 	If $p$ is known (model-based case), then the optimal control is
 	$$u^* = \underset{u}{\text{argmin}} \int \int - \log p(x|z, u) \pi(z) dx dz$$
 	which is generally intractable on large-dimension input state spaces.
