@@ -1,0 +1,642 @@
+%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
+\usepackage{hyperref}
+
+
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2018}
+
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{icml2018}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Toward predictive machine learning for active vision}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Toward predictive machine learning for active vision}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2018
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Emmanuel Daucé}{ins}
+
+\end{icmlauthorlist}
+
+\icmlaffiliation{ins}{Ecole Centrale de Marseille, Aix Marseille Univ, Inserm, INS, Institut de Neurosciences des Systèmes, Marseille, France}
+\icmlcorrespondingauthor{Emmanuel Daucé}{emmanuel.dauce@centrale-marseille.fr}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Saccades, Artificial Vision, Free Energy, Predictive Coding, POMDP}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+%\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\section{Motivation}
+
+The oculo-motor activity is an essential component of man and animal behavior, subserving most of daily displacements and interactions with objects, devices or people. By moving the gaze with the eyes, the center of sight is constantly and actively moving around during all waking time.  %Though taking a large part in brain activity, the principles underlying those visually guided movements are still a subject of debate in neurosciences.
+%The most documented case of active perception is gaze orientation, primarily studied in both man and animal \cite{yarbus1967eye,robinson1968eye}. A nice review of principal promises of \emph{animate} vision against passive vision  is presented in \cite{ballard1991animate},  in relation with eye-hand coordination in computer vision.
+%A salient feature of superior vertebrates visual apparatus is the foveated retina that concentrates  photoreceptors over a small central portion of the visual field.
+%, {\color{magenta} following an approximate exponential decrease of resolution from the center to the periphery [REF?]}. 
+The scanning of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. 
+Though ubiquitous in biology, object recognition through saccades is seldom considered in artificial vision. The reasons are many, of which the existence of high-performance sensors that provide millions of pixels at low cost. %\footnote{in contrast with animals retina whose actual design relies on a long optimization process under severe resource constraints.}.
+Increasingly powerful computing devices are then assigned to compute in parallel those millions of pixels to perform recognition, consuming resources in a brute-force fashion. 
+
+The example of animal vision encourages however a different approach towards more parsimonious recognition algorithms. A salient aspect of animal vision is the use of \emph{active} sensing devices, capable of moving around under some degrees of freedom in order to choose a particular viewpoint. The existence of a set of possible sensor movements calls for the development of specific algorithms that should \emph{solve the viewpoint selection problem}. A computer vision program should for instance look back from past experience to see which viewpoint to use to provide the most useful information about a scene. Optimizing the sensor displacements across time may then be a part of computer vision algorithms, in combination with traditional pixel-based operations. 
+
+More generally, the idea of viewpoints selection turns out to consider beforehand the computations that need to be done to achieve a certain task. A virtual sensing device should for instance act like a filter that would select which part of the signal should be worth considering, and which part should be bypassed. 
+This may be the case for robots and drones  that need to react fast with light and low-power sensing devices. Similarly, in computer vision, Mega-pixel high-resolution images appeals for selective convolution over the images, in order to avoid unnecessary matrix products. Less intuitively, the ever-growing  learning databases used in machine learning also suggest an intelligent scanning of the data, in a way that should retain only the critical examples or features, depending on the context, before performing learning on it.  
+Behind the viewpoint selection problem thus lies a feature selection problem, which should rely on a context. 
+%An evolving context over time would imply a changing feature selection. 
+%To put it clear, the visual features (or viewpoints) that should be used to recognize an armchair should not  be the same as the ones used to recognize a squirrel. If you are in a park, and there is a good chance to meet a squirrel, you should probably look around in the trees for something small and furry, whereas if you enter in a hotel, where there is a good chance to find an armchair, you may look sideways for something large and static, so you can ignore the "up in the tree" viewpoint and the small and furry features, in your computations, to confirm your hypothesis.
+
+
+
+%\subsection{Gaze orientation in biology}
+
+
+
+%\subsection{Active vision and active inference}	
+
+
+
+
+%The active inference approach relies on a longstanding history of probabilistic modelling in signal processing and control (\cite{Kalman1960,Baum1966,friston1994statistical}).  Put formally, the physical world  takes the form of a generative process $p$ that is the cause of the sensory stream. This process is not visible in itself but is only sensed through a (non reliable) measure process that provides an observation vector $x$. The inference problem consists in estimating the underlying causes of the observation, that rests on a latent state vector $z$ and a control $u$.  Then, the evolution of $x$ relies on both $u$ and $z$ in the form of a stochastic dynamical system undergoing an external forcing command $u$, i.e. :
+%\begin{align}
+%\dot{z} &= A(z) + B(u) + \text{process noise}\label{eq:kalman-process}\\
+%x &= C(z) + D(u) + \text{measurement noise} \label{eq:kalman-measure}
+%\end{align}  
+%where $A$, $B$, $C$ and $D$ constitute a generative model $p(x,u,z,\dot{z})$ that explicits the dependencies between $u$, $x$ and $z$. % \footnote{We note for simplicity $p(x,u,z)$ in the following, with each variable counting for its state vector and possible higher moments.}. 
+%The calculation of $\dot{z}$ from $z$ and $u$ and the calculation of $z$ from $u$ and $x$ rely on a model $p = \{A,B,C,D,\text{noise models}\}$. The model can then be inverted in order to compensate for the drift of the state estimate \cite{Kalman1960,Baum1966}. The more accurate the model, the better this estimation. 
+
+\section{Active inference}
+
+
+\subsection{Perception-driven control}
+
+The active inference relies on a longstanding history of probabilistic modelling in signal processing and control (see \cite{Kalman1960,Baum1966,friston1994statistical}). 
+
+
+\subsubsection{Feedback control framework}
+A feedback control framework is composed of an actor and an environment. The actor and the environment interact according to a feedback loop. 
+The actor can act on the environment through its actuators, and sense the state of the environment through its sensors. 
+The state of the environment as well as the state of the agent can change over time. The state of the environment is described by a state vector $\boldsymbol{z} \in \mathcal{Z}$.
+The state $\boldsymbol{z}$ in which the physical system is found at present depend both on its initial state $\boldsymbol{z}_0$ and on a control $\boldsymbol{u}$ that has been sent from the agent toward the environment through its effectors.  The transition from $\boldsymbol{z}_0$ to $\boldsymbol{z}$ is reflected in a \emph{transition function} that embodies the deterministic and non-deterministic effects of the control $\boldsymbol{u}$ in a conditional probability distribution:  
+\begin{align}
+\boldsymbol{z} \sim P(Z|\boldsymbol{u},\boldsymbol{z}_0) \label{eq:process}
+\end{align}
+implemented with a probability density function $p_\text{transition}(\boldsymbol{z}|\boldsymbol{u},\boldsymbol{z}_0)$.
+
+The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory stream}. It is interpreted as an effect of the current external state $\boldsymbol{z}$ and current control $\boldsymbol{u}$ on the sensors. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
+\begin{align}
+\boldsymbol{x} \sim P(X|\boldsymbol{z},\boldsymbol{u})\label{eq:measure}
+\end{align}
+implemented with a probability density function $p_\text{measure}(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})$.
+The combination of  (\ref{eq:process}) and (\ref{eq:measure}) is said a \emph{generative process} that is the cause of the sensory stream. 
+
+%{\color{magenta} probabilistic framework : the changes that take place in the physical world described by  = model.}
+%Given an initial state $\boldsymbol{z}_0$, the next state $\boldsymbol{z}$ rests on the conditional distribution   and the 
+
+
+\subsubsection{Active inference}
+When both the transition and measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory stream $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the effector's control $\boldsymbol{u}$ using Bayes rule:
+\begin{align}
+P(Z|X,\boldsymbol{u},\boldsymbol{z}_0) &= \frac{P(X,Z|\boldsymbol{u},\boldsymbol{z}_0)}{P(X|\boldsymbol{u},\boldsymbol{z}_0)}\nonumber\\
+&= \frac{P(X|Z,\boldsymbol{u}) P(Z|\boldsymbol{u},\boldsymbol{z}_0)}{\sum_{\boldsymbol{z}'}P(X|\boldsymbol{z}',\boldsymbol{u}) P(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post}
+\end{align}
+where $P(Z|X,\boldsymbol{u},\boldsymbol{z}_0)$ is the \emph{posterior} probability (a distribution over the latent states) whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. The inference of the latent state through model inversion is called \emph{filtering} for it serves to refine the actual state estimate from past observations when the measure process is corrupted by noise \cite{Kalman1960}.
+
+Suppose now the objective is to precisely estimate this environmental state from the sensory flow. %The accuracy of the inference first depends on the accuracy of the model. 
+Depending on $\boldsymbol{u}$, different $\boldsymbol{x}$'s are observed at the sensors. So, each different control $\boldsymbol{u}$ provokes a different observation, and thus a different 
+estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
+
+Considering that the effect of the action $\boldsymbol{u}$ on the next observation $\boldsymbol{x}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize information regarding the environment's state. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
+
+A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
+More elaborate strategies considers the past estimate $\boldsymbol{z}_0$ to choose the best action $\boldsymbol{u}$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\boldsymbol{z}_0$, sets up an action $\boldsymbol{u} = C(\boldsymbol{z}_0)$. The role of that controller is not to achieve a certain task, but only to render the estimation of the outer state more accurate. The controller is said \emph{perception-driven}. 
+
+The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance).
+
+{\color{magenta} la stratégie générale consiste à définir une fonction objectif permettant d'estimer la qualité du contrôle effectué selon un critère de précision de l'estimation d'état}.
+Several candidates are developed and commented in the following sections.
+
+
+{\color{blue} The perception-driven control objective is defined for any kind of effector and any kind of motor control.} An important special case is however when the motor command only relates to \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor (with detailed effector response function considered  hardware-implemented).  
+Under that perspective, the effector acts on the sensors position and orientation so as to setup a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to have an effect on the latent state $\boldsymbol{z}$}, i.e.
+\begin{align}
+P(Z|\boldsymbol{u},\boldsymbol{z}_0) = P(Z|\boldsymbol{z}_0)
+\end{align} 
+so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
+
+
+
+ 
+%This typically the case in the active vision/active perception perspective {\color{blue} proposed in robotic literature under different acceptances}. 
+
+\subsubsection{Active vision}
+
+{\color{magenta} Revue de litterature}
+
+\paragraph{Multi-view image processing}
+
+The question of active perception has been addressed for long time in robotics vision. It considers the problem of selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. The opportunity to neglect large parts of the visual stream comes from the important redundancy present in the visual data itself, with critical or useful information only present in limited parts of it.
+
+Changing view can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
+A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
+\begin{quote}
+\emph{The problem  of Active Sensing can be stated as a problem of controlling strategies 
+applied to the data acquisition process which will depend on the current state 
+of the data interpretation and  the  goal  or the  task of  the  process.}
+\end{quote}
+thus providing a roadmap for the development of active artificial vision systems.
+
+Selecting 
+ 
+multi-view image-processing
+
+The active vision literature considers the case of 
+
+
+
+
+ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,potthast2016active}.
+
+
+
+{ different strategies can be adopted to refine the inference accuracy. One way to refine the posterior estimate is to **actively sample** the environment. This is called active inference.} 
+	
+
+%The role of the control $\boldsymbol{u}$ is not detailed in that setting. It is clear from eq.~(\ref{eq:post}) that changing the  control $\boldsymbol{u}$ has an effect on the posterior estimate: some controls may not contribute much to the accuracy of the posterior estimate while other may provide valuable information about the external state and refine the posterior estimate. It is equally likely that sampling several controls $\boldsymbol{u}$, $\boldsymbol{u}$', $\boldsymbol{u}$''... from the control space $\mathcal{U}$ should allow to refine the latent state estimation in proportion to the number of controls carried out.
+%{\color{magenta} ACTIVE INFERENCE : in the general case, **any** choice of u allows to actively sample the posterior domain. It can be random. active inference aims a finding an optimal (minimal) sequence of actions that should render the outer state estimate more accurate. }
+
+%The generative model being given,  The choice of $\boldsymbol{u}$ is generally driven by the constraint of fulfilling a certain \emph{objective}.
+%In classical optimal feedback control, the objective is to provide an action for reaching a set point $\boldsymbol{z}^*$.  
+
+
+\paragraph{Foveated vision}
+
+
+
+\subsection{Predictive coding and Friston's active inference}
+
+The active inference paradigm was introduced in neuroscience through the work of ~\cite{friston2010free,friston2012perceptions}. % 
+The general setup proposed by Friston and colleagues is that of a general tendency of the brain to counteract surprising and unpredictable sensory events through building generative models that improve their predictions over time and render the world more amenable. This improvement is mainly done through sampling the environment and extracting statistical invariants that are used in return to predict upcoming events.
+Building a model thus rests on extracting a repertoire of invariants and organizing them so as to process the incoming sensory data efficiently through predictive coding (see \cite{rao1999predictive}). This proposition, gathered under the ``Variational Free Energy Minimization'' umbrella, is reminiscent of the auto-encoding theory proposed by \cite{hinton1994autoencoders}, but introduces a new perspective on coding
+for \emph{it formally links dictionary construction from data and (optimal) motor control}.
+In particular, motor control is here considered as a particular implementation of a \emph{sampling process}, that is at the core of the estimation of a complex posterior distribution. 
+
+
+The objective highlighted by \cite{friston2012perceptions} is to output a control $u$ so as to maximize the accuracy of inference estimate (\ref{eq:post}) through minimizing the Free Energy criterion (upper bound of the negative log evidence) over the actions set $\mathcal{U}$. 
+
+
+TODO
+
+The Free Energy minimization perspective consists in optimizing . Namely, when  an agent is expected to choose an action, it will choose the one whose effect should be the less surprising (that brings the most predictible outcome). 
+
+
+%Instead of choosing $\boldsymbol{u}$ at random, the general objective of an \emph{active inference} framework is to choose $\boldsymbol{u}$ in a way that should minimize \emph{at best} the current uncertainty about $\boldsymbol{z}$. This prediction should 
+
+%The choice of $u$ should rest on a generative model $P(X,Z,U)$ that provides a detailed account of the interactions between three random variables $X$, $Z$ and $U$, respectively representing the sensory field, the latent code and the action. 
+
+
+
+%with:
+%\begin{align}
+%q(\boldsymbol{z})|_{\boldsymbol{u},\boldsymbol{z}_0} &= \int P(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u},\boldsymbol{z}_0)P(\boldsymbol{x}) d\boldsymbol{x}
+%\end{align}
+
+
+%The knowledge about $\boldsymbol{z}$ can be reflected in a posterior distribution $\rho(\boldsymbol{z})$. The better the knowledge (precision) about a sensory scene, the lower the \emph{entropy} of $\rho$, with:
+%\begin{equation}
+%H(\rho) = E_{\boldsymbol{z}\sim \rho}[- \log \rho(\boldsymbol{z})]\label{eq:entropy}
+%\end{equation}
+
+
+\subsection{Viewpoint selection under the efficient coding perspective}
+
+A simple objective, however, would be the capability to accurately predict the {\color{blue} visual field}. 
+
+In a probabilistic setup, for any $\boldsymbol{u}$, the accuracy of $\boldsymbol{z}$ is measured by the likelihood $p_\text{measure}(\boldsymbol{x}_u|\boldsymbol{z}, \boldsymbol{u})$, where $\boldsymbol{x}_u$ is the view obtained at {\color{blue} viewpoint} $\boldsymbol{u}$. The better the $\boldsymbol{z}$, the higher the likelihood.
+An opposite measure, called the ``surprise'', is $-\log p_\text{measure}(\boldsymbol{x}_u|\boldsymbol{z}, \boldsymbol{u})$. 
+Here, the better the $\boldsymbol{z}$, the lower the surprise caused by sensing the {\color{blue} visual field} $\boldsymbol{x}_u$ at {\color{blue} viewpoint} $\boldsymbol{u}$.
+
+
+Let now $q(.)$ be a certain distribution over the $\boldsymbol{z}$'s (representing the current guess about the state of the external world). This distribution can be said effective if, for any given $\boldsymbol{u}$, the observation $\boldsymbol{x}_u$ maximizes the average likelihood, or, equivalently, minimizes the average surprise, i.e.:
+\begin{align}
+H(\boldsymbol{x}_u| \boldsymbol{u})=-\sum_{\boldsymbol{z}\in\mathcal{Z}}\log p_\text{measure}(\boldsymbol{x}_u|\boldsymbol{z}, \boldsymbol{u}) q(\boldsymbol{z})
+\end{align}  
+This quantity is also called the ``description length'' \cite{hinton1994autoencoders} carried out by $\boldsymbol{x}_u$, given the data model (encoding) $q(.)$.
+
+{\color{magenta} TODO : A reprendre}
+
+The relation with the efficient coding perspective \cite{hinton1994autoencoders} is however not straightforward. 
+In a first place, one need to consider a set of viewpoints over a scene, with a sensory scene $\bar{\boldsymbol{x}}$ made of all the views that are attainable through the different viewpoints $u \in \mathcal{U}$, i.e. $$\bar{\boldsymbol{x}} = \{\boldsymbol{x}_u\}_{u\in \mathcal{U}}$$
+(each $\boldsymbol{x}_u$ can be seen as a "chunk" of a global scene $\bar{\boldsymbol{x}}$)
+Then the efficient coding perspective interprets the latent state $z$ as a code that allows to reconstruct the scene through a generative model $P(\bar{X}, Z) = P(\{X_u\}_{u \in \mathcal{U}}, Z)$. If $\bar{\boldsymbol{x}}$ is an instance of a scene, the objective is to minimize its \emph{description length}:
+
+\begin{align}
+-\log p(\bar{\boldsymbol{x}}) 
+&= -\log \sum_{z \in \mathcal{Z}} p(\bar{\boldsymbol{x}}, z)\nonumber\\
+&= -\log \sum_{z \in \mathcal{Z}} \frac{p(\bar{\boldsymbol{x}}, z)}{q(z)}q(z)\nonumber\\
+&\leq  -\sum_{z \in \mathcal{Z}} q(z) \log\frac{p(z|\bar{\boldsymbol{x}})p(\bar{\boldsymbol{x}})}{q(z)}\nonumber\\
+%&= -E_{z\sim q} \left[\log p(\bar{\boldsymbol{x}}| z))\right] 
+%+KL(q||p(.)) \nonumber
+&= -E_{z\sim q} \left[ \log p(\bar{\boldsymbol{x}})\right]
++ \text{KL} (q||p(.|\bar{\boldsymbol{x}}))\label{eq:coding}
+\end{align}
+
+with $q$ an arbitrary distribution over the $z$'s (latent states) that needs to be optimized. The objective is divided in two terms. The first term represents data reconstruction accuracy when $z$ is assumed to be distributed according to $q$. The second term is the Kullback-Leibler divergence between $q$ and the assumed posterior $p(.|\bar{\boldsymbol{x}})$. In the full information case (when $\bar{\boldsymbol{x}}$ is all disclosed), and with $p$ belonging to the exponential family, the objectives are both derivable and $p$'s parameters and $q$ can be optimized alternatively using the Expectation/Maximization procedure \cite{Dempster1977}. 
+
+In the case we consider, a view $\boldsymbol{x}_u \subset \bar{\boldsymbol{x}}$ corresponds to a small part of the total scene $\bar{\boldsymbol{x}}$. For each different viewpoint $u$, a  generative model $P(X_u, Z)$ provides the viewpoint-specific generative  distribution. When $u$ is known, then observing $\boldsymbol{x}_u$ provides an estimate of the posterior using the viewpoint specific generative model, noted: 
+$$q_u(z) = p(z|\boldsymbol{x}_u)$$
+
+In the active perception case, minimizing the full scene description length rests on finding a viewpoint $u$  that minimizes the objective (\ref{eq:coding}). Changing viewpoint means principally changing the posterior estimate $q_u(z)$. The optimization of $q$ is expected here to rest on the KL divergence between the viewpoint posterior and the full scene posterior, i.e:
+$$\min_u \text{KL} (q_u||p(.|\bar{\boldsymbol{x}}))$$ 
+
+If we now consider that each view provides \emph{independent} information about the latent code, i.e.  $$p(z|\bar{\boldsymbol{x}}) = \prod_{u'\in \mathcal{U}} q_{u'}(z|\boldsymbol{x}_{u'}) /K$$ 
+with $K$ a normalization term. Then it is easy to show that:
+\begin{align}
+\text{KL}(q_u||p(.|\bar{\boldsymbol{x}})) 
+&= \log K - \sum_{u' \neq u} \sum_{z \in \mathcal{Z}} q_u(z|\boldsymbol{x}_u) \log q_{u'}(z|\boldsymbol{x}_{u'})\nonumber\\
+&= \log K + \sum_{u' \neq u} H(q_u, q_{u'})
+\end{align}
+So that the optimal viewpoint is the one that minimizes the cross-entropy error over all the other viewpoint-related posteriors. 
+Then, noting that $H(q_u, q_{u'}) = H(q_u) + \text{KL}(q_u||q_{u'})$ , the objective can be separated in two terms, namely:
+$$\sum_{u' \neq u} H(q_u, q_{u'}) = (N - 1) H(q_u) + \sum_{u' \neq u} \text{KL}(q_u||q_{u'})$$
+with $N$ the number of viewpoints in $\mathcal{U}$.
+This allows to separate the objective in an absolute objective (the posterior entropy needs to be low) and a relative objective (the Kullback-Leiber divergence with the other view-specific posteriors needs to be low).
+
+It is proposed in \cite{friston2012perceptions} that minimizing the entropy of the posterior through action can be linked to minimizing the variational Free Energy attached to the sensory scene. 
+%$ P(z|u,y) \propto P(y|z,u) \pi(z)$. 
+%One needs thus to choose $u$ appropriately in order to reduce the uncertainty about $z$, given the actual $y$, i.e minimize the entropy :
+%$u^* = \underset{u \in \mathcal{U}}{\text{argmin }} H$ with $H = E(-\log P(z|u,y))$.
+The control $\boldsymbol{u}$ is thus expected to reduce at best the entropy of $\rho$ at each step. This optimal $\boldsymbol{u}$ is not known in advance, because $\boldsymbol{x}$ is only read \emph{after} $\boldsymbol{u}$ has been carried out. Then comes the predictive framework that identifies the effect of $\boldsymbol{u}$ with its most probable outcome, according to the generative model.
+
+Minimizing the posterior entropy through viewpoint selection is consistent with the Infomax perspective in visual search control \cite{najemnik2005optimal,butko2010infomax}.
+
+
+
+so that the forthcoming entropy expectation is:
+\begin{align}
+E_{X}\left[H(\rho)|_{X, \boldsymbol{u}, \boldsymbol{z}_0}\right] &=  E_{X}\left[E_{Z}\left[-\log  P(Z|X,\boldsymbol{u},\boldsymbol{z}_0)\right]\right]
+\end{align}
+and the optimal $\boldsymbol{u}$ is:
+\begin{align}
+\hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{argmin }} E_{X}\left[H(\rho)|_{X, \boldsymbol{u}, \boldsymbol{z}_0}\right]
+\end{align}
+
+\subsection{}
+
+Only the first objective is considered in most 
+
+%The KL term is a regularizer that tends to maintain $q$ close to the prior distribution (generally )
+%. The prior being  is at odd with the posterior entropy minimization (Infomax) objective postulated by \cite{friston2012perceptions}. 
+
+this posterior entropy minimization intuition is  not consistent with the efficient coding perspective when Free Energy minimization objective that considers minimizing an upper bound of the evidence.
+Consider first
+An effective viewpoint $u$ is a one that minimizes the description length of the corresponding observation $\boldsymbol{x}_u$ attached to that viewpoint, i.e. 
+$$\min_u \log p(\boldsymbol{x}_u|u)$$
+Let us consider that each viewpoint $u$ provides an observation $\boldsymbol{x}_u$ that is generated through $p(.|u)$. Then, extending the method of \cite{hinton1994autoencoders, kingma2013auto} to a set of conditional distributions over $u$ gives:
+
+
+
+
+In order to reconcile both views, one needs to take a step back and consider a different objective that is optimizing the encoding of a \emph{scene} rather than the encoding of a view. Consider 
+  
+%Stepping back from the auto-encoding theory \cite{hinton1994autoencoders}, we develop here a more detailed account of variational Free Energy minimization in the active perception case. 
+
+%The auto-encoding theory considers the observation $\boldsymbol{x}$ as a message that needs to be encoded in 
+ 
+TODO 
+ 
+If we take a step back, 
+
+In practice, the analytic calculations are out of reach (in particular for predicting the next distribution of $\boldsymbol{x}$'s).  One thus need to consider an \emph{estimate} $\tilde{\boldsymbol{u}} \simeq \hat{\boldsymbol{u}}$ that should rely on sampling from the generative process to 
+predict the effect of $\boldsymbol{u}$ through Monte Carlo sampling,  i.e. 
+\begin{align} \tilde{\boldsymbol{u}} = \underset{\boldsymbol{u}}{\text{argmin}} \frac{1}{N} \sum_{\substack{i = 1..N\\ \boldsymbol{x}^{(i)} \sim P(X|\boldsymbol{u}, \boldsymbol{z}_0)\\ \boldsymbol{z}^{(i)} \sim P(Z|\boldsymbol{x}^{(i)}, \boldsymbol{u}, \boldsymbol{z}_0)}} -\log P(\boldsymbol{z}^{(i)}| \boldsymbol{x}^{(i)}, \boldsymbol{u}, \boldsymbol{z}_0) \label{eq:MC} \end{align} or on an even sharper direct estimation through maximum likelihood estimates (point estimate):
+\begin{align}
+&\tilde{\boldsymbol{x}}_{\boldsymbol{u}} = \underset{\boldsymbol{x}}{\text{argmax }} P(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z}_0) \label{eq:step-1}\\	
+&\tilde{\boldsymbol{z}}_{\boldsymbol{u}} = \underset{\boldsymbol{z}}{\text{argmax }} P(\boldsymbol{z}|\tilde{\boldsymbol{x}}_{\boldsymbol{u}}, \boldsymbol{u}, \boldsymbol{z}_0) \label{eq:step-2}\\
+&\tilde{\boldsymbol{u}} = \underset{\boldsymbol{u}}{\text{argmin }} - \log P(\tilde{\boldsymbol{z}}_{\boldsymbol{u}}|\tilde{\boldsymbol{x}}_{\boldsymbol{u}}, \boldsymbol{u}, \boldsymbol{z}_0)	\label{eq:step-3}
+\end{align}
+
+
+This operation can be repeated in a sequence, where the actual control $\boldsymbol{u} = \tilde{\boldsymbol{u}}$ is followed by reading the actual observation $\boldsymbol{x}$, which in turn allows to update the actual posterior distribution over the $\boldsymbol{z}$'s. This updated posterior becomes the prior of the next decision step, i.e. $\boldsymbol{z}_1\sim  P(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{z}_0)$ so that a new control $\boldsymbol{u}_1$ can be carried out, etc. 
+
+If we denote $T$ the final step of the process,  with $\boldsymbol{u}_{0:T-1}$ the actual sequence of controls and $\boldsymbol{x}_{1:T}$ the actual sequence of observations, the final posterior estimate becomes $P(Z_{1:T}|\boldsymbol{x}_{1:T}, \boldsymbol{u}_{0:T-1}, \boldsymbol{z}_0)$, which complies with a Partially Observed Markov Decision Process (POMDP) estimation (see fig.~\ref{fig:graphical}), whose policy would have been defined by the entropy minimization principles defined above, precisely to facilitate the estimation process. The active inference framework thus appears  as a \emph{scene understanding oriented policy} (it has no other purpose than facilitate estimation).
+
+\begin{figure}[t!]
+	\centerline{
+		\includegraphics[width = \linewidth]{img/ICLR-graphical-v2.png} 
+	}
+	\caption{Generative model (see text)}\label{fig:graphical}
+\end{figure}
+
+%If we now turn back to the active vision analogy, $q(z_t)$ is the current assumption about the visual scene under exploration, which is used as a context ("I'm in a park with many squirrels around" --~$z_t$~--) to form a prediction ("If I look up, ..." --~$u_t$~-- "I may see a squirrel" --~$\tilde{x}_{t+1}$~--~) which would reduce the entropy of the posterior $q(z_{t+1})$ for it would reduce the uncertainty about the constituents of the scene.  This incites me to look up (rather than looking down the grass) so that I can effectively process $x_{t+1}$, which may result in improving (or not) the entropy of the posterior depending on whether my prediction was correct or not. I may then look to other places up around to precisely locate squirrels, but I probably don't need to inspect the grass or the lake for the same purpose, so I can currently avoid spending time looking there.   
+
+\subsection{Active vision}
+The logic behind active vision is that of an external visual scene $\mathcal{X}$ that is never disclosed in full, but only sensed under a particular view $\boldsymbol{x}$ under sensor orientation $\boldsymbol{u}$ (like it is the case in foveated vision). 
+%We moreover consider an organization of the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. The objects may be described by their identity $o$ and position in space $s$, but for simplicity $o$ and $s$ are here reduced to a single variable $z = (o, s)$. 
+Knowing that $\boldsymbol{z}$ is invariant to changing the sensor position $\boldsymbol{u}$, uncovering $\boldsymbol{z}$ should rest on
+collecting sensory patches $\boldsymbol{x}$'s through changing $\boldsymbol{u}$ (sensor orientation) across time in order to refine $\boldsymbol{z}$'s estimation. 
+Considering now that a certain prior $\rho_0
+(\boldsymbol{z})$ has been formed about $\boldsymbol{z}$, choosing  $\boldsymbol{u}$ conducts the sight in a region of the visual scene that provides $\boldsymbol{x}$, which in turn allows to refine the estimation of $\boldsymbol{z}$.
+Each saccade should consolidate a running assumption about the latent state $\boldsymbol{z}$, that may be retained and propagated from step to step, until enough evidence is gathered.
+
+The active vision framework allows many relieving simplification from the general POMDP estimation framework, first in considering that changing $\boldsymbol{u}$ has no effect on the scene constituents, i.e. $P(Z_{t+1}|\boldsymbol{u},\boldsymbol{z}_t) = P(Z_{t+1}|\boldsymbol{z}_t)$. Then, using the \emph{static} assumption, that considers that no significant change should take place in the scene during a saccadic exploration process, i.e. $\forall t, t', \boldsymbol{z}_{t} = \boldsymbol{z}_{t'} = \boldsymbol{z}$. This finally entails a simplified chaining of the posterior estimation:
+\begin{align}
+P(Z|\boldsymbol{x}_{1:t+1},\boldsymbol{u}_{0:t},\boldsymbol{z}_0) &= \frac{P(\boldsymbol{x}_{t+1}|Z,\boldsymbol{u}_t) P(Z|\boldsymbol{x}_{1:t}, \boldsymbol{u}_{0:t-1}, \boldsymbol{z}_0)}{\sum_{\boldsymbol{z}'}P(\boldsymbol{x}_{t+1}|\boldsymbol{z}',\boldsymbol{u}_t) P(\boldsymbol{z}'|\boldsymbol{x}_{1:t}, \boldsymbol{u}_{0:t-1}, \boldsymbol{z}_0)}
+\end{align}
+issuing a final estimate $P(Z|\boldsymbol{x}_{1:T}, \boldsymbol{u}_{0:T-1}, \boldsymbol{z}_0)$.  
+
+
+%{\color{blue} Put in a sequential setup :
+%	\begin{align*}
+%	&\tilde{u}_{1:T} = \underset{u_{1:T}}{\text{argmin }} - \log p(z^\text{max}_{1:T}|x^\text{max}_{1:T}, u_{1:T}, z_0)	\\
+%	&z^\text{max}_{1:T} = \underset{z_{1:T}}{\text{argmax }} p(z_{1:T}|x^\text{max}_{1:T}, u_{1:T}, z_0)\\
+%	&x^\text{max}_{1:T} = \underset{x_{1:T}}{\text{argmax }} p(x_{1:T}|u_{1:T},z_0)
+%	\end{align*}
+%	}
+
+\paragraph{Interpretation}
+
+The active inference framework, that is rooted on the auto-encoding theory (Free Energy minimization) and predictive coding, provides a clear roadmap toward an effective implementation in artificial devices. It should rely on three elements, namely:
+\begin{itemize}
+	\item a \emph{generative model} $p$ that should predict the next view $\boldsymbol{x}$ under the current guess $\boldsymbol{z}_0$ and viewpoint $\boldsymbol{u}$, 
+	$$p(.|\boldsymbol{u}, \boldsymbol{z}_0) \simeq \sum_{\boldsymbol{z}'}P(X|\boldsymbol{z}',\boldsymbol{u}) P(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0) $$
+	\item an \emph{inference model} $q$ that should predict the next posterior $\boldsymbol{z}$ under putative view $\tilde{\boldsymbol{x}}$ and viewpoint $\boldsymbol{u}$, i.e.
+	$$q(.|\tilde{\boldsymbol{x}}, \boldsymbol{u},\boldsymbol{z}_0) \simeq  P(Z|\tilde{\boldsymbol{x}}, \boldsymbol{u},\boldsymbol{z}_0) \text{\hspace{.2cm}---~see eq.~(\ref{eq:post})~---}$$  %\sum_{\boldsymbol{z}_0'} P(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{z}_0')  P(\boldsymbol{z}_0')$$
+	(with the link dynamics $P(Z|\boldsymbol{u},\boldsymbol{z}_0)$ implicitly embedded in both the generative and inference models in the general case),
+	\item and a policy $\pi$ that should use a ``two-steps ahead'' prediction  (next view prediction first and then inference on predicted view) to issue an optimal control $\boldsymbol{u}$ according to either eq.~(\ref{eq:MC}) or eqs.~(\ref{eq:step-1}--\ref{eq:step-3})
+\end{itemize}  
+%The graphical model shown in figure \ref{fig:graphical} entails a generative 
+%and an inference 
+%networks .
+%Those networks should be learned aside in an unsupervised way using auto-encoding architectures, for giving support to the scene exploration policy  to issue a control. 
+
+%It must be noticed that the generative model (eqs \ref{eq:step-1}-\ref{eq:step-2}) stems from the present $z_t$ and present $u_t$ while the inference model (2) heads toward the future $z_{t+1}$.  In the case of active vision however, we assume that $z_t = z_{t+1}$ (steady-state assumption~--~see previous section) so that the generative and inference models may be learned over the same encoding. The upper arrow represents the fact that the memory of the previous state participates in the present state estimate, and the dashed arrow represents the control policy, that is not inferred but optimized from two steps ahead predictions.
+
+Under the computer vision perspective, and considering $\boldsymbol{z} = \boldsymbol{z}_0$ (static scene assumption), each different $\boldsymbol{u}$ corresponds to a different viewpoint over a static image, with a set of generative
+$ \left\{p_{\boldsymbol{u}}(.|\boldsymbol{z})\right\}_{\boldsymbol{u}\in\mathcal{U}}$
+and inference
+$ \left\{q_{\boldsymbol{u}}(.|\boldsymbol{x})\right\}_{\boldsymbol{u}\in\mathcal{U}}$ 
+%(with $\boldsymbol{z}$ equal to $\boldsymbol{z}_0$), 
+models learned systematically for each different viewpoint $\boldsymbol{u}$. Those place-specific weak classifiers contrast with the place-invariant low-level filters used in traditional image processing (see \cite{viola2003fast}) and/or with the first layer of convolution filters used in convolutional neural networks. %Under that perspective, choosing $\boldsymbol{u}$ (or choosing a subset of $\boldsymbol{u}$'s) corresponds to choosing the set of coordinates at which the filter is applied, with each image patch obtained from a particular coordinate corresponding to a "viewpoint" over the whole image (like looking in a keyhole). 
+
+%{\color{blue} The active inference perspective also addresses important aspects of representation learning, for the scene encoding $\boldsymbol{z}$ is learned as an invariant over many viewpoints.  The structure of the coding scheme imposes $\boldsymbol{z}$ not to vary across views (over the same scene). Following the   perspective proposed in \cite{bengio2017independently}, one may consider a dual encoding of a view $\boldsymbol{x}$ in $\boldsymbol{u}$ and $\boldsymbol{z}$, with $\boldsymbol{z}$ accounting for the view-independent scene information and $\boldsymbol{u}$ accounting for the viewpoint information. In our case the viewpoint information is fully disclosed (as it belongs to the control parameters), while the scene identity is not. This separation of the encoding in two components is only viable if there is a cross-talk between components, i.e. if $\boldsymbol{u}$ %informs $\boldsymbol{z}$ about the position at which $\boldsymbol{x}$ is seen acts as a side variable over the generator and the discriminator, i.e. $\boldsymbol{u}, \boldsymbol{z} \rightarrow \boldsymbol{x}$ (generation) and $\boldsymbol{u}, \boldsymbol{x} \rightarrow \boldsymbol{z}$ (inference). }
+
+
+
+
+\section{Implementation}
+
+\subsection{Algorithms}
+
+As a preliminary step here, we suppose the predictive and generative models are trained apart for we  
+%The discriminator and the generator are trained separately in a supervised fashion so that we 
+can evaluate the properties of the control policy solely.  This \emph{model-based} approach to sequential view selection is provided in algorithms \ref{algo:saccade-policy} and \ref{algo:saccade}. 
+
+\begin{itemize}
+	\item A significant algorithmic add-on when compared with formulas (\ref{eq:step-1}--\ref{eq:step-3}) is the use of a \emph{dynamic actions set} : $\mathcal{U}$. At each turn, the new selected action $\tilde{u}$ is drawn off from $\mathcal{U}$, so that the next choice is made over fresh directions that have not yet been explored. This implements the inhibition of return principle stated in \cite{itti2001computational}.
+	\item A second algorithmic aspect is the use of a threshold $H_\text{ref}$ to stop the evidence accumulation process when enough evidence has been gathered. This threshold is a free parameter of the algorithm that sets whether we privilege a conservative (tight) or optimistic (loose) threshold. The stopping criterion needs to be optimized to arbitrate between resource saving and coding accuracy. 
+	%is to carefully evaluate the kind of exploratory behavior provided by those principles, and see how they compare with existing active vision algorithms. In practice
+\end{itemize}
+
+
+
+%{\color{blue}First of all, the many computer vision algorithms used to detect objects in a scene are based on highly engineered filters of low-level feature and shape extraction plus highly parallelized application of those filters over the whole image at different scales... }
+
+\subsection{Fovea-based model}
+
+In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
+
+\begin{algorithm}[t!]
+	\caption{Prediction-Based Policy}\label{algo:saccade-policy}
+	\begin{algorithmic}
+		\REQUIRE  $p$ (generator), $q$ (inference), $\rho$ (prior), $\mathcal{U}$ (actions set)
+		\STATE predict $z \sim \rho$
+		\STATE $\forall u \in \mathcal{U}$, generate $\tilde{\boldsymbol{x}}_u \sim p(\boldsymbol{x}|z,u)$
+%		\RETURN $\tilde{u} = \underset{u \in \mathcal{U}}{\text{argmax }} q(z|\tilde{\boldsymbol{x}}_u,u)$
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+	\caption{Scene Exploration}\label{algo:saccade}
+	\begin{algorithmic}
+		\REQUIRE  $p$ (generator), $q$ (inference), $\rho_0$ (initial prior), $\mathcal{U}$ (actions set)
+		\STATE $\rho \leftarrow \rho_0$ 
+		\WHILE {$H(\rho) > H_\text{ref}$}
+		\STATE choose: $\tilde{u} \leftarrow \text{Prediction-Based Policy}(p, q, \rho, \mathcal{U})$
+		\STATE read: $\boldsymbol{x}_{\tilde{u}}$
+		\STATE update: $\forall z, \text{odd}[z] \leftarrow \log q(z|\boldsymbol{x}_{\tilde{u}},\tilde{u}) + \log \rho(z)$ 
+		\STATE $\rho \leftarrow \text{softmax} (\text{odd})$ \COMMENT{\emph{the posterior becomes the prior of the next turn}}
+		\STATE $\mathcal{U} \leftarrow \mathcal{U} \setminus \{\tilde{u}\}$ 
+		\ENDWHILE
+%		\RETURN $\rho$
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[b!]
+	\centerline{
+		\includegraphics[width = \linewidth]{img/ICLR-foveated-model.png} 
+	}
+	\centerline{
+		\hspace{2cm}
+		\textbf{a}
+		\hspace{4cm}
+		\textbf{b}	
+		\hspace{3cm}
+		\textbf{c}
+		\hspace{3cm}
+		\textbf{d}
+		\hspace{2cm}			
+	}
+	\caption{Foveated image construction.}\label{fig:foveated}
+\end{figure}
+
+The baseline vision model we propose relies first on learning local foveated views on images.
+%The essential property of foveated images is that they retain high spatial frequency information at the center and keep only low-frequency information at the periphery.  %Foveated image decomposition is rarely proposed in literature for machine learning purposes, at the exception of Simoncelli's group that has developed a framework to process centrally-magnified images in a bio-realistic fashion (see \cite{freeman2011metamers} and \cite{Deza2016piranhas}). 
+Consistently with \cite{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $u$ as a set of 3 coordinates $(i,j,h)$, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $u$ may correspond to a visual field made of three of wavelet coefficients $\boldsymbol{x}_{i,j,h} \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j} \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (as opposed to 784 pixels in the original image).
+Fig. \ref{fig:foveated}d displays a reconstructed image from the 4 central viewpoints at coordinates (7, 7), (7, 8) (8, 7) and (8, 8).
+
+A weak generative model is learned for each $u = (i,j,h)$ (making a total of 266 weak models) over 55,000 examples of the MNIST database. For each category $z$ and each gaze orientation $u$, a generative model is built over parameter set $\Theta_{z,u} = (\rho_{z,u}, \boldsymbol{\mu}_{z,u}, \boldsymbol{\Sigma}_{z,u})$, so that $\forall z,u, \tilde{\boldsymbol{x}}_{z,u} \sim \mathcal{B}(\rho_{z,u}) \times \mathcal{N}(\boldsymbol{\mu}_{z,u}, \boldsymbol{\Sigma}_{z,u})$ with $\mathcal{B}$ a Bernouilli distribution and $\mathcal{N}$ a multivariate Gaussian. The Bernouilli reports the case where the coefficient triplet is null in the considered portion of the image (which is quite common in the periphery of the image), which results in discarding the corresponding triplet from the Gaussian moments calculation. Each resulting weak generative model $p(X|z,u)$ is a mixture of Bernouilli-gated Gaussians over the 10 MNIST labels. For the inference model, a posterior can here be calculated explicitly using Bayes rule, i.e. $q(Z|\boldsymbol{x},u) = \text{softmax} \log p(\boldsymbol{x}|Z,u)$.
+
+The saccade exploration algorithm is an adaptation of algorithm \ref{algo:saccade}. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is calculated on the basis of the final coordinates $(i,j) \in [0,..,15]^2$, so that the posterior calculation is based on several coefficient triplets. After selecting $(i,j)$, all the corresponding coordinates $(h,i,j)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
+
+\begin{figure}[b!]
+	\centerline{
+		%\includegraphics[width = .7\linewidth]{img/ICLR-foveated-saccades.png} 
+		\includegraphics[width = .2\linewidth]{img/saccade-3-full-traj.png} 
+		\includegraphics[width = .2\linewidth]{img/saccade-3-step-1.png} 
+		\includegraphics[width = .2\linewidth]{img/saccade-3-step-2.png} 
+		\includegraphics[width = .2\linewidth]{img/saccade-3-step-3.png} 
+		\includegraphics[width = .2\linewidth]{img/saccade-3-step-4.png}}
+	\centerline{\textbf{a} \hspace{2.6cm} \textbf{b} \hspace{2.4cm} \textbf{c} \hspace{2.4cm} \textbf{d} \hspace{2.6cm} \textbf{e}}
+	\centerline{\includegraphics[width = .4\linewidth,height=4cm]{img/saccade-3-post.png} 
+		\includegraphics[width = .4\linewidth,height=4cm]{img/saccade-3-entropy.png} }
+	\vspace{-.2cm}
+	\centerline{Read-out steps \hspace{3.6cm} Read-out steps}
+	\centerline{\textbf{f} \hspace{5.5cm} \textbf{g}}
+	\caption{\textbf{Scene exploration through saccades in the foveated vision model}. \textbf{a}. Saccades trajectory over the original image (initial gaze orientation indicated with a red "plus"). \textbf{b--e}. Progressive image reconstruction over the course of saccades, with \textbf{b}: 5 coefficients triplets + root coefficient (initial gaze orientation), \textbf{c}: 9 coefficients triplets + root coefficient (first saccade), \textbf{d}: 13 coefficients triplets + root coefficient (second saccade), \textbf{e}: 17 coefficients triplets + root coefficient (third saccade) \textbf{f}. Posterior update in function of the number of read-out steps (noting that step 1 stems for the root coefficient and the next steps stem for 3 Haar wavelet coefficients read-out), with one color per category (the numbers over the lines provide the competing labels) \textbf{g}. Posterior entropy update in function of the number of read-out steps.}\label{fig:foveated-saccades}
+\end{figure}
+
+
+An example of such saccadic image exploration is presented in figure \ref{fig:foveated-saccades}\textbf{a} over one MNIST sample.
+The state of the recognition process after one saccade is shown on fig. \ref{fig:foveated-saccades}\textbf{b}. The next saccade (fig. \ref{fig:foveated-saccades}\textbf{c})  heads toward a region of the image that is expected to help confirm the guess. The continuing saccade (fig. \ref{fig:foveated-saccades}\textbf{d}) makes a close-by inspection and the final saccade (fig. \ref{fig:foveated-saccades}\textbf{e}) allows to reach the posterior entropy threshold, set at $H_\text{ref} = 1e^{-4}$ here. The second row shows the accumulation of evidence over the coefficients triplets, with fig. \ref{fig:foveated-saccades}\textbf{f} showing the posteriors update of different labels and fig. \ref{fig:foveated-saccades}\textbf{g} showing the posterior entropy update according to the coefficients triplets actually read. Note that several triplets are read for each end-effector position ($i,j$) (see fig. \ref{fig:foveated}c). There is for instance a total of 5 triplets read out at the initial gaze orientation (\textbf{b}), and then 4 triplets read-out for each continuing saccades.
+
+The model provides apparently realistic saccades, for they cover the full range of the image and tend to point over regions that contain class-characteristic pixels. The image reconstruction after 4 saccades allows to visually recognize a "fuzzy" three, while it would not necessarily be the case if the saccades were chosen at random.
+The observed trajectory illustrates the \emph{guess confirmation} logic that is behind the active vision framework. Every saccade heads toward a region that is supposed to confirm the current hypothesis. This confirmation bias appears counter-intuitive at first sight, for some would expect the eye to head toward places that may \emph{disprove} the assumption (to challenge the current hypothesis). This is actually not the case for the class-confirming regions are more scarce than the class-disproving regions, so that heading toward a class-confirming region may bring more information in the case it would, by surprise, invalidate the initial assumption.
+
+%{\color{green} With a final posterior approaching $1 - 1e^{-5}$, the model is actually overconfident in its own predictions which introduces a confirmation bias that may harm the final recognition rate. This is not the case in our setup (see next section for quantitative accuracy estimate), but one can not exclude the process to be overconfident at a local minimum. It must be noticed however that the confirmation bias is a more general feature of the active inference framework that should be specifically addressed (with a $T$-horizon forward planning at exponential cost and/or reward-based policy learning -- see \cite{butko2010infomax}). For there is no free lunch, it corresponds to the "price to pay" for reducing the observation range of the image at the risk of potentially neglecting critical covert information. }
+
+\subsection{Saliency-based Policy}
+
+\begin{figure}[b!]
+	\centerline{
+		%\includegraphics[width = \linewidth]{img/ICLR-saliency-maps.png} 
+		\hfill
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-1-map.png}
+		\hfill
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-1-traj.png}
+		\hfill
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-2-map.png}
+		\hfill	
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-2-traj.png}
+		\hfill	
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-3-map.png}
+		\hfill 
+		\includegraphics[width = .16\linewidth]{img/iclr-saliency-3-traj.png}
+		\hfill	
+	}
+	\centerline{
+		\hspace{1cm}
+		\textbf{a}
+		\hfill
+		\textbf{b}
+		\hfill
+		\textbf{c}
+		\hfill
+		\textbf{d}
+		\hfill
+		\textbf{e}
+		\hfill
+		\textbf{f}
+		\hspace{1cm}
+	}
+	\centerline{
+		\hfill
+		\includegraphics[width = .33\linewidth]{img/iclr-classif-stats.pdf}
+		\hfill
+		\includegraphics[width = .33\linewidth]{img/iclr-saccades-distri.pdf}
+		\hfill	 
+		\includegraphics[width = .33\linewidth]{img/iclr-saccades-mean-median.pdf}
+		\hfill
+	}
+	\caption{\textbf{Saliency based policy -- Upper panel : Saliency maps inferred from the model with corresponding saccades trajectory prototypes.} \textbf{a}. Saliency map for latent class ``1''. \textbf{b}. 5-saccades trajectory prototype for latent class ``1'' (initial position indicated with a red ``plus'') over class average. \textbf{c}. Saliency map for latent class ``2''. \textbf{d}. 5-saccades trajectory prototype for latent class ``2'' over class average. \textbf{e}. Saliency map for latent class ``3''. \textbf{f}. 5-saccades trajectory prototype for latent class ``3'' over class average. \textbf{Lower panel : Policy comparison} (\textit{left}) Classification rate for the predictive policy, the saliency based policy and a uniform random policy, for different recognition thresholds. The exhaustive scan (baseline) recognition rate is  red dashed. (\textit{middle}) Number of saccades distribution for the predictive policy, the saliency-based policy and the random policy. The boxes indicate the first and third quartiles. (\textit{right}) Mean and median number of saccades in function of the recognition threshold for the different considered policies. }\label{fig:saliency-maps}
+\end{figure}
+
+The scaling of the model needs to be addressed when large images are considered. The policy relies on a two-steps ahead prediction (eqs (\ref{eq:step-1}--\ref{eq:step-3}) and algorithm \ref{algo:saccade-policy}) that scales like $O(|\mathcal{U}|.|\mathcal{Z}|)$ for it predicts the next posterior distribution over the $z$'s for each visual prediction $\boldsymbol{x}_u$. In comparison, parametrized policies are more computationally efficient, allowing for a single draw over the actions set given a context.
+Luckily, such a parametrized policy is here straightforward to compute. Taking $z_0$ as the initial guess, and noting $\tilde{\boldsymbol{x}}_{u,z_0}$ the visual generative prediction when $z_0$ is assumed under visual orientation $u$, and assuming a uniform prior over the latent states, the process-independent look-ahead posterior is~:
+\begin{align}
+%\forall u, \rho(.)|_{u, z_0} = \text{softmax} \left[\log P(\tilde{\boldsymbol{x}}_{u, z_0}|.,u) + \log P(.|u, z_0) + \rho_0[z_0]\right]
+\rho_{u, z_0} (.)=  \frac{p(\tilde{\boldsymbol{x}}_{u, z_0}|.,u)}{\sum_{z'} p(\tilde{\boldsymbol{x}}_{u, z_0}|z',u)}
+\end{align}
+%Then, , one obtains $\rho(.)|_{u, z_0} = \text{softmax} [\log P(\tilde{\boldsymbol{x}}_{u, z_0}|.,u)]$ 
+providing at each $(u, z_0)$ an offline prediction, namely $\rho_{u, z_0}(z_0)$. Those offline computations provide, for each guess $z_0$, a saliency map over the $u$'s. 
+
+Low-level features-based saliency maps date back from \cite{itti2001computational}, with many follow-ups and developments in image/video compression (see for instance \cite{wang2003foveation}). In our case, a saliency map is processed for each guess $z_0$, driving the viewpoint selection regarding $z_0$'s confirmation.
+Saliency-based policies then allow to define an optimal saccade pathway through the image that follow a sequence of ``salient'' viewpoints with decreasing saliency (according to the inhibition of return).
+In our case, the viewpoint selected at step $t$ depends on the current guess $z_t$, with on-the-fly map switch if the guess is revised across the course of saccades.
+
+Examples of such saliency maps are provided in the upper panel of figure \ref{fig:saliency-maps}, for categories 1 to 3. The saliency maps allow to analyze in detail the class-specific locations (that appear brownish) as opposed to the class-unspecific locations (pale orange to white). First to be noticed is the relative scarceness of the class-specific locations. Those "evidence providing" locations appear, as expected, mutually exclusive from class to class. A small set of saccades is expected to provide most of the classification information while the rest of the image is putatively uninformative (or even counter informative if whitish). A second aspect is that the class-relevant locations are all located in the central part of the images, so there is very few chance for the saccades to explore the periphery of the image where little information is expected to be found. This indicates that the model has captured the essential concentration of class-relevant information in the central part of the images for that particular training set.
+
+%% TODO : Figure
+
+
+The lower part of figure \ref{fig:saliency-maps} provides an overview of the model behavior in function of the recognition threshold $H_\text{ref}$. The original predictive policy is compared to (\textit{i}) the saliency-based policy that selects the saliency map in function of the current guess $z_t$ and (\textit{ii}) a uniform random exploration (choose next viewpoint at random). The classification rates, shown in the leftmost figure, monotonically increase with a decreasing recognition threshold. Considering a 92\% recognition rate as the upper bound here (corresponding to an exhaustive decoding made with 266 weak classifiers -- a close equivalent of a linear classifier), a near optimal recognition rate is obtained for both the predictive and saliency-based policies for $H_\text{ref}$ approaching $1e^{-5}$, while the random policy reveals clearly sub-optimal. A complementary effect is the monotonic increase of the number of saccades with decreasing $H_\text{ref}$ shown in the central and rightmost figures. The number of saccades is representative of the recognition difficulty. The distribution of the number of saccades is very skewed in all cases (central figure), with few saccades in most cases, reflecting ``peace-of-cake'' recognitions, and many saccades more rarely reflecting a ``hard-to-reach'' recognition. For both the predictive and the saliency-based policies, less than 5 saccades is enough to reach the recognition threshold in more than 50\% of the cases (versus about 15 in the random exploration case) for $H_\text{ref} = 10^{-5}$.  
+
+A strong aspect of the model is thus its capability to do efficient recognition with very few Haar coefficients (and thus very few pixels) in most cases at low computational cost using using either a full predictive policy or pre-processed maps and saccade trajectories. The number of saccades  reflects the \textit{processing length} of the scene.  
+%for an optimal image processing compression, that is reflected in the number of wavelet coefficients used in the reconstruction. 
+For instance, an average number of saccades between 10 and 15 when $H_\text{ref} = 1e^{-4}$ corresponds to an average compression of 85-90 \% of the data actually processed to recognize a scene. It can be more if the threshold is more optimistic, and less if it is more conservative.   
+
+\section{Related work and perspectives}
+
+Optimizing foveal multi-view image inspection with active vision has been addressed for quite a while in computer vision. Direct policy learning from gradient descent was e.g. proposed in 1991 by \cite{schmidhuber1991learning} using BPTT through a pre-processed forward model.  The embedding of active vision in a Bayesian/POMDP evidence accumulation framework dates back from \cite{bajcsy1988active}, with a more formal elaboration in \cite{najemnik2005optimal} and \cite{butko2010infomax}. It globally complies with the predictive coding framework (\cite{rao1999predictive}) with the predictions from the actual posterior estimate used to evaluate the prediction error and update the posterior. The "pyramidal" focal encoding of images is found in \cite{kortum1996implementation,wang2003foveation}, with
+\cite{butko2010infomax} providing a comprehensive overview of a foveated POMDP-based active vision, with examples of visual search in static images using a bank of pre-processed features detectors. Finally, the idea of having many models to identify a scene complies with the weak classifiers evidence accumulation principle (see \cite{viola2003fast} and sequels), and generalizes to the multi-view selection in object search and scene recognition \cite{potthast2016active}.
+
+Our contribution is twice, for it provides hints toward expressing the view-selection problem in the terms of processing compression under the Free Energy/minimum description length setup (see \cite{hinton1994autoencoders}), allowing future developments in optimizing convolutional processing (see also \cite{louizos2017bayesian}). A second contribution is a clearer description of the active vision as a two-steps-ahead prediction using the generative model to drive the policy (without policy learning). Though optimizing future posterior entropy over the actions set is shown enough to attain locally optimal action selection, offline calculation using class-specific saliency maps is way better for it saves processing costs by several orders through saccades pathways pre-processing, with a negligible effect on the recognition/compression rates.    
+This may be used for developing active information search in the case of high dimensionality input data (feature selection problem).
+The model thus needs to be tested on more challenging computer vision setups, in order to test the exact counterpart of using pre-processed saliency maps with respect to the full predictive case.
+
+\bibliography{biblio}
+\bibliographystyle{icml2018}
+
+
+\end{document}
+
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018. It was modified from a version from Dan Roy in
+% 2017, which was based on a version from Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.
