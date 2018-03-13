@@ -133,54 +133,70 @@ The active inference relies on a longstanding history of probabilistic modelling
 
 \subsubsection{Feedback control framework}
 A feedback control framework is composed of an actor and an environment. The actor and the environment interact according to a feedback loop. 
-The actor can act on the environment through its actuators, and sense the state of the environment through its sensors. 
+The actor can act on the environment through its effectors, and sense the state of the environment through its sensors. 
 The state of the environment as well as the state of the agent can change over time. The state of the environment is described by a state vector $\boldsymbol{z} \in \mathcal{Z}$.
-The state $\boldsymbol{z}$ in which the physical system is found at present depend both on its initial state $\boldsymbol{z}_0$ and on a control $\boldsymbol{u}$ that has been sent from the agent toward the environment through its effectors.  The transition from $\boldsymbol{z}_0$ to $\boldsymbol{z}$ is reflected in a \emph{transition function} that embodies the deterministic and non-deterministic effects of the control $\boldsymbol{u}$ in a conditional probability distribution:  
+The state $\boldsymbol{z}$ in which the physical system is found at present depend both on its previous state $\boldsymbol{z}_0$ and on a motor command $\boldsymbol{u}$ (considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates). The transition from $\boldsymbol{z}_0$ to $\boldsymbol{z}$ is reflected in a \emph{transition function} that embodies the deterministic and non-deterministic effects of the command $\boldsymbol{u}$ in a conditional probability distribution:  
 \begin{align}
 \boldsymbol{z} \sim P(Z|\boldsymbol{u},\boldsymbol{z}_0) \label{eq:process}
 \end{align}
 implemented with a probability density function $p_\text{transition}(\boldsymbol{z}|\boldsymbol{u},\boldsymbol{z}_0)$.
 
-The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory stream}. It is interpreted as an effect of the current external state $\boldsymbol{z}$ and current control $\boldsymbol{u}$ on the sensors. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
+An important special case is when the motor command only relates to \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor (with detailed effector response function considered  hardware-implemented).  
+Under that perspective, the effector acts on the sensors position and orientation so as to setup a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to have an effect on the latent state $\boldsymbol{z}$}, i.e.
+\begin{align}
+\boldsymbol{z} \sim P(Z|\boldsymbol{z}_0)
+\end{align} 
+so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
+
+The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory field}. It is interpreted as a measure made by the sensors, that is causally related to the current state $\boldsymbol{z}$ and motor command $\boldsymbol{u}$. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
 \begin{align}
 \boldsymbol{x} \sim P(X|\boldsymbol{z},\boldsymbol{u})\label{eq:measure}
 \end{align}
 implemented with a probability density function $p_\text{measure}(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})$.
-The combination of  (\ref{eq:process}) and (\ref{eq:measure}) is said a \emph{generative process} that is the cause of the sensory stream. 
+The combination of  (\ref{eq:process}) and (\ref{eq:measure}) is said a \emph{generative process} that is the cause of the sensory field. 
 
 %{\color{magenta} probabilistic framework : the changes that take place in the physical world described by  = model.}
 %Given an initial state $\boldsymbol{z}_0$, the next state $\boldsymbol{z}$ rests on the conditional distribution   and the 
 
 
-\subsubsection{Active inference}
-When both the transition and measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory stream $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the effector's control $\boldsymbol{u}$ using Bayes rule:
+
+\subsubsection{Inference and active inference}
+When both the transition and measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory field $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the motor command $\boldsymbol{u}$ using Bayes rule:
 \begin{align}
 P(Z|X,\boldsymbol{u},\boldsymbol{z}_0) &= \frac{P(X,Z|\boldsymbol{u},\boldsymbol{z}_0)}{P(X|\boldsymbol{u},\boldsymbol{z}_0)}\nonumber\\
 &= \frac{P(X|Z,\boldsymbol{u}) P(Z|\boldsymbol{u},\boldsymbol{z}_0)}{\sum_{\boldsymbol{z}'}P(X|\boldsymbol{z}',\boldsymbol{u}) P(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post}
 \end{align}
 where $P(Z|X,\boldsymbol{u},\boldsymbol{z}_0)$ is the \emph{posterior} probability (a distribution over the latent states) whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. The inference of the latent state through model inversion is called \emph{filtering} for it serves to refine the actual state estimate from past observations when the measure process is corrupted by noise \cite{Kalman1960}.
 
-Suppose now the objective is to precisely estimate this environmental state from the sensory flow. %The accuracy of the inference first depends on the accuracy of the model. 
-Depending on $\boldsymbol{u}$, different $\boldsymbol{x}$'s are observed at the sensors. So, each different control $\boldsymbol{u}$ provokes a different observation, and thus a different 
+Suppose now the objective is to precisely estimate this environmental state $\boldsymbol{z}$ from the sensory field given a generative model $G = (p_\text{transition}, p_\text{measure})$.
+Depending on $\boldsymbol{u}$, a different $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
 estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
 
-Considering that the effect of the action $\boldsymbol{u}$ on the next observation $\boldsymbol{x}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize information regarding the environment's state. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
+Considering that the effect of the action $\boldsymbol{u}$ on the next observation $\boldsymbol{x}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize the accuracy of the environment's state estimation. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
 A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
-More elaborate strategies considers the past estimate $\boldsymbol{z}_0$ to choose the best action $\boldsymbol{u}$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\boldsymbol{z}_0$, sets up an action $\boldsymbol{u} = C(\boldsymbol{z}_0)$. The role of that controller is not to achieve a certain task, but only to render the estimation of the outer state more accurate. The controller is said \emph{perception-driven}. 
+More elaborate strategies consider the past estimate $\boldsymbol{z}_0$ to choose the best action $\boldsymbol{u}$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\boldsymbol{z}_0$, sets up an action $\boldsymbol{u} = C(\boldsymbol{z}_0)$. The role of that controller is not to achieve a certain task, but only to render the estimation of the (future) outer state more accurate. The controller is said \emph{perception-driven}. 
 
-The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance).
-
-{\color{magenta} la stratégie générale consiste à définir une fonction objectif permettant d'estimer la qualité du contrôle effectué selon un critère de précision de l'estimation d'état}.
-Several candidates are developed and commented in the following sections.
-
-
-{\color{blue} The perception-driven control objective is defined for any kind of effector and any kind of motor control.} An important special case is however when the motor command only relates to \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor (with detailed effector response function considered  hardware-implemented).  
-Under that perspective, the effector acts on the sensors position and orientation so as to setup a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to have an effect on the latent state $\boldsymbol{z}$}, i.e.
+The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible and can not compared the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
 \begin{align}
-P(Z|\boldsymbol{u},\boldsymbol{z}_0) = P(Z|\boldsymbol{z}_0)
-\end{align} 
-so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
+\boldsymbol{u} = \underset{\boldsymbol{u}'\in\mathcal{U}}{\text{argmax}}  f(\boldsymbol{z}_0, \boldsymbol{u}')
+\end{align}
+
+
+Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates are developed and commented in the following sections.
+
+{\color{magenta} la stratégie générale consiste à définir une fonction objectif permettant d'estimer la qualité du contrôle effectué selon un critère de précision de l'estimation d'état. Cadre du RL? Le problème des etats explicites (non markovien) et le principe de l'état caché.}
+
+{\color{blue} 
+\begin{itemize}
+	\item error-based objective
+	\item accuracy-based
+	\item information-based (Infomax, information gain)
+	\item curious / diversity based  (Schmidhuber, Open AI)
+\end{itemize}
+
+
+The perception-driven control objective is defined for any kind of effector and any kind of motor control.} 
 
 
 
@@ -193,7 +209,7 @@ so that $\boldsymbol{z}$ should depend only on the external dynamics (the extern
 
 \paragraph{Multi-view image processing}
 
-The question of active perception has been addressed for long time in robotics vision. It considers the problem of selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. The opportunity to neglect large parts of the visual stream comes from the important redundancy present in the visual data itself, with critical or useful information only present in limited parts of it.
+The question of active perception has been addressed for long time in robotics vision. It considers the problem of selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. The opportunity to neglect large parts of the visual field comes from the important redundancy present in the visual data itself, with critical or useful information only present in limited parts of it.
 
 Changing view can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
 A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
@@ -279,7 +295,7 @@ Let now $q(.)$ be a certain distribution over the $\boldsymbol{z}$'s (representi
 \begin{align}
 H(\boldsymbol{x}_u| \boldsymbol{u})=-\sum_{\boldsymbol{z}\in\mathcal{Z}}\log p_\text{measure}(\boldsymbol{x}_u|\boldsymbol{z}, \boldsymbol{u}) q(\boldsymbol{z})
 \end{align}  
-This quantity is also called the ``description length'' \cite{hinton1994autoencoders} carried out by $\boldsymbol{x}_u$, given the data model (encoding) $q(.)$.
+This quantity is also called the ``description length'' \cite{hinton1994autoencoders} carried out by $\boldsymbol{x}_u$, given the \emph{scene encoding} $q(.)$.
 
 {\color{magenta} TODO : A reprendre}
 
