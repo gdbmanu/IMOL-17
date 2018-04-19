@@ -177,9 +177,9 @@ Considering that the effect of the action $\boldsymbol{u}$ on the next observati
 A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
 More elaborate strategies consider the past estimate $\boldsymbol{z}_0$ to choose the best action $\boldsymbol{u}$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\boldsymbol{z}_0$, sets up an action $\boldsymbol{u} = C(\boldsymbol{z}_0)$. The role of that controller is not to achieve a certain task, but only to render the estimation of the (future) outer state more accurate. The controller is said \emph{perception-driven}. 
 
-The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible and can not compared the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
+The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
 \begin{align}
-\boldsymbol{u} = \underset{\boldsymbol{u}'\in\mathcal{U}}{\text{argmax}}  f(\boldsymbol{z}_0, \boldsymbol{u}')
+\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{argmax}}  f(\boldsymbol{z}_0, \boldsymbol{u})
 \end{align}
 
 
@@ -305,14 +305,14 @@ In a first place, one need to consider a set of viewpoints over a scene, with a 
 Then the efficient coding perspective interprets the latent state $z$ as a code that allows to reconstruct the scene through a generative model $P(\bar{X}, Z) = P(\{X_u\}_{u \in \mathcal{U}}, Z)$. If $\bar{\boldsymbol{x}}$ is an instance of a scene, the objective is to minimize its \emph{description length}:
 
 \begin{align}
--\log p(\bar{\boldsymbol{x}}) 
-&= -\log \sum_{z \in \mathcal{Z}} p(\bar{\boldsymbol{x}}, z)\nonumber\\
-&= -\log \sum_{z \in \mathcal{Z}} \frac{p(\bar{\boldsymbol{x}}, z)}{q(z)}q(z)\nonumber\\
-&\leq  -\sum_{z \in \mathcal{Z}} q(z) \log\frac{p(z|\bar{\boldsymbol{x}})p(\bar{\boldsymbol{x}})}{q(z)}\nonumber\\
+-\log P(\bar{\boldsymbol{x}}) 
+&= -\log \sum_{z \in \mathcal{Z}} P(\bar{\boldsymbol{x}}, z)\nonumber\\
+&= -\log \sum_{z \in \mathcal{Z}} \frac{P(\bar{\boldsymbol{x}}, z)}{q(z)}q(z)\nonumber\\
+&\leq  -\sum_{z \in \mathcal{Z}} q(z) \log\frac{P(z|\bar{\boldsymbol{x}})p(\bar{\boldsymbol{x}})}{q(z)}\nonumber\\
 %&= -E_{z\sim q} \left[\log p(\bar{\boldsymbol{x}}| z))\right] 
 %+KL(q||p(.)) \nonumber
-&= -E_{z\sim q} \left[ \log p(\bar{\boldsymbol{x}})\right]
-+ \text{KL} (q||p(.|\bar{\boldsymbol{x}}))\label{eq:coding}
+&= -E_{z\sim q} \left[ \log P(\bar{\boldsymbol{x}})\right]
++ \text{KL} (q||P(.|\bar{\boldsymbol{x}}))\label{eq:coding}
 \end{align}
 
 with $q$ an arbitrary distribution over the $z$'s (latent states) that needs to be optimized. The objective is divided in two terms. The first term represents data reconstruction accuracy when $z$ is assumed to be distributed according to $q$. The second term is the Kullback-Leibler divergence between $q$ and the assumed posterior $p(.|\bar{\boldsymbol{x}})$. In the full information case (when $\bar{\boldsymbol{x}}$ is all disclosed), and with $p$ belonging to the exponential family, the objectives are both derivable and $p$'s parameters and $q$ can be optimized alternatively using the Expectation/Maximization procedure \cite{Dempster1977}. 
