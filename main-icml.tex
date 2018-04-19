@@ -161,7 +161,7 @@ The combination of  (\ref{eq:process}) and (\ref{eq:measure}) is said a \emph{ge
 
 
 \subsubsection{Inference and active inference}
-When both the transition and measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory field $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the motor command $\boldsymbol{u}$ using Bayes rule:
+When both the transition and the measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory field $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the motor command $\boldsymbol{u}$ using Bayes rule:
 \begin{align}
 P(Z|X,\boldsymbol{u},\boldsymbol{z}_0) &= \frac{P(X,Z|\boldsymbol{u},\boldsymbol{z}_0)}{P(X|\boldsymbol{u},\boldsymbol{z}_0)}\nonumber\\
 &= \frac{P(X|Z,\boldsymbol{u}) P(Z|\boldsymbol{u},\boldsymbol{z}_0)}{\sum_{\boldsymbol{z}'}P(X|\boldsymbol{z}',\boldsymbol{u}) P(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post}
