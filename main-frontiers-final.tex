@@ -251,13 +251,7 @@ F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u
 with $q'(Z) \simeq p(Z|\boldsymbol{x}', \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})\propto 
 p(Z|\boldsymbol{x}', \boldsymbol{u}')p(Z|\boldsymbol{x}, \boldsymbol{u})$ the shared (or cumulative) encoding with $p(Z|\boldsymbol{x}, \boldsymbol{u})$ playing the role of the prior.
  
-It is thus noteworthy that the variational encoding approach provides estimators of information theoretic quantities that can further on be used in optimization, e.g. for defining the objective function of a controller. 
-%, i.e. maximizing the mutual information between different sensors or different sensory fields).
-{\color{blue} Recursive encoder / Iterated codes : the recursive encoder setup is consistent with the POMDP setup}.
-It also provides a way to implement recursive (or cumulative) encoders that share consistency with the posterior update in the POMDP setup (at the difference that variational encoders are \emph{model-free} though the POMDP setup is \emph{model-based}).
- 
-{\color{blue} Considering now the general POMDP setup, the quantity to minimize becomes $F(\boldsymbol{x}_t|\boldsymbol{u}_{t-1})$. 
-It is worth noting that, at time $t$, ...}
+
 
 \subsubsection{Active sampling}
 Consider now an agent whose objective is to precisely estimate its environment state $\boldsymbol{z}$ from its sensory field and a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas})$.
