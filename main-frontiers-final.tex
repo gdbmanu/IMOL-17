@@ -64,15 +64,15 @@
 	
 \section{Introduction}
 
-In contrast with specific goal-oriented activity, one salient aspect of animal selection of action is the search for viewpoints that should help to better understand its sensory environment. Choosing viewpoints means selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene.  
+In contrast with goal-oriented activity, animal selection of action also relates to the search for sensory clues in order to better understand its sensory environment. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
 
 %{\color{magenta} Revue de litterature}
 
 %\paragraph{Multi-view image processing}
 
-Active perception has been addressed for long time in robotics vision. It considers the problem of selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. The opportunity to neglect large parts of the {\color{blue} visual/sensory} field comes from the important redundancy present in the {\color{blue} visual/sensory} data itself, with critical or useful information only present in little portions of the total sensory scene.
+Scene decoding through action (or ``active perception'') has attracted strong interest for long time in robotics and artificial vision.  The opportunity to neglect large parts of the {\color{blue} visual/sensory} field comes from the important redundancy present in the {\color{blue} visual/sensory} data itself, with critical or useful information only present in little portions of the total sensory scene.
 
-Changing view can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
+Changing the viewpoint can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
 A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
 \begin{quote}
 	\emph{The problem  of Active Sensing can be stated as a problem of controlling strategies 
@@ -98,7 +98,7 @@ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,
 
 
 
-\section{Model}
+\section{Material and methods}
 
 \subsection{Perception-driven control}
 
@@ -114,12 +114,6 @@ The transition from $\boldsymbol{z}_0$ to $\boldsymbol{z}$ is reflected in a \em
 implemented with a probability density function 
 $p_\text{\sc trans}(\boldsymbol{z}|\boldsymbol{u},\boldsymbol{z}_0)$.
 
-An important special case is when the motor command only relates to the \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor here considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
-Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to affect on the latent state $\boldsymbol{z}$}, i.e.
-\begin{align}
-\boldsymbol{z} \sim \text{Pr}(Z|\boldsymbol{z}_0)
-\end{align} 
-so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
 
 The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory field}. It is interpreted as a measure made by the sensors, that is causally related to the current state $\boldsymbol{z}$ and motor command $\boldsymbol{u}$. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
 \begin{align}
@@ -149,6 +143,121 @@ q_\text{\sc post}(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u}, \boldsymbol{z}_0
 = \frac{p_\text{\sc meas}(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}) p_\text{\sc trans}(\boldsymbol{z}|\boldsymbol{u},\boldsymbol{z}_0)}
 {\sum_{\boldsymbol{z}'}p_\text{\sc meas}(\boldsymbol{x}|\boldsymbol{z}',\boldsymbol{u}) p_\text{\sc trans}(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post-pdf}
 \end{align}
+
+\subsubsection{One scene, many views}
+An important special case is when the motor command only relates to the \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor here considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
+Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to affect on the latent state $\boldsymbol{z}$}, i.e.
+\begin{align}
+\boldsymbol{z} \sim \text{Pr}(Z|\boldsymbol{z}_0)
+\end{align} 
+so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
+
+
+Under a scene decoding  task, where the motor command $\boldsymbol{u}$ refers to the orientation of a sensor, it is rather common to consider the environment as ``static'' \cite{butko2010infomax}. This means, in short, that:
+$$\text{Pr}(Z|\boldsymbol{z}_0) = \delta(Z, \boldsymbol{z}_0)$$ 
+with $\delta$ the Knonecker symbol. 
+The latent variable $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process. In a model-based approach, it may specify the state of the physical environment. In a model-free view, it should be expressive enough to restore information about the environment.  
+
+Each different viewpoint $\boldsymbol{u}$ can be seen as a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) is the realization of a generative model parametrized by $\boldsymbol{u}$ and $\boldsymbol{z}$. This generative model is written:
+$$p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z, U)$$
+It can further on be simplified by considering that the measure captures all the relevant dependencies, i.e. that $X$ is conditionally dependent on the $(U,Z)$ couple, but independent from $U$ alone and independent from $Z$ alone, while $U$ and $Z$ are also mutually independent, i.e.:
+$$p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z) p_\text{\sc prior}(U)$$
+
+
+The dependencies between the three variables can moreover be symetrically decomposed in the form of three conditional models, i.e. :
+\begin{align}
+	p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
+	&= p(Z| X, U)p(X) p(U)\nonumber\\
+	&= p(U|X, Z)p(X) p(Z)\nonumber
+\end{align}
+comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
+conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
+
+\subsubsection{Scene encoding and scene decoding}
+
+\paragraph{Scene encoding}
+The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
+to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
+is a code that is both compact and accurate at restoring the data. 
+If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
+ 
+In short, the efficiency of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
+\begin{align}
+F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)\nonumber\\
+&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
+\label{eq:FEP-energy}
+\end{align}
+with $\mathcal{Z}$ an arbitrary encoding space and $q$ an arbitrary distribution over the codes and $p(Z)$ a prior distribution over the codes.
+$p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
+$F$ is also called the variational free energy for it is mathematically analog to the Helmhotz Free Energy.
+It can then be shown, with some reordering, that:
+\begin{align}
+F(\boldsymbol{x}) 
+&= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
+\label{eq:FEP}
+\end{align}
+so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a gradient descent over $p$ and $q$ according to eq. (\ref{eq:FEP-energy}) --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+$$h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) %\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
+$$
+that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
+ 
+ 
+%, that is composed of two terms, namely the reconstruction accuracy $- \mathbb{E}_{\boldsymbol{z}\sim q} \log p(\boldsymbol{x}|\boldsymbol{z})$ and the Kullback-Leibler divergence $\text{KL}(q||\rho)$ between the current code $q$ and a  
+%An efficient encoder is thus obtained by minimizing $F$ by gradient descent over $p$ and $q$, given a dataset $\{\boldsymbol{x}_1, ..., \boldsymbol{x}_n\}$ \cite{Kingma...}.  
+ 
+If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}) 
+&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})p(\boldsymbol{z}))\right] - H(q)\\
+&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))
+\label{eq:FEP-prior-u}\\
+&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+\label{eq:FEP-posterior-u}\end{align}
+with each viewpoint $\boldsymbol{u}$ providing a distinct optimization problem. 
+ 
+\paragraph{Scene decoding}
+The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene. The sharing of information between two sensory fields can be quantified by their \emph{mutual information} (or ``Information gain'' --~see \cite{tishby2011information}~--):
+\begin{align}
+I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
+&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] 
+\end{align}
+with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. The quantity $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ can be expressed through a ``chain rule'': 
+\begin{align}
+-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+&\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
+&\stackrel{q(z) = p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})}{\simeq} 
+- \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
+&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] 
+\end{align}
+So:
+\begin{align}
+F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+&\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
+\label{eq:FEP-uxu}
+\end{align}
+which is a special case of the variational Free Energy formulation adapted to the POMDP setup in \cite{friston2015active}.
+
+If we now compare with eq. (\ref{eq:FEP-prior-u}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ now plays the role of the prior. 
+The chaining of the posterior to the next prior in a sequential scene decoding setup can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
+$$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) $$\\
+It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}(Z)$ (the current ``belief'') needs to be memorized to estimate $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$:
+\begin{align}
+F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u}) 
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z)))
+\label{eq:FEP-uxun}
+\end{align}
+%The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
+
+with $q'(Z) \simeq p(Z|\boldsymbol{x}', \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})\propto 
+p(Z|\boldsymbol{x}', \boldsymbol{u}')p(Z|\boldsymbol{x}, \boldsymbol{u})$ the shared (or cumulative) encoding with $p(Z|\boldsymbol{x}, \boldsymbol{u})$ playing the role of the prior.
+ 
+It is thus noteworthy that the variational encoding approach provides estimators of information theoretic quantities that can further on be used in optimization, e.g. for defining the objective function of a controller. 
+%, i.e. maximizing the mutual information between different sensors or different sensory fields).
+{\color{blue} Recursive encoder / Iterated codes : the recursive encoder setup is consistent with the POMDP setup}.
+It also provides a way to implement recursive (or cumulative) encoders that share consistency with the posterior update in the POMDP setup (at the difference that variational encoders are \emph{model-free} though the POMDP setup is \emph{model-based}).
+ 
+{\color{blue} Considering now the general POMDP setup, the quantity to minimize becomes $F(\boldsymbol{x}_t|\boldsymbol{u}_{t-1})$. 
+It is worth noting that, at time $t$, ...}
 
 \subsubsection{Active sampling}
 Consider now an agent whose objective is to precisely estimate its environment state $\boldsymbol{z}$ from its sensory field and a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas})$.
@@ -233,68 +342,7 @@ where $q_\text{\sc post}(Z_{t-1}|\boldsymbol{x}_{t-1},\boldsymbol{u}_{t-2}, Z_{t
 %\end{align}
 
 \subsection{Action selection under the efficient coding perspective}
-The efficient coding perspective \cite{hinton1994autoencoders} was originally developed 
-to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
-is a code that is both compact and accurate at restoring the data. 
-If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
 
-In short, the efficiency of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
-\begin{align}
-F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)\nonumber\\
-&= - \mathbb{E}_q \left[\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
-\end{align}
-with $\mathcal{Z}$ an arbitrary encoding space and $q$ an arbitrary distribution over the codes and $p(Z)$ a prior distribution over the codes.
-$F$ is also called the variational free energy for it is mathematically analog to the Helmhotz Free Energy.
-It can then be shown, with some reordering, that:
-\begin{align}
-F(\boldsymbol{x}) 
-&= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
-\label{eq:FEP}
-\end{align}
-so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be processed so that the reconstruction cost meets the ``description length'' of the data, i.e. its estimated Shannon's Information under the model $p$:
-$$h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) %\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
-$$
-that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
-
-
-%, that is composed of two terms, namely the reconstruction accuracy $- \mathbb{E}_{\boldsymbol{z}\sim q} \log p(\boldsymbol{x}|\boldsymbol{z})$ and the Kullback-Leibler divergence $\text{KL}(q||\rho)$ between the current code $q$ and a  
-%An efficient encoder is thus obtained by minimizing $F$ by gradient descent over $p$ and $q$, given a dataset $\{\boldsymbol{x}_1, ..., \boldsymbol{x}_n\}$ \cite{Kingma...}.  
-
-If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}) 
-&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
-\label{eq:FEP-u}\end{align}
-i.e. each viewpoint provides a distinct optimization problem. 
-
-This formula rests on a ``three-party'' model $p(X, Z, U)$, that is a joint probability over three random variables respectively representing the view $\boldsymbol{x}$, the code $\boldsymbol{z}$ and the viewpoint  $\boldsymbol{u}$. The dependencies between the three variables can be expressed symetrically in the form of three generative models, i.e. 
-\begin{align}
-p(X, Z, U) &= p(X| Z, U) p(Z,U)\nonumber\\ 
-&= p(Z| X, U)p(X, U)\nonumber\\
-&= p(U|X, Z)p(X, Z)\nonumber
-\end{align}
-comprising a \emph{decoder} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
-conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{encoder} $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$.
-
-Each different viewpoint $\boldsymbol{u}$ can be seen as a different sensor over the same underlying sensory scene. This implies that the different possible measures share a common information corresponding to the actual physical environment. The sharing of information between two sensors is quantified by their \emph{mutual information}:
-\begin{align}
-I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
-&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] 
-\end{align}
-with :
-\begin{align}
-F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
-&\triangleq - \log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q'(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}))
-\label{eq:FEP-uxu}
-\end{align}
-with $q'(Z) \simeq p(Z|\boldsymbol{x}', \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})\propto 
-p(Z|\boldsymbol{x}, \boldsymbol{u})p(Z|\boldsymbol{x}', \boldsymbol{u}')$ the shared encoding.
-
-
-
-
-{\color{blue} Considering now the general POMDP setup, the quantity to minimize becomes $F(\boldsymbol{x}_t|\boldsymbol{u}_{t-1})$. 
-It is worth noting that, at time $t$, ...}
 
 \subsection{Action selection : the Infomax perspective}
 
