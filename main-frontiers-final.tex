@@ -187,8 +187,8 @@ F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \
 &= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
 \label{eq:FEP-energy}
 \end{align}
-with $\mathcal{Z}$ an arbitrary encoding space and $q$ an arbitrary distribution over the codes and $p(Z)$ a prior distribution over the codes.
-$p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
+with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
+The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
 $F$ is also called the variational free energy for it is mathematically analog to the Helmhotz Free Energy.
 It can then be shown, with some reordering, that:
 \begin{align}
@@ -196,7 +196,7 @@ F(\boldsymbol{x})
 &= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
 \label{eq:FEP}
 \end{align}
-so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a gradient descent over $p$ and $q$ according to eq. (\ref{eq:FEP-energy}) --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a stochastic gradient descent over $p$ and $q$ according to $\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
 $$h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) %\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
 $$
 that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
@@ -229,18 +229,21 @@ with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ approa
 - \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
 &= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] 
 \end{align}
-So:
+So that:
 \begin{align}
 F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
 \label{eq:FEP-uxu}
 \end{align}
-which is a special case of the variational Free Energy formulation adapted to the POMDP setup in \cite{friston2015active}.
+which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulation proposed in \cite{friston2015active}.
 
-If we now compare with eq. (\ref{eq:FEP-prior-u}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ now plays the role of the prior. 
-The chaining of the posterior to the next prior in a sequential scene decoding setup can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
+If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next estimation step, a typical property of sequential Bayesian inference {\color{magenta}(ref??)}.
+Such chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
 $$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) $$\\
-It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}(Z)$ (the current ``belief'') needs to be memorized to estimate $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$:
+It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
+$$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) q^{(n-1)}(Z) $$
+
+Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
 \begin{align}
 F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u}) 
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z)))
