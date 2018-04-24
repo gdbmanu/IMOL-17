@@ -64,13 +64,32 @@
 	
 \section{Introduction}
 
-In contrast with goal-oriented activity, animal selection of action also relates to the search for sensory clues in order to better understand its sensory environment. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
+In contrast with goal-oriented activity, animal motor activity also relates to the search for sensory clues in order to better understand its sensory environment. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
 
 %{\color{magenta} Revue de litterature}
 
 %\paragraph{Multi-view image processing}
 
-Scene decoding through action (or ``active perception'') has attracted strong interest for long time in robotics and artificial vision.  The opportunity to neglect large parts of the {\color{blue} visual/sensory} field comes from the important redundancy present in the {\color{blue} visual/sensory} data itself, with critical or useful information only present in little portions of the total sensory scene.
+Scene decoding through action (or ``active perception'') has attracted strong interest in robotics and artificial vision.  
+It mostly refers to the oculo-motor activity, for the movements of the eyes is a salient feature of superior vertebrates vision. The oculo-motor activity is an essential component of man and animal behavior, underlying most of daily displacements, movements, instrumental and social interactions. By moving the gaze with the eyes, the center of sight is constantly and actively moving around during all waking time. 
+A salient feature of superior vertebrates visual apparatus is the foveated retina that concentrates  photoreceptors over a small central portion of the visual field \cite{osterberg1935topography}. The scanning of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. 
+Though ubiquitous in biology, object recognition through saccades is seldom considered in artificial vision. 
+%The reasons are many, of which the existence of high-performance sensors that provide millions of pixels at low cost.
+The opportunity to neglect large parts of the {\color{blue} visual/sensory} should however be considered when the energy is scarce, for the important redundancy present in the {\color{blue} visual/sensory} data allows to envisage energy-efficient visual exploring devices  
+using only little portions of the total sensory scene.
+
+%itself, with critical or useful information only present in 
+
+ %Though taking a large part in brain activity, the principles underlying those visually guided movements are still a subject of debate in neurosciences.
+%The most documented case of active perception is gaze orientation, primarily studied in both man and animal \cite{yarbus1967eye,robinson1968eye}. A nice review of principal promises of \emph{animate} vision against passive vision  is presented in \cite{ballard1991animate},  in relation with eye-hand coordination in computer vision.
+%
+%, {\color{magenta} following an approximate exponential decrease of resolution from the center to the periphery [REF?]}. 
+ %\footnote{in contrast with animals retina whose actual design relies on a long optimization process under severe resource constraints.}.
+%Increasingly powerful computing devices are then assigned to compute in parallel those millions of pixels to perform recognition, consuming resources in a brute-force fashion. 
+
+The example of animal vision thus encourages a more parsimonious approach to computer vision \emph{including the control of the sensory flow}. 
+%A salient aspect of animal vision is the use of \emph{active} sensing devices, capable of moving around under some degrees of freedom in order to choose a particular viewpoint. The existence of a set of possible sensor movements calls for the development of specific algorithms that should \emph{solve the viewpoint selection problem}. 
+A computer vision program should for instance look back from past experience to see which viewpoint to use to provide the most useful information about a scene. Optimizing the sensor displacements across time may then be a part of computer vision algorithms, in combination with traditional pixel-based operations. 
 
 Changing the viewpoint can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
 A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
@@ -246,15 +265,15 @@ $$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) q^{(n-1)}(Z) $$
 Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
 \begin{align}
 F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u}) 
-&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z)))
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
 \label{eq:FEP-uxun}
 \end{align}
 %The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
-with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and current observations.
+with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and current observations, providing a \emph{forward} variational encoding scheme (see also \cite{fraccaro2016sequential} for a backward variational encoding scheme). 
 
 
 \subsection{Action selection and scene decoding optimization}
-Consider now an agent whose objective is to precisely estimate its environment state $\boldsymbol{z}$ from its sensory field and a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas})$.
+Consider now an agent whose objective is to precisely estimate its environment state $\boldsymbol{z}$ from its sensory field and a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$.
 Depending on $\boldsymbol{u}$ (current viewpoint), a different $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
 estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
 
