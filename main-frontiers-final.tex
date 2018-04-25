@@ -121,6 +121,15 @@ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,
 
 \subsection{Perception-driven control}
 
+{\color{blue}
+We considers an organization a the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. 
+
+Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. The cause of the current visual field $x$ is both the object identity $o$, its position in the peripersonal space $y$, and the current visual orientation $u$, i.e. $x \sim P(X|y,o,u)$, each variable counting for a distinct degree of freedom. For simplicity $y$ and $o$ are here reduced to a single variable $z = (y, o)$.% and the generative process  for every possible composition of object identity $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
+
+
+In that framework, saccadic exploration means thus to define a sequence of visuo-motor commands $\tilde{u}$, $\tilde{u}'$, $\tilde{u}''$, ... This sequence should ultimately provide a final estimate $\pi^{(n)}(z)$ such that a single cause $\hat{z}$ may dominate the other ones, allowing the system to reach a final decision.  
+}
+
 \subsubsection{Generative process}
 A feedback control framework is composed of an actor and an environment. The actor and the environment interact according to a feedback loop. 
 The actor can act on the environment through its effectors, and sense the state of the environment through its sensors. 
@@ -256,7 +265,8 @@ F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})
 \end{align}
 which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulation proposed in \cite{friston2015active}.
 
-If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next estimation step, a typical property of sequential Bayesian inference {\color{magenta}(ref??)}.
+If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
+
 Such chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
 $$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) $$\\
 It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
@@ -273,18 +283,28 @@ with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and 
 
 
 \subsection{Action selection and scene decoding optimization}
-Consider now an agent whose objective is to precisely estimate its environment state $\boldsymbol{z}$ from its sensory field and a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$.
-Depending on $\boldsymbol{u}$ (current viewpoint), a different $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
-estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
 
-Considering that the effect of the action $\boldsymbol{u}$ on the next observation $\boldsymbol{x}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize the accuracy of the environment's state estimation. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
+Perception is a decision \cite{berthoz1996neural}. {\color{blue} Here saccades are considered to probe a particular region of the visual scene, with the objective of reducing the uncertainty about the identity and position of particular objects. %This theory takes for granted that an a priori knowledge exists on all possible objects and locations but also for the repertoire of movements.
+}
+	\\
+{\color{blue} In a model-based approach, with $P$ the generative process, the active vision paradigm mainly considers optimizing the choice of $u$ for reducing uncertainty about $y$ and $o$, which are the covert constituents of the scene.  Considering now that a certain prior $\pi(z)$ has been formed about $z$, choosing  $u$ conducts the sight in a region of the visual field that provides $x$, which in turn allows to refine the expectations about the cause of the perception, i.e.
+$ P(z|x,u) \propto P(x|z,u) p(z)$. 
+One needs thus to choose $u$ appropriately in order to reduce the uncertainty about $z$, given the actual $x$, {\color{magenta} i.e minimize the entropy :$u^* = \underset{u \in \mathcal{U}}{\text{argmin }} H$ with $H = E(-\log P(z|u,y))$.}
+}
+	
+Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$ is given to the agent. 
+Depending on  the current viewpoint $\boldsymbol{u}$, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
+estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
+The task turns here to minimize the number of samples so as to provide an accurate estimate. 
+
+Considering that the effect of the action $\boldsymbol{u}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize the accuracy of the posterior. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
 A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
-More elaborate strategies consider the past state $\boldsymbol{z}_0$ to choose the most promising action $\boldsymbol{u}$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\boldsymbol{z}_0$, sets up an action $\boldsymbol{u} = C(\boldsymbol{z}_0)$. The role of that controller is not to achieve a certain task, but only to render the estimation of the (future) outer state more accurate. The controller is said \emph{perception-driven}. 
+More elaborate strategies consider the past observations $\{\boldsymbol{u}_{1,..., t-1}, \boldsymbol{x}_{1,..., t-1}\}$ to choose the most promising action $\boldsymbol{u}_t$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\{\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1}\}$, sets up an action $\boldsymbol{u} = C(\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1})$. The role of the controller is not to achieve a goal-oriented task, but to render the estimation of the outer state more accurate. The controller is said \emph{perception-driven}. 
 
 The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
 \begin{align}
-\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{argmax}}  f(\boldsymbol{z}_0, \boldsymbol{u})
+\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})
 \end{align}
 
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates are developed and commented in the following sections.
