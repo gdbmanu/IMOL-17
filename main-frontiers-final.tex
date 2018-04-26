@@ -130,7 +130,8 @@ Put formally, exploring a visual scene through saccades consists in identifying 
 In that framework, saccadic exploration means thus to define a sequence of visuo-motor commands $\tilde{u}$, $\tilde{u}'$, $\tilde{u}''$, ... This sequence should ultimately provide a final estimate $\pi^{(n)}(z)$ such that a single cause $\hat{z}$ may dominate the other ones, allowing the system to reach a final decision.  
 }
 
-\subsubsection{Generative process}
+\subsubsection{Model-based approach}
+\paragraph{Generative process}
 A feedback control framework is composed of an actor and an environment. The actor and the environment interact according to a feedback loop. 
 The actor can act on the environment through its effectors, and sense the state of the environment through its sensors. 
 The state of the environment as well as the state of the agent can change over time. The state of the environment is described by a state vector $\boldsymbol{z} \in \mathcal{Z}$.
@@ -154,7 +155,7 @@ The combination of  (\ref{eq:process}) and (\ref{eq:measure}) is said a \emph{ge
 %{\color{magenta} probabilistic framework : the changes that take place in the physical world described by  = model.}
 %Given an initial state $\boldsymbol{z}_0$, the next state $\boldsymbol{z}$ rests on the conditional distribution   and the 
 
-\subsubsection{Inference}
+\paragraph{Inference}
 
 When both the transition and the measure models are known, it is possible to \emph{infer} the latent state of the physical system $\boldsymbol{z}$ from the sensory field $\boldsymbol{x}$, the previous state $\boldsymbol{z}_0$ and the motor command $\boldsymbol{u}$ using Bayes rule:
 \begin{align}
@@ -173,18 +174,18 @@ q_\text{\sc post}(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u}, \boldsymbol{z}_0
 \end{align}
 
 \subsubsection{One scene, many views}
-An important special case is when the motor command only relates to the \emph{orientation of a sensor}. The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor here considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
-Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene. The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to affect on the latent state $\boldsymbol{z}$}, i.e.
+An important special case is when the motor command only relates to the \emph{orientation of a sensor}.  The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to affect on the latent state $\boldsymbol{z}$}, i.e.
 \begin{align}
 \boldsymbol{z} \sim \text{Pr}(Z|\boldsymbol{z}_0)
 \end{align} 
 so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
-
+The motor command $\boldsymbol{u}$ then corresponds to the desired end-orientation of the sensor here considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
+Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene.
 
 Under a scene decoding  task, where the motor command $\boldsymbol{u}$ refers to the orientation of a sensor, it is rather common to consider the environment as ``static'' \cite{butko2010infomax}. This means, in short, that:
 $$\text{Pr}(Z|\boldsymbol{z}_0) = \delta(Z, \boldsymbol{z}_0)$$ 
 with $\delta$ the Knonecker symbol. 
-The latent variable $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process. In a model-based approach, it may specify the state of the physical environment. In a model-free view, it should be expressive enough to restore information about the environment.  
+The latent variable $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process. In a model-based approach, it may specify the state of the physical environment. 
 
 Each different viewpoint $\boldsymbol{u}$ can be seen as a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) is the realization of a generative model parametrized by $\boldsymbol{u}$ and $\boldsymbol{z}$. This generative model is written:
 $$p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z, U)$$
@@ -196,12 +197,14 @@ The dependencies between the three variables can moreover be symetrically decomp
 \begin{align}
 	p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
 	&= p(Z| X, U)p(X) p(U)\nonumber\\
-	&= p(U|X, Z)p(X) p(Z)\nonumber
+	&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
 \end{align}
 comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
 conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
 
-\subsubsection{Scene encoding and scene decoding}
+\subsubsection{Scene encoding and scene decoding in the model-free case}
+
+In the model-free case, only weak assumptions can be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
 
 \paragraph{Scene encoding}
 The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
@@ -268,9 +271,15 @@ which is a special case of the POMDP\footnote{Partially Observed Markov Decision
 If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
 Such chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
-$$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) $$\\
+\begin{align}
+q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) \label{eq:accum}
+\end{align}
+ 
+ 
 It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
-$$ q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) q^{(n-1)}(Z) $$
+\begin{align} 
+q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) q^{(n-1)}(Z) \label{eq:accum-post}
+\end{align}
 
 Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
 \begin{align}
@@ -284,23 +293,109 @@ with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and 
 
 \subsection{Action selection and scene decoding optimization}
 
-Perception is a decision \cite{berthoz1996neural}. {\color{blue} Here saccades are considered to probe a particular region of the visual scene, with the objective of reducing the uncertainty about the identity and position of particular objects. %This theory takes for granted that an a priori knowledge exists on all possible objects and locations but also for the repertoire of movements.
-}
-	\\
-{\color{blue} In a model-based approach, with $P$ the generative process, the active vision paradigm mainly considers optimizing the choice of $u$ for reducing uncertainty about $y$ and $o$, which are the covert constituents of the scene.  Considering now that a certain prior $\pi(z)$ has been formed about $z$, choosing  $u$ conducts the sight in a region of the visual field that provides $x$, which in turn allows to refine the expectations about the cause of the perception, i.e.
-$ P(z|x,u) \propto P(x|z,u) p(z)$. 
-One needs thus to choose $u$ appropriately in order to reduce the uncertainty about $z$, given the actual $x$, {\color{magenta} i.e minimize the entropy :$u^* = \underset{u \in \mathcal{U}}{\text{argmin }} H$ with $H = E(-\log P(z|u,y))$.}
-}
-	
-Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model $G = (p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$ is given to the agent. 
+So a single probabilistic framework allows for describing both the model-free and mode-based view to the scene decoding setup\footnote{Note the Information theoretic estimators provided in previous section and in the following one are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}. 
+Equipped with a probabilistic model, important quantities can then be defined. 
+One such quantity is the \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the ``bottom-up'' case they consider, only local statistics $q$ are formed over small image patches of a given image $\Omega$. We note here $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the inferred features from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the divergence between the actual data and the model is:
+$$ S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u}) = \text{KL}(q(\boldsymbol{z}| \boldsymbol{x}, \boldsymbol{u})||q(\boldsymbol{z}))$$
+which shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-prior-u}). 
+
+According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
+Its strong explanatory power and scalability explain its straightforward application in image and video compression  \cite{wang2003foveation,guo2010novel}.
+
+The Itti and Baldi's approach to vision constitutes however a challenge to modelers. It is indeed task independent and, in contrast with perception elementary requirements, totally unaware of the scene interpretation. It thus provides little explanation about the sight-orientation cognitive operations. 
+It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
+More formally, the Bayesian surprise term enters in contradiction (or in ``dialectic'' contrast) with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations.
+
+In contrast, the ``top-down'' approach considers viewpoint change as a prototype of action selection in the brain. 
+Interestingly, very similar concepts and modelling tools can be used in both the bottom-up and top-down approaches. 
+The main difference is that the top-down approach implements a sequential Bayesian accumulation procedure (see eq~\ref{eq:accum}) to reflect belief change and viewpoint selection over time. $q^{(n-1)}$ is now the current belief about that latent state, that plays the role of the current ``model''. Then, every viewpoint $\boldsymbol{u}$ may reveal more or less consistent with $q^{(n-1)}$. 
+The baseline consistency between  $\boldsymbol{u}$ and $q^{(n-1)}$ is provided by~:
+$$v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})$$
+with $q^{(n)}$ updated according to eq.~(\ref{eq:accum-post}).
+
+
+ Let this consistency be noted $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$. Considering that:
+\begin{enumerate}
+	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=q^{(n)}(\hat{\boldsymbol{z}})$
+	 with $\hat{\boldsymbol{z}} = \underset{\boldsymbol{z}}{\text{argmax }}q^{(n)}(\boldsymbol{z})$ 
+	 the ``accuracy'' of posterior in \cite{najemnik2005optimal}.
+	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=-H(q^{(n)})$
+	with $H(q^{(n)}) = - \sum_z q^{(n)}(\boldsymbol{z})\log q^{(n)}(\boldsymbol{z})$
+	the entropy of the posterior in \cite{najemnik2009simple,butko2010infomax,friston2012perceptions}
+\end{enumerate} 
+
+A first quantity of interest, proposed in \cite{najemnik2005optimal}, is the prediction correctness that is embedded in a Bayesian framework. Considering a certain prior $q$ about the latent state $\boldsymbol{z}$, the quantity maximized in \cite{najemnik2005optimal} is the average accuracy~:
+$$\bar{A}^{(n)}(\boldsymbol{u}) = \sum_z q^{(n-1)}(\boldsymbol{z}) A^{(n)}(\boldsymbol{z}, \boldsymbol{u})$$  
+with $n$ the processing step and $A^{(n)}(\boldsymbol{z}, \boldsymbol{u})$ the target/non target classification accuracy when looking at $\boldsymbol{u}$.
+
+Another quantity considered in many considered in  
+
+As opposed to the bottom-up approach, the top-down approach to visual perception considers 
+each saccadic command as a \emph {decision} \cite{berthoz1996neural}.
+%, i.e. follows the same rule as motor decision-making in the brain.  
+Every
+
+
+
+Action selection generally relates to maximizing a certain objective function $\mathcal{O}$ (or minimizing a loss $\mathcal{L}$) that reflect the fulfillment of a task. 
+Considering that the effect of the action $\boldsymbol{u}$ is not known in advance, a \emph{model of action} needs to be used (or constructed from experiment).
+Once the objective function established, a \emph{policy} may then drive the choice of action according to the objective fulfillment.  
+This includes action planning, i.e. simulating internally the effect of action in a more or less far future. This also includes learning the value of action from experience. 
+
+A baseline model of action is
+
+
+This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
+
+
+ comprehensive overview of action selection in the brain 
+
+
+
+The top-down approach also considers a generative model $p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$ the generative process, choosing the next action $\boldsymbol{u}$ relates to reducing the uncertainty about the latent state $z$.
+
+Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model  is given to the agent. 
 Depending on  the current viewpoint $\boldsymbol{u}$, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
 estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
 The task turns here to minimize the number of samples so as to provide an accurate estimate. 
 
-Considering that the effect of the action $\boldsymbol{u}$ is not known in advance, different strategies can be adopted to choose $\boldsymbol{u}$ in a way that is expected to maximize the accuracy of the posterior. This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
 A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
 More elaborate strategies consider the past observations $\{\boldsymbol{u}_{1,..., t-1}, \boldsymbol{x}_{1,..., t-1}\}$ to choose the most promising action $\boldsymbol{u}_t$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\{\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1}\}$, sets up an action $\boldsymbol{u} = C(\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1})$. The role of the controller is not to achieve a goal-oriented task, but to render the estimation of the outer state more accurate. The controller is said \emph{perception-driven}. 
+
+
+Considering now that a certain prior $\pi(z)$ has been formed about $z$, choosing  $u$ conducts the sight in a region of the visual field that provides $x$, which in turn allows to refine the expectations about the cause of the perception, i.e.
+$ P(z|x,u) \propto P(x|z,u) p(z)$. 
+One needs thus to choose $u$ appropriately in order to reduce the uncertainty about $z$, given the actual $x$,
+
+constructed from the current view and prior expectations. 
+
+On sait que :
+- la course des saccades dépend de la tache
+- l'oeil est attiré par des éléments signifiants (visage, lettres,...)
+
+when considering the concurrent ``top-down'' approach to scene exploration. 
+ 
+
+%Perception is a 
+
+{\color{magenta}Littérature sur l'anticipation... 
+}
+
+
+{\color{magenta}Littérature sur la sélection de l'action: la sélection de l'action peut-etre model free ou model based. elle peut etre anticipatrce ou basée sur un modele. elle peut etre exploratoire (découverte d'information ou instrumentale)
+	
+L'approche sélection de l'actin s'oppose à l'approche bottom-up de Itti et Baldi. 
+}
+
+
+{\color{blue} Here saccades are considered to probe a particular region of the visual scene, with the objective of reducing the uncertainty about the identity and position of particular objects. %This theory takes for granted that an a priori knowledge exists on all possible objects and locations but also for the repertoire of movements.
+}
+	\\
+{\color{blue}  {\color{magenta} i.e minimize the entropy :$u^* = \underset{u \in \mathcal{U}}{\text{argmin }} H$ with $H = E(-\log P(z|u,y))$.}
+}
+	
+
 
 The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
 \begin{align}
