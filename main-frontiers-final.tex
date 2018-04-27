@@ -119,7 +119,7 @@ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,
 
 \section{Material and methods}
 
-\subsection{Perception-driven control}
+\subsection{Perception-driven control}\label{sec:perception-driven-control}
 
 {\color{blue}
 We considers an organization a the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. 
@@ -206,7 +206,7 @@ conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse mod
 
 In the model-free case, only weak assumptions can be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
 
-\paragraph{Scene encoding}
+\paragraph{Scene encoding}\label{sec:encoding}
 The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
 to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
 is a code that is both compact and accurate at restoring the data. 
@@ -249,8 +249,9 @@ with each viewpoint $\boldsymbol{u}$ providing a distinct optimization problem.
 \paragraph{Scene decoding}
 The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene. The sharing of information between two sensory fields can be quantified by their \emph{mutual information} (or ``Information gain'' --~see \cite{tishby2011information}~--):
 \begin{align}
-I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
-&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] 
+I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \boldsymbol{u}', X, \boldsymbol{u})\\
+&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
+&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
 \end{align}
 with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. The quantity $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ can be expressed through a ``chain rule'': 
 \begin{align}
@@ -270,15 +271,15 @@ which is a special case of the POMDP\footnote{Partially Observed Markov Decision
 
 If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
-Such chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}'), ... , (\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
+According to the Bayes rule, the chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
 \begin{align}
-q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) p(Z|\boldsymbol{x}',\boldsymbol{u}') ... p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}) \label{eq:accum}
+q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) p(\boldsymbol{x}'|Z,\boldsymbol{u}') ... p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \label{eq:accum}
 \end{align}
  
  
 It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
 \begin{align} 
-q^{(n)}(Z) \propto p(Z|\boldsymbol{x},\boldsymbol{u}) q^{(n-1)}(Z) \label{eq:accum-post}
+q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) q^{(n-1)}(Z) \label{eq:accum-post}
 \end{align}
 
 Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
@@ -293,48 +294,124 @@ with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and 
 
 \subsection{Action selection and scene decoding optimization}
 
-So a single probabilistic framework allows for describing both the model-free and mode-based view to the scene decoding setup\footnote{Note the Information theoretic estimators provided in previous section and in the following one are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}. 
-Equipped with a probabilistic model, important quantities can then be defined. 
-One such quantity is the \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the ``bottom-up'' case they consider, only local statistics $q$ are formed over small image patches of a given image $\Omega$. We note here $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the inferred features from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the divergence between the actual data and the model is:
-$$ S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u}) = \text{KL}(q(\boldsymbol{z}| \boldsymbol{x}, \boldsymbol{u})||q(\boldsymbol{z}))$$
-which shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-prior-u}). 
+Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model  is given to the agent. 
+Depending on  the current viewpoint $\boldsymbol{u}$, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
+estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
+That turns  to minimize the number of samples so as to provide an accurate estimate. This approach to inference is called \emph{active sampling} \cite{friston2012perceptions}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
-According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
-Its strong explanatory power and scalability explain its straightforward application in image and video compression  \cite{wang2003foveation,guo2010novel}.
+A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
+More elaborate strategies consider the past observations $\{\boldsymbol{u}^{(1:n-1)}, \boldsymbol{x}^{(1:n-1)}\}$ to choose the most promising action $\boldsymbol{u}^{(n)}$. We have seen in  \ref{sec:perception-driven-control} that, under a Markov assumption, the memory of the past context
+at step $n$ can be absorbed in single posterior distribution $q^{(n-1)}$.  The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $q^{(n-1)}$, sets up an action $\boldsymbol{u}^{(n)} = C(q^{(n-1)})$. Here the role of the controller is not to achieve a goal-oriented task, but to render the estimation of the latent state more accurate. The controller is said \emph{perception-driven}. 
 
-The Itti and Baldi's approach to vision constitutes however a challenge to modelers. It is indeed task independent and, in contrast with perception elementary requirements, totally unaware of the scene interpretation. It thus provides little explanation about the sight-orientation cognitive operations. 
-It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
-More formally, the Bayesian surprise term enters in contradiction (or in ``dialectic'' contrast) with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations.
+The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual latent state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. In order to estimate how good a motor command is, one needs to provide an estimate of the value-of-action (regarding scene understanding). There is currently no consensus about what a good value is regarding the scene decoding task. 
 
-In contrast, the ``top-down'' approach considers viewpoint change as a prototype of action selection in the brain. 
-Interestingly, very similar concepts and modelling tools can be used in both the bottom-up and top-down approaches. 
-The main difference is that the top-down approach implements a sequential Bayesian accumulation procedure (see eq~\ref{eq:accum}) to reflect belief change and viewpoint selection over time. $q^{(n-1)}$ is now the current belief about that latent state, that plays the role of the current ``model''. Then, every viewpoint $\boldsymbol{u}$ may reveal more or less consistent with $q^{(n-1)}$. 
-The baseline consistency between  $\boldsymbol{u}$ and $q^{(n-1)}$ is provided by~:
-$$v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})$$
-with $q^{(n)}$ updated according to eq.~(\ref{eq:accum-post}).
+A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
+\begin{align}
+\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
+\end{align}
+Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \cite{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates have been developed in the scene decoding context.
+We propose a tour of the most common intrinsic value estimators\footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of each approach. 
 
 
- Let this consistency be noted $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$. Considering that:
-\begin{enumerate}
-	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=q^{(n)}(\hat{\boldsymbol{z}})$
-	 with $\hat{\boldsymbol{z}} = \underset{\boldsymbol{z}}{\text{argmax }}q^{(n)}(\boldsymbol{z})$ 
-	 the ``accuracy'' of posterior in \cite{najemnik2005optimal}.
-	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=-H(q^{(n)})$
-	with $H(q^{(n)}) = - \sum_z q^{(n)}(\boldsymbol{z})\log q^{(n)}(\boldsymbol{z})$
-	the entropy of the posterior in \cite{najemnik2009simple,butko2010infomax,friston2012perceptions}
-\end{enumerate} 
+\subsubsection{Accuracy-based control}
+
+The predictive approach to perception-driven control was originally developed by \cite{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
+Considering a  probabilistic generative model $p(X,Z,U)$, like the one described in section \ref{sec:perception-driven-control}, the predictive approach relies on predicting an accuracy measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
+The accuracy tells how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
+knowing $q^{(n-1)}$ (the estimated posterior at step $n-1$).
+
+If the agent has to choose an action $\boldsymbol{u} \in \mathcal{U}$, knowing only $q^{(n-1)}$, the \emph{predicted} accuracy attached to $\boldsymbol{u}$ is:
+$$\mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right]  = \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x} $$  
+and the optimal action to choose is:
+$$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right] $$ 
+It must be noted that in order to render the computation tractable, a \emph{sampling} approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.
+
+The accuracy measure used in the original paper was an ad-hoc one \cite{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \cite{najemnik2009simple}, i.e.:
+$$A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = -H(q^{(n)}) = \sum_{z \in \mathcal{Z}} q^{(n)}(\boldsymbol{z}) \log q^{(n)}(\boldsymbol{z})$$
+with: $q^{(n)}(\boldsymbol{z}) \propto p(\boldsymbol{x|\boldsymbol{z}, \boldsymbol{u}})q^{(n-1)}(\boldsymbol{z}) $
+so that:
+$$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)},p}\left[H(q^{(n)})\right] $$ 
+which makes sense for a low entropy of the posterior is expected when the estimated posterior accuracy is high.
+
+This approach to optimal visual sampling was further on linked to an ``Infomax'' principle in \cite{butko2010infomax} and shown efficient in artificial visual search using policy gradient \cite{williams1992simple} to learn the controller. The Infomax approach uses the same formalism than the Information gain (see eq.~\ref{eq:infomax}), except the information gain is estimated in the latent space:
+\begin{align}
+A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) &= I(Z^{(n)}; Z^{(n-1)}|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\nonumber\\
+&= H(q^{(n-1)}) - H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})
+\end{align}
+so that a maximal information gain is expected when $H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})$ is minimal.
+
+The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no strict comparison between $q^{(n-1)}$ and $q^{(n)}$.
+It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$. 
+
+\subsubsection{Saliency-based control}
+
+%In contrast, the ``top-down'' approach considers viewpoint change as a prototype of action selection in the brain. 
+%Interestingly, very similar concepts and modelling tools can be used in both the bottom-up and top-down approaches. 
+%The main difference is that the top-down approach implements a sequential Bayesian accumulation procedure (see eq~\ref{eq:accum}) to reflect belief change and viewpoint selection over time. $q^{(n-1)}$ is now the current belief about that latent state, that plays the role of the current ``model''. Then, every viewpoint $\boldsymbol{u}$ may reveal more or less consistent with $q^{(n-1)}$. 
+%The baseline consistency between  $\boldsymbol{u}$ and $q^{(n-1)}$ is provided by~:
+%$$v() = \text{KL}(q^{(n)}||q^{(n-1)})$$
+%with $q^{(n)}$ updated according to eq.~(\ref{eq:accum-post}).
+
+%Let this consistency be noted $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$. Considering that:
+%\begin{enumerate}
+%	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=q^{(n)}(\hat{\boldsymbol{z}})$
+%	with $\hat{\boldsymbol{z}} = \underset{\boldsymbol{z}}{\text{argmax }}q^{(n)}(\boldsymbol{z})$ 
+%	the ``accuracy'' of posterior in .
+%	\item $v(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})=-H(q^{(n)})$
+%	with $H(q^{(n)}) = - \sum_z q^{(n)}(\boldsymbol{z})\log q^{(n)}(\boldsymbol{z})$
+%	the entropy of the posterior in \cite{najemnik2009simple,butko2010infomax,friston2012perceptions}
+%\end{enumerate} 
+
+
+
+Another quantity of interest is the so-called \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the divergence between the actual data and the model is:
+$$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(q(Z| \boldsymbol{x}, \boldsymbol{u})||q(Z))$$
+which is a measure of the \emph{in}consistency between a model $q$ and the data. A high saliency reports a strong inconsistency with the model (a high surprise), while a low saliency reports a strong consistency with the model (a low surprise).
+The saliency term can be generalized to the sequential setup proposed earlier as:
+$$ S(\boldsymbol{x},\boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))$$
+with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$.
+It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
+
+According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). 
+In a sequential setup, a corresponding predictive policy would be:
+$$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{q^{(n-1)}, p}\left[\text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))\right]$$
+
+
+The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
+Its scalability moreover provides straightforward applications in image and video compression  \cite{wang2003foveation,guo2010novel}.
+It  however constitutes a challenge to modelers, for it is at odd with scene interpretation,  
+%It thus provides little explanation about the sight-orientation cognitive operations. 
+%It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
+i.e. enters in contradiction (or in ``dialectic'' contrast) with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
+
+\subsubsection{Active inference}
+
+The active inference paradigm was introduced in neuroscience through the work of ~\cite{friston2010free,friston2012perceptions}. % 
+The general setup proposed by Friston and colleagues is that of a tendency of the brain to counteract surprising and unpredictable sensory events through 
+improving a generative models by gradient descent over its variational Free Energy (see eq~\ref{eq:FEP}). 
+%that improve their predictions over time and render the world more amenable. This improvement is mainly done through sampling the environment and extracting statistical invariants that are used in return to predict upcoming events.
+%Building a model thus rests on extracting a repertoire of invariants and organizing them so as to process the incoming sensory data efficiently through predictive coding (see \cite{rao1999predictive}). 
+This proposition is reminiscent of Hinton's auto-encoding theory (see section \ref{sec:encoding}), but introduces a new perspective on coding
+for \emph{it formally links scene encoding from data with (optimal) motor control}.
+In particular, motor control is here considered as a particular implementation of a \emph{sampling process}
+that tends to follow a minimal free-Energy path \cite{friston2015active}.
+%that is at the core of the estimation of a complex posterior distribution. 
+%The objective highlighted by \cite{friston2012perceptions} is to output a control $u$ so as to maximize the accuracy of inference estimate (\ref{eq:post}) through minimizing the Free Energy criterion (upper bound of the negative log evidence) over the actions set $\mathcal{U}$. 
+
+
+
+
+{\color{magenta}
 
 A first quantity of interest, proposed in \cite{najemnik2005optimal}, is the prediction correctness that is embedded in a Bayesian framework. Considering a certain prior $q$ about the latent state $\boldsymbol{z}$, the quantity maximized in \cite{najemnik2005optimal} is the average accuracy~:
 $$\bar{A}^{(n)}(\boldsymbol{u}) = \sum_z q^{(n-1)}(\boldsymbol{z}) A^{(n)}(\boldsymbol{z}, \boldsymbol{u})$$  
 with $n$ the processing step and $A^{(n)}(\boldsymbol{z}, \boldsymbol{u})$ the target/non target classification accuracy when looking at $\boldsymbol{u}$.
 
-Another quantity considered in many considered in  
+
 
 As opposed to the bottom-up approach, the top-down approach to visual perception considers 
 each saccadic command as a \emph {decision} \cite{berthoz1996neural}.
 %, i.e. follows the same rule as motor decision-making in the brain.  
-Every
-
 
 
 Action selection generally relates to maximizing a certain objective function $\mathcal{O}$ (or minimizing a loss $\mathcal{L}$) that reflect the fulfillment of a task. 
@@ -342,10 +419,6 @@ Considering that the effect of the action $\boldsymbol{u}$ is not known in advan
 Once the objective function established, a \emph{policy} may then drive the choice of action according to the objective fulfillment.  
 This includes action planning, i.e. simulating internally the effect of action in a more or less far future. This also includes learning the value of action from experience. 
 
-A baseline model of action is
-
-
-This approach to inference is called \emph{active sampling}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
 
  comprehensive overview of action selection in the brain 
@@ -354,14 +427,7 @@ This approach to inference is called \emph{active sampling}, for the choice of $
 
 The top-down approach also considers a generative model $p_\text{\sc trans}; p_\text{\sc meas};p_\text{\sc prior})$ the generative process, choosing the next action $\boldsymbol{u}$ relates to reducing the uncertainty about the latent state $z$.
 
-Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model  is given to the agent. 
-Depending on  the current viewpoint $\boldsymbol{u}$, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
-estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
-The task turns here to minimize the number of samples so as to provide an accurate estimate. 
 
-
-A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
-More elaborate strategies consider the past observations $\{\boldsymbol{u}_{1,..., t-1}, \boldsymbol{x}_{1,..., t-1}\}$ to choose the most promising action $\boldsymbol{u}_t$ (regarding next posterior accuracy). The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $\{\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1}\}$, sets up an action $\boldsymbol{u} = C(\boldsymbol{u}_{1:t-1}, \boldsymbol{x}_{1:t-1})$. The role of the controller is not to achieve a goal-oriented task, but to render the estimation of the outer state more accurate. The controller is said \emph{perception-driven}. 
 
 
 Considering now that a certain prior $\pi(z)$ has been formed about $z$, choosing  $u$ conducts the sight in a region of the visual field that provides $x$, which in turn allows to refine the expectations about the cause of the perception, i.e.
@@ -375,7 +441,7 @@ On sait que :
 - l'oeil est attiré par des éléments signifiants (visage, lettres,...)
 
 when considering the concurrent ``top-down'' approach to scene exploration. 
- 
+ }
 
 %Perception is a 
 
@@ -397,12 +463,7 @@ L'approche sélection de l'actin s'oppose à l'approche bottom-up de Itti et Bal
 	
 
 
-The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual outer state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
-\begin{align}
-\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})
-\end{align}
 
-Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates are developed and commented in the following sections.
 
 {\color{magenta} la stratégie générale consiste à définir une fonction objectif permettant d'estimer la qualité du contrôle effectué selon un critère de précision de l'estimation d'état. Cadre du RL? Le problème des etats explicites (non markovien) et le principe de l'état caché.}
 
