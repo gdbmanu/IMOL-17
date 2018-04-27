@@ -332,7 +332,7 @@ A general strategy is thus to establish a \emph{objective function} $f$ (resp. a
 \hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
 \end{align}
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \cite{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates have been developed in the scene decoding context.
-We propose a tour of the most common intrinsic value estimators\footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of the differen approaches, and end up with new objective formulation called the \emph{encoding accuracy}. 
+We propose a tour of the most common intrinsic value estimators\footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of the different approaches, and end up with new objective formulation called the \emph{encoding accuracy}. 
 
 
 \subsubsection{Accuracy-based control}\label{sec:infomax}
@@ -439,8 +439,8 @@ According to eq.~(\ref{eq:FEP-uxu2}), an additional reformulation gives:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
 \end{align}
-with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the cumulated posterior and the \emph{local} posterior, measured at viewpoint $\boldsymbol{u}$ only. It is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the conditional Free Energy and 
-the \emph{local} description length (or ``surprise'') at viewpoint $\boldsymbol{u}$.
+with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the cumulated posterior and the \emph{local} posterior, measured at viewpoint $\boldsymbol{u}$ only. This divergence is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the conditional Free Energy and 
+the \emph{local} ``surprise'' at viewpoint $\boldsymbol{u}$.
 
 The lower $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$, the closer the Free Energy estimate to the actual surprise. It is thus proposed here to link viewpoint selection to the \emph{expected encoding accuracy} through minimizing $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ rather than minimizing the Free Energy \emph{per se} 
 \footnote{Minimizing the Free Energy is indeed known to drive the sight toward unsurprising (and thus uninformative) locations (the so-called ``dark room'' problem --~see \cite{friston2012perceptions}~--).}.
