@@ -121,14 +121,13 @@ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,
 
 \subsection{Perception-driven control}\label{sec:perception-driven-control}
 
-{\color{blue}
+
 We considers an organization a the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. 
+Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. The cause of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. For simplicity $\boldsymbol{y}$ and $\boldsymbol{o}$ are here reduced to a single variable $\boldsymbol{z} = (\boldsymbol{y}, \boldsymbol{o})$.% and the generative process  for every possible composition of object identity $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
 
-Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. The cause of the current visual field $x$ is both the object identity $o$, its position in the peripersonal space $y$, and the current visual orientation $u$, i.e. $x \sim P(X|y,o,u)$, each variable counting for a distinct degree of freedom. For simplicity $y$ and $o$ are here reduced to a single variable $z = (y, o)$.% and the generative process  for every possible composition of object identity $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
+In that framework, called here the ``three party'' generative setup, saccadic exploration means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision.  
 
 
-In that framework, saccadic exploration means thus to define a sequence of visuo-motor commands $\tilde{u}$, $\tilde{u}'$, $\tilde{u}''$, ... This sequence should ultimately provide a final estimate $\pi^{(n)}(z)$ such that a single cause $\hat{z}$ may dominate the other ones, allowing the system to reach a final decision.  
-}
 
 \subsubsection{Model-based approach}
 \paragraph{Generative process}
@@ -173,7 +172,15 @@ q_\text{\sc post}(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u}, \boldsymbol{z}_0
 {\sum_{\boldsymbol{z}'}p_\text{\sc meas}(\boldsymbol{x}|\boldsymbol{z}',\boldsymbol{u}) p_\text{\sc trans}(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post-pdf}
 \end{align}
 
+
 \subsubsection{One scene, many views}
+
+We propose to split the generative process in two parts, namely the controlled generative process and the uncontrolled generative process. The controlled emitter is named $\boldsymbol{u}$ while the uncontrolled emitter is named $\boldsymbol{z}$. The value of $\boldsymbol{u}$ refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The value of $\boldsymbol{z}$ refers to the remaining part of the physical world, i.e. the ``environment''. This restricted setup, that separates a body and an environment the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake.  	
+
+An additional assumption is that the controlled generative process is relatively "fast" in comparison with the uncontrolled one. In consequence we reduce $\boldsymbol{u}$ to  a motor setpoint (a motor command) that is supposed to be realized by the motor apparatus at short notice under classical stability/controllability constraints.
+Then the latent state space (the cause of the visual field) decomposes in a hidden cause $\boldsymbol{z}$ and an explicit motor command $\boldsymbol{u}$. 
+The generative distribution becomes $p(\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u})$ so that activating the motor effectors updates the state of the plant as well as its visual sensory outcome. In comparison,  changing the state of an external (uncontrolled) emitter would also modify the visual sensory outcome. The command $u$ here participates in a feedback loop that in return updates the visual stream.
+
 An important special case is when the motor command only relates to the \emph{orientation of a sensor}.  The motor control $\boldsymbol{u}$ is now called a \emph{viewpoint} and most importantly \emph{is not expected to affect on the latent state $\boldsymbol{z}$}, i.e.
 \begin{align}
 \boldsymbol{z} \sim \text{Pr}(Z|\boldsymbol{z}_0)
@@ -195,12 +202,13 @@ $$p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z) p_\text{\sc prior
 
 The dependencies between the three variables can moreover be symetrically decomposed in the form of three conditional models, i.e. :
 \begin{align}
-	p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
-	&= p(Z| X, U)p(X) p(U)\nonumber\\
-	&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
+p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
+&= p(Z| X, U)p(X) p(U)\nonumber\\
+&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
 \end{align}
 comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
 conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
+
 
 \subsubsection{Scene encoding and scene decoding in the model-free case}
 
@@ -253,15 +261,17 @@ I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \b
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
 &\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
 \end{align}
-with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. The quantity $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ can be expressed through a ``chain rule'': 
+with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ a quantity approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
+
+Knowing the quantity $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ can be approached by: 
 \begin{align}
 -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
 &\stackrel{q(z) = p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})}{\simeq} 
 - \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
-&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] 
+&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] \label{eq:cond-F}
 \end{align}
-So that:
+the conditional Free Energy can be defined as~:
 \begin{align}
 F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
@@ -269,6 +279,18 @@ F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})
 \end{align}
 which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulation proposed in \cite{friston2015active}.
 
+Additional reformulations show that:
+\begin{align}
+\mathbb{E}_{\boldsymbol{z} \sim q(Z)} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right]
+&= -\log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))\label{eq:cond-F-KL}
+\end{align}
+so that:
+\begin{align}
+F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) =  -\log p(\boldsymbol{x}'| \boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
+\label{eq:FEP-uxu2}
+\end{align}
+
+\subsubsection{Sequential Bayesian inference}
 If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
 According to the Bayes rule, the chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
@@ -398,8 +420,33 @@ that tends to follow a minimal free-Energy path \cite{friston2015active}.
 %that is at the core of the estimation of a complex posterior distribution. 
 %The objective highlighted by \cite{friston2012perceptions} is to output a control $u$ so as to maximize the accuracy of inference estimate (\ref{eq:post}) through minimizing the Free Energy criterion (upper bound of the negative log evidence) over the actions set $\mathcal{U}$. 
 
+Consider the conditional Free Energy at step $n$ (eq.~(\ref{eq:FEP-uxun}))
+now writes like:
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log (p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{z})q^{(n-1)}(\boldsymbol{z}))\right] - \text{H}(q^{(n)}(Z))
+\end{align}
+with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current variational distribution. In a sampling procedure, the new sample 
+$(\boldsymbol{x}|\boldsymbol{u})$ is expected to provide an information that is not yet present at sample time, i.e. 
+$q^{(n)} = q^{(n-1)}$, so that, with some reordering and simplification:
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\sum_z q^{(n-1)}(\boldsymbol{z}) \log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})\nonumber\\
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} -\log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})
+\end{align}
+that consistently fits with eq.~(\ref{eq:cond-F}), so that the conditional free Energy minimization finally participates to the Information gain objective \cite{tishby2011information}.
 
+According to eq.~(\ref{eq:FEP-uxu2}), an additional reformulation gives:
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+\end{align}
+with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the previous posterior and the \emph{local} posterior, measured at $(\boldsymbol{x}, \boldsymbol{u})$ only. It is here interpreted as the \emph{margin}, i.e. the difference between the conditional Free Energy and 
+the \emph{local} description length (or ``surprise'').
 
+It is critical here to consider the margin in optimization for the local description length may vary strongly from place to place in a way that is unrelated to the decoding process (entailing a ``Dark Room'' affinity in the absence of definite priors --~see \cite{friston2012perceptions}~--).
+Put in a predictive form, the selection of action finally relies on the reduction of the predicted margin, i.e.~:
+\begin{align}
+ \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)}, p}\left[\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u})\right]
+\end{align}
+which appears as an original formulation of the Free Energy minimization setup, as far as we know. It is moreover consistent with uniform priors over the latent space, which somehow allows to escapes the dark room problem.
 
 {\color{magenta}
 
