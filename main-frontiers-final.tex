@@ -332,10 +332,11 @@ A general strategy is thus to establish a \emph{objective function} $f$ (resp. a
 \hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
 \end{align}
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \cite{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates have been developed in the scene decoding context.
-We propose a tour of the most common intrinsic value estimators\footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of each approach. 
+We propose a tour of the most common intrinsic value estimators\footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of the differen approaches, and end up with new objective formulation called the \emph{encoding accuracy}. 
 
 
-\subsubsection{Accuracy-based control}
+\subsubsection{Accuracy-based control}\label{sec:infomax}
+
 
 The predictive approach to perception-driven control was originally developed by \cite{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
 Considering a  probabilistic generative model $p(X,Z,U)$, like the one described in section \ref{sec:perception-driven-control}, the predictive approach relies on predicting an accuracy measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
@@ -365,7 +366,7 @@ so that a maximal information gain is expected when $H(q^{(n)}|\boldsymbol{x}, \
 The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no strict comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$. 
 
-\subsubsection{Saliency-based control}
+\subsubsection{Saliency-based control}\label{sec:saliency}
 
 %In contrast, the ``top-down'' approach considers viewpoint change as a prototype of action selection in the brain. 
 %Interestingly, very similar concepts and modelling tools can be used in both the bottom-up and top-down approaches. 
@@ -420,14 +421,14 @@ that tends to follow a minimal free-Energy path \cite{friston2015active}.
 %that is at the core of the estimation of a complex posterior distribution. 
 %The objective highlighted by \cite{friston2012perceptions} is to output a control $u$ so as to maximize the accuracy of inference estimate (\ref{eq:post}) through minimizing the Free Energy criterion (upper bound of the negative log evidence) over the actions set $\mathcal{U}$. 
 
-Consider the conditional Free Energy at step $n$ (eq.~(\ref{eq:FEP-uxun}))
-now writes like:
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log (p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{z})q^{(n-1)}(\boldsymbol{z}))\right] - \text{H}(q^{(n)}(Z))
-\end{align}
+Considering the conditional Free Energy at step $n$ (eq.~(\ref{eq:FEP-uxun}))
+%now writes like:
+%\begin{align}
+%F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log (p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{z})q^{(n-1)}(\boldsymbol{z}))\right] - \text{H}(q^{(n)}(Z))
+%\end{align}
 with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current variational distribution. In a sampling procedure, the new sample 
 $(\boldsymbol{x}|\boldsymbol{u})$ is expected to provide an information that is not yet present at sample time, i.e. 
-$q^{(n)} = q^{(n-1)}$, so that, with some reordering and simplification:
+$q^{(n)} = q^{(n-1)}$, so that it writes:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\sum_z q^{(n-1)}(\boldsymbol{z}) \log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})\nonumber\\
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} -\log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})
@@ -438,15 +439,20 @@ According to eq.~(\ref{eq:FEP-uxu2}), an additional reformulation gives:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
 \end{align}
-with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the previous posterior and the \emph{local} posterior, measured at $(\boldsymbol{x}, \boldsymbol{u})$ only. It is here interpreted as the \emph{margin}, i.e. the difference between the conditional Free Energy and 
-the \emph{local} description length (or ``surprise'').
+with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the cumulated posterior and the \emph{local} posterior, measured at viewpoint $\boldsymbol{u}$ only. It is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the conditional Free Energy and 
+the \emph{local} description length (or ``surprise'') at viewpoint $\boldsymbol{u}$.
 
-It is critical here to consider the margin in optimization for the local description length may vary strongly from place to place in a way that is unrelated to the decoding process (entailing a ``Dark Room'' affinity in the absence of definite priors --~see \cite{friston2012perceptions}~--).
+The lower $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$, the closer the Free Energy estimate to the actual surprise. It is thus proposed here to link viewpoint selection to the \emph{expected encoding accuracy} through minimizing $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ rather than minimizing the Free Energy \emph{per se} 
+\footnote{Minimizing the Free Energy is indeed known to drive the sight toward unsurprising (and thus uninformative) locations (the so-called ``dark room'' problem --~see \cite{friston2012perceptions}~--).}.
+
 Put in a predictive form, the selection of action finally relies on the reduction of the predicted margin, i.e.~:
 \begin{align}
  \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)}, p}\left[\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u})\right]
 \end{align}
-which appears as an original formulation of the Free Energy minimization setup, as far as we know. It is moreover consistent with uniform priors over the latent space, which somehow allows to escapes the dark room problem.
+which, though related to the information gain, appears as an original objective, as far as we know. 
+On contrary to the Infomax objective (section \ref{sec:infomax}), the encoding accuracy objective selects the local posterior having the highest consistency with the cumulated posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy.
+Though sharing a formal similarity, the encoding consistency is moreover at odd with the Saliency objective (see section \ref{sec:saliency}) whose objective is to maximize the \emph{in}consistency between the cumulated posterior and the current posterior.
+%It is moreover consistent with a uniform prior distribution over the latent space, which somehow allows to ``escape the dark room'' without structured priors.
 
 {\color{magenta}
 
