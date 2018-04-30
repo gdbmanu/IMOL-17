@@ -119,14 +119,9 @@ further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,
 
 \section{Material and methods}
 
-\subsection{Perception-driven control}\label{sec:perception-driven-control}
+\subsection{A ``Three-Party'' generative model}\label{sec:three-party}
 
-
-
-
-
-
-\subsubsection{Model-based approach}
+\subsubsection{Generic feedback control framework and generative process}
 \paragraph{Generative process}
 A feedback control framework is composed of an actor and an environment. The actor and the environment interact according to a feedback loop. 
 The actor can act on the environment through its effectors, and sense the state of the environment through its sensors. 
@@ -140,7 +135,7 @@ implemented with a probability density function
 $p_\text{\sc trans}(\boldsymbol{s}|\boldsymbol{a},\boldsymbol{s}_0)$.
 
 
-The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory field}. It is interpreted as a measure made by the sensors, that is causally related to the current state $\boldsymbol{s}$ and motor command $\boldsymbol{a}$. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
+The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory field}. It is interpreted as a measure made by the sensors, that is causally related to the current state $\boldsymbol{s}$. Once again the deterministic and non-deterministic effects are reflected in a conditional probability distribution:
 \begin{align}
 \boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{s})\label{eq:measure}
 \end{align}
@@ -170,23 +165,23 @@ q_\text{\sc post}(\boldsymbol{s}|\boldsymbol{x},\boldsymbol{a}, \boldsymbol{s}_0
 \end{align}
 
 
-\subsubsection{A ``Three-Party'' generative model}
+\subsubsection{One scene, many views}
 
 We considers here an organization a the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. 
 Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. 
-In that framework, the cause of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called the ``\emph{Three-Party}'' model.
+In that framework, the cause of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called here the ``\emph{Three-Party}'' model.
 
 We propose here to split the generative process in two parts, namely the controlled generative process and the uncontrolled generative process. 
-The controlled emitter is $\boldsymbol{u}$ while the uncontrolled emitter is  $(\boldsymbol{y}, \boldsymbol{o})$. This separation 
-is consistent with the notion of ``hidden state''/``hidden control'' distinction stated in \cite{friston2012perceptions}.
+This separation 
+is consistent with the ``hidden state''/``hidden control'' distinction stated in \cite{friston2012perceptions}.
+The controlled emitter is $\boldsymbol{u}$ while the uncontrolled emitter is  $(\boldsymbol{y}, \boldsymbol{o})$. 
 For greater simplicity and generality, $(\boldsymbol{y},\boldsymbol{o})$ is here reduced to a single variable $\boldsymbol{z} = (\boldsymbol{y}, \boldsymbol{o})$, 
 so that the generic uncontrolled variable $\boldsymbol{z}$ may report for every possible composition of object identity in space (or more generally every composition of a pose and an identity).
 %for we more specifically put the focus here on the controller setup.% and the generative process   $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
-The controlled emitter $\boldsymbol{u}$ thus refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The value of $\boldsymbol{z}$ refers to the remaining part of the physical world, i.e. the ``environment''. 
+The controlled emitter $\boldsymbol{u}$ thus refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The uncontrolled latent emitter $\boldsymbol{z}$  refers to the remaining part of the physical world, i.e. the ``environment''. 
 
-
+This restricted setup, that separates a body and an environment in the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake: 
 \paragraph{(i) Emitters independence}
-This restricted setup, that separates a body and an environment in the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake.  
 A first assumption is that two emitters are independent, i.e. $p(\boldsymbol{z}, \boldsymbol{u}) = p(\boldsymbol{z})p(\boldsymbol{u})$ so that:
 \begin{align}
 (\boldsymbol{z},\boldsymbol{u}) \sim \text{Pr}(Z,U|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0) = \text{Pr}(Z|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0) \text{Pr}(U|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0)\nonumber
@@ -195,7 +190,8 @@ A first assumption is that two emitters are independent, i.e. $p(\boldsymbol{z},
 \paragraph{(ii) End-effector control}
 An additional assumption is that the controlled generative process is relatively ``fast'' in comparison with the uncontrolled one
 (for, e.g, saccades can be realized in a 100-200 ms interval). 
-In consequence we assimilate the motor command $\boldsymbol{a}$ to  a motor setpoint $\boldsymbol{u}$ that is supposed to be realized by the motor apparatus at short notice under classical stability/controllability constraints.
+In consequence we consider the motor command $\boldsymbol{a}$ as a setpoint (or posture) $\boldsymbol{u}$ in the actuator space, that is supposed to be reached 
+at short notice by the motor apparatus once the command is emitted, under classical stability/controllability constraints.
 This entails that, consistently with the `end-effector'' ballistic control setup \cite{mussa2004neural},  \emph{$\boldsymbol{u}$ is independent from $\boldsymbol{u}_0$},
 i.e.:
 \begin{align*}
@@ -206,17 +202,18 @@ The motor command $\boldsymbol{a}$ then corresponds to the desired end-orientati
 Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene, and the controlled emitter $\boldsymbol{u}$ is now called a \emph{viewpoint}. 
 
 \paragraph{(iii) Uncontrolled environment}
-The third important assumption is that the viewpoint \emph{is not expected to affect on the uncontrolled latent emitter $\boldsymbol{z}$}, i.e.
+The third important assumption is that the motor command $\boldsymbol{a}$ \emph{is not expected to affect on the uncontrolled latent emitter $\boldsymbol{z}$}, i.e.
 \begin{align*}
 \boldsymbol{z} \sim \text{Pr}(Z|\boldsymbol{z}_0)
 \end{align*}
 so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process).
 
 \paragraph{(iv) Static assumption}
-Under a scene decoding  task, where the motor command $\boldsymbol{u}$ refers to the orientation of a sensor, it is rather common to consider the environment as ``static'' \cite{butko2010infomax}. This fourth assumption means, in short, that:
+Under a scene decoding  task, %where the motor command $\boldsymbol{u}$ refers to the orientation of a sensor, 
+it is rather common to consider the environment as ``static'' \cite{butko2010infomax}. This fourth assumption means, in short, that:
 $$\text{Pr}(Z|\boldsymbol{z}_0) = \delta(Z, \boldsymbol{z}_0)$$ 
 with $\delta$ the Knonecker symbol. 
-The latent variable $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process. In a model-based approach, it may specify the state of the physical environment. 
+The uncontrolled latent emitter $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process.
 
 
 At last, the measure $\boldsymbol{x}$ may rely on both emitters $\boldsymbol{z}$ and $\boldsymbol{u}$, i.e. 
@@ -228,7 +225,7 @@ $\boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{z}, U)\text{Pr}(U|\boldsymbol{a})$.
 Then, by notational abuse, we assimilate in the rest of the paper  $\boldsymbol{u}$ (the controlled emitter) with $\boldsymbol{a}$ (the motor command), so that 
 a single variable $\boldsymbol{u} \equiv \boldsymbol{a}$ should be used for both. We also call the uncontrolled latent emitter $\boldsymbol{z}$ the \emph{latent state} for simplicity.
 
-Each different viewpoint $\boldsymbol{u}$ thus drives a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent state}) is the realization of a generative model parametrized by $\boldsymbol{u}$, i.e.
+Each different viewpoint $\boldsymbol{u}$ thus drives a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent state}) are the realization of a generative model parametrized by $\boldsymbol{u}$, i.e.
 \begin{align}
 \boldsymbol{x}, \boldsymbol{z} | \boldsymbol{u} \sim \text{Pr}(X|Z, \boldsymbol{u}), \text{Pr}(Z)
 \end{align}  
@@ -265,23 +262,18 @@ conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse mod
 
  
 
-In that framework, 
+
+
+
+\subsection{Perception-driven control}\label{sec:perception-driven-control}
+
+In our ``three-party'' framework, 
 %called here the ``three party'' generative setup, 
-saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision. This will be called the \emph{scene decoding} task as we see in the next section.
-
-
-
-
-
-
-
-
-
-
+saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task as we analyze in the next sections.
 
 \subsubsection{Scene encoding and scene decoding in the model-free case}
 
-In the model-free case, only weak assumptions can be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
+In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions can be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
 
 \paragraph{Scene encoding}\label{sec:encoding}
 The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
@@ -297,16 +289,17 @@ F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \
 \end{align}
 with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
 The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
-$F$ is also called the variational free energy for it is mathematically analog to the Helmhotz Free Energy.
+$F$ is also called the variational Free Energy for it is mathematically analog to the Helmhotz Free Energy.
 It can then be shown, with some reordering, that:
 \begin{align}
 F(\boldsymbol{x}) 
 &= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
 \label{eq:FEP}
 \end{align}
-so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a stochastic gradient descent over $p$ and $q$ according to $\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
-$$h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) %\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
-$$
+with $\text{KL}(q||p) = \sum_z q(\boldsymbol{z}) \log \frac{q(\boldsymbol{z})}{p(\boldsymbol{z})}$ the Kullback-Leibler divergence between $q$ and $p$, so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a stochastic gradient descent over $p$ and $q$ according to $\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+\begin{align*}
+h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})%\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
+\end{align*}
 that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
  
  
@@ -330,9 +323,10 @@ I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \b
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
 &\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
 \end{align}
-with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ a quantity approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
+with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the \emph{conditional} Free Energy, a quantity approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate conditional natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. 
+%We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
 
-Knowing the quantity $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ can be approached by: 
+Then, noting that the conditional Shannon Information can be approached by: 
 \begin{align}
 -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
@@ -346,9 +340,9 @@ F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})
 &\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
 \label{eq:FEP-uxu}
 \end{align}
-which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulation proposed in \cite{friston2015active}.
+{\color{blue} which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulated in \cite{friston2015active}}.
 
-Additional reformulations show that:
+Additional reformulations give:
 \begin{align}
 \mathbb{E}_{\boldsymbol{z} \sim q(Z)} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right]
 &= -\log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))\label{eq:cond-F-KL}
@@ -360,7 +354,7 @@ F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) =  -\log p(\b
 \end{align}
 
 \subsubsection{Sequential Bayesian inference}
-If we look in detail, the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
+If we look in detail at eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
 According to the Bayes rule, the chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
 \begin{align}
@@ -409,14 +403,20 @@ We propose here a tour of the most common intrinsic value estimators and reformu
 
 
 The predictive approach to perception-driven control was originally developed by \cite{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
-Considering a  probabilistic generative model $p(X,Z,U)$, like the one described in section \ref{sec:perception-driven-control}, the predictive approach relies on predicting an accuracy measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
+Considering a  probabilistic generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
 The accuracy tells how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
 knowing $q^{(n-1)}$ (the estimated posterior at step $n-1$).
 
 If the agent has to choose an action $\boldsymbol{u} \in \mathcal{U}$, knowing only $q^{(n-1)}$, the \emph{predicted} accuracy attached to $\boldsymbol{u}$ is:
-$$\mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right]  = \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x} $$  
+\begin{align*}
+\bar{A}(\boldsymbol{u}, q^{(n-1)})
+&= \mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right]  \\
+&= \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x}  
+\end{align*}
 and the optimal action to choose is:
-$$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right] $$ 
+\begin{align*}
+\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \bar{A}(\boldsymbol{u}, q^{(n-1)})
+\end{align*} 
 It must be noted that in order to render the computation tractable, a \emph{sampling} approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.
 
 The accuracy measure used in the original paper was an ad-hoc one \cite{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \cite{najemnik2009simple}, i.e.:
@@ -457,10 +457,11 @@ It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a
 
 
 
-Another quantity of interest is the so-called \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the divergence between the actual data and the model is:
+Another quantity of interest is the so-called \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence {\color{blue} between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$}. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the \emph{salience} of the actual view $\boldsymbol{x}$ given the model is:
 $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(q(Z| \boldsymbol{x}, \boldsymbol{u})||q(Z))$$
-which is a measure of the \emph{in}consistency between a model $q$ and the data. A high saliency reports a strong inconsistency with the model (a high surprise), while a low saliency reports a strong consistency with the model (a low surprise).
-The saliency term can be generalized to the sequential setup proposed earlier as:
+which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $q$ and the data. A high salience reports a strong inconsistency with the model (a high surprise), while a low salience reports a strong consistency with the model (a low surprise).
+
+The saliency measure can be generalized to the sequential setup proposed earlier as:
 $$ S(\boldsymbol{x},\boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))$$
 with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$.
 It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
