@@ -269,11 +269,11 @@ conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse mod
 
 In our ``three-party'' framework, 
 %called here the ``three party'' generative setup, 
-saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task as we analyze in the next sections.
+saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task we analyze in the next sections.
 
 \subsubsection{Scene encoding and scene decoding in the model-free case}
 
-In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions can be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
+In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
 
 \paragraph{Scene encoding}\label{sec:encoding}
 The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
@@ -323,10 +323,9 @@ I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \b
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
 &\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
 \end{align}
-with $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the \emph{conditional} Free Energy, a quantity approaching  $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$, which is the approximate conditional natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$. 
+with $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the approximate \emph{conditional} natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$, and $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the \emph{conditional} Free Energy, 
 %We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
-
-Then, noting that the conditional Shannon Information can be approached by: 
+with the conditional Shannon Information approached by the conditional Free Energy as: 
 \begin{align}
 -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
@@ -334,24 +333,37 @@ Then, noting that the conditional Shannon Information can be approached by:
 - \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
 &= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] \label{eq:cond-F}
 \end{align}
-the conditional Free Energy can be defined as~:
+ defined as~:
 \begin{align}
 F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
 \label{eq:FEP-uxu}
 \end{align}
-{\color{blue} which is a special case of the POMDP\footnote{Partially Observed Markov Decision Processes.} variational Free Energy formulated in \cite{friston2015active}}.
+
 
 Additional reformulations give:
 \begin{align}
 \mathbb{E}_{\boldsymbol{z} \sim q(Z)} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right]
 &= -\log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))\label{eq:cond-F-KL}
 \end{align}
-so that:
+so that\footnote{It must be noted that the conditional Free Energy
+	defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
+	$$ F(\boldsymbol{x})
+	= -\log p(\boldsymbol{x}) 
+	+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
+	that is then put in a conditional form as:
+	$$ F(\boldsymbol{x}|\boldsymbol{u})
+	= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
+	- \text{KL}(q(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
+	with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}:
 \begin{align}
 F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) =  -\log p(\boldsymbol{x}'| \boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
 \label{eq:FEP-uxu2}
 \end{align}
+
+
+
+
 
 \subsubsection{Sequential Bayesian inference}
 If we look in detail at eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
@@ -457,12 +469,13 @@ It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a
 
 
 
-Another quantity of interest is the so-called \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence {\color{blue} between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$}. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the \emph{salience} of the actual view $\boldsymbol{x}$ given the model is:
+Another quantity of interest is the so-called \emph{Bayesian surprise} \cite{itti2005bayesian} defined as the Kullback-Leibler divergence {\color{blue} between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$}. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the \emph{salience} (or ``\emph{Bayesian surprise}'') of the actual view $\boldsymbol{x}$ given the model is:
 $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(q(Z| \boldsymbol{x}, \boldsymbol{u})||q(Z))$$
-which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $q$ and the data. A high salience reports a strong inconsistency with the model (a high surprise), while a low salience reports a strong consistency with the model (a low surprise).
+which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $q$ and the data. A high salience reports a strong inconsistency with the model ({\color{blue} a high Bayesian surprise}), while a low salience reports a strong consistency with the model ({\color{blue} a low Bayesian surprise}).
 
-The saliency measure can be generalized to the sequential setup proposed earlier as:
+Generalized to the sequential setup, the saliency measure becomes:
 $$ S(\boldsymbol{x},\boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))$$
+Here, contrary to the previous case
 with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$.
 It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
 
@@ -476,7 +489,9 @@ Its scalability moreover provides straightforward applications in image and vide
 It  however constitutes a challenge to modelers, for it is at odd with scene interpretation,  
 %It thus provides little explanation about the sight-orientation cognitive operations. 
 %It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
-i.e. enters in contradiction (or in ``dialectic'' contrast) with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
+i.e. enters in contradiction 
+%(or in ``dialectic'' contrast) 
+with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
 
 \subsubsection{Conservation-based action selection}
 
@@ -497,22 +512,23 @@ Considering the conditional Free Energy at step $n$ (eq.~(\ref{eq:FEP-uxun}))
 %\begin{align}
 %F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log (p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{z})q^{(n-1)}(\boldsymbol{z}))\right] - \text{H}(q^{(n)}(Z))
 %\end{align}
-with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current variational distribution. In a sampling procedure, the new sample 
-$(\boldsymbol{x}|\boldsymbol{u})$ is expected to provide an information that is not yet present at sample time. This entails 
+with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current variational distribution. In a sampling procedure, %the new sample 
+%$(\boldsymbol{x}|\boldsymbol{u})$ is expected to provide an information that is not yet present at sample time. This 
+minimizing $\text{KL}(q^{(n)} || q^{(n-1)})$ entails 
 $q^{(n)} = q^{(n-1)}$ at sample time, so that the conditional Free Energy writes:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\sum_z q^{(n-1)}(\boldsymbol{z}) \log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})\nonumber\\
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} -\log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})
 \end{align}
-that consistently fits with eq.~(\ref{eq:cond-F}).
+that is consistent with eq.~(\ref{eq:cond-F}).
 % so that the conditional free Energy minimization finally participates to the Information gain objective \cite{tishby2011information}.
 
-According to eq.~(\ref{eq:FEP-uxu2}), an additional reformulation gives:
+Consistently with eq.~(\ref{eq:cond-F-KL}), an additional reformulation gives:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
 \end{align}
-with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the cumulated posterior and the \emph{local} posterior, measured at viewpoint $\boldsymbol{u}$ only. This divergence is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the conditional Free Energy and 
-the \emph{local} Shannon information.
+with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the \emph{past} cumulated posterior and the \emph{present} posterior, measured at viewpoint $\boldsymbol{u}$ only. This divergence is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the \emph{present} conditional Free Energy and 
+the \emph{present} Shannon information.
 % (i.e. the ``surprise'') carried out by data $\boldsymbol{x}$ at viewpoint $\boldsymbol{u}$.
 
 The lower $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$, the closer the Free Energy estimate to the actual surprise. The active inference setup thus generally considers minimizing the margin rather than minimizing the Free Energy \emph{per se} 
