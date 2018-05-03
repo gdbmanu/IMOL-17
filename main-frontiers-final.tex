@@ -354,8 +354,8 @@ so that\footnote{It must be noted that the conditional Free Energy
 	that is then put in a conditional form as:
 	$$ F(\boldsymbol{x}|\boldsymbol{u})
 	= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
-	- \text{KL}(q(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
-	with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}:
+	- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
+	with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}:
 \begin{align}
 F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) =  -\log p(\boldsymbol{x}'| \boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
 \label{eq:FEP-uxu2}
