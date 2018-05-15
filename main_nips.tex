@@ -1,0 +1,270 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2018
+
+% ready for submission
+\usepackage{nips_2018}
+
+% to compile a preprint version, e.g., for submission to arXiv, add
+% add the [preprint] option:
+% \usepackage[preprint]{nips_2018}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2018}
+
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2018}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage[pdftex]{graphicx} 
+
+\title{TODO}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+  Emmanuel Daucé\\
+  Ecole Centrale de Marseille,\\ 
+  Aix Marseille Univ, Inserm,\\ 
+  INS, Institut de Neurosciences des Systèmes, \\
+  Marseille, France\\
+  \texttt{emmanuel.dauce@centrale-marseille.fr} \\
+  %% examples of more authors
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\begin{abstract}
+  The abstract paragraph should be indented \nicefrac{1}{2}~inch
+  (3~picas) on both the left- and right-hand margins. Use 10~point
+  type, with a vertical spacing (leading) of 11~points.  The word
+  \textbf{Abstract} must be centered, bold, and in point size 12. Two
+  line spaces precede the abstract. The abstract must be limited to
+  one paragraph.
+\end{abstract}
+
+\section{Motivation}
+
+Though ubiquitous in biology, object recognition through saccades is seldom considered in artificial vision. The reasons are many, of which the existence of highly effective sensors capable to provide millions of pixels at low cost. %\footnote{in contrast with animals retina whose actual design relies on a long optimization process under severe resource constraints.}.
+In counterpart, increasingly powerful computing devices are needed to compute in parallel those millions of pixels to perform recognition, consuming resources in a brute-force fashion. 
+The example of animal vision encourages however a different approach towards more parsimonious recognition algorithms. A salient aspect of animal vision is indeed the use of \emph{active} sensing devices, capable of moving around within some degrees of freedom in order to choose a particular viewpoint. The important redundancy present in the {\color{blue} visual/sensory} data was exploited by natural selection,  ending up in energy-efficient visual exploration policies, exploiting only little portions of the visual environment to decode the total sensory scene.
+
+The opportunity to neglect large parts of the {\color{blue} visual/sensory} scene should thus be considered when the energy is scarce, as it is the case for drones and robots. 
+%that need to react fast with light and low-power sensing devices. 
+It is also relevant in computer vision, where Mega-pixel images appeals for selective convolutions, in order to avoid unnecessary matrix products. 
+%A computer vision program should for instance look back from past experience to see which viewpoint to use to provide the most useful information about a scene. 
+Selecting the relevant pixels across time may then be a part of computer vision algorithms, in combination with traditional pixel-array-based computations. 
+
+The idea of viewpoints selection turns out to consider beforehand the pixels that need to be processed to achieve the scene decoding. The general principle is that of
+choosing the viewpoint that is the most {\color{blue} informative} \emph{in expectation}. This entails \emph{predicting the future {\color{blue} information gain}} made by choosing a given viewpoint over the total scene. Two parallel research tracks adopted and refined this very idea over the last twenty years. A first track, developed in robotics and control, insists on the formal contribution of action in the encoding the sensory field. This resorts to consider action as an \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \citep{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the code effectiveness, allowing to improve both the policy and the data model in the course of learning \citep{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}. Another line of research, initially developed in human visual search modeling, considers action as a \emph{sample} (or viewpoint) over an underlying (covert) sensory scene. Then appropriate viewpoints should be selected to maximize the \emph{decoding accuracy}, that resorts to refine the beliefs about the underlying scene to reduce the posterior entropy (see \cite{najemnik2005optimal,najemnik2009simple,butko2010infomax,friston2012perceptions}).
+  
+This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place. The encoding efficacy objective encourages actions that provide informationally-rich content, which is formally defined as the information gain provided by improving prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This first approach may be referred as the ``innovation-based'' approach to action selection. In contrast, the decoding accuracy objective encourage actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This second approach may be referred as the ``conservation-based'' approach to action selection.  
+
+We show here the two objectives can be reconciled when considering action as being both a code and a sample. This is done through postulating a bijection between the motor command and the actuator state.
+%, resting on an \emph{inverse control} principle.
+%, also known as the end-effector or ``ballistic'' control {\color{blue}[REFS]}. 
+In that setup, the current observation is the decoding of a \emph{mixed code} (or compositional code {\color{blue}[REFS]}) made of a controlled code (i.e. the actuator state) and an uncontrolled code (i.e. the rest of the environment).
+
+
+%Less intuitively, the ever-growing  learning databases used in machine learning also suggest an intelligent scanning of the data, in a way that should retain only the critical examples or features, depending on the context, before performing learning on it.  
+%Behind the viewpoint selection problem thus lies a feature selection problem, which should rely on a context. 
+
+
+
+\section{Methodology}
+
+We consider here a \emph{scene decoding task} where an agent has to estimate its environment state, here called the ``sensory scene'' from sensory samples. The visual scene is organized in objects (or objects parts), whose presence and position is continuously checked by visual inspection. 
+Then, decoding a visual scene through saccades consists in identifying the ensemble through the foveation of parts of the scene only. 
+
+We here suppose that a generative model $p$ is given to the agent, that is a probability distribution over $\boldsymbol{z} \in \mathcal{Z}$ the scene encoding,  $\boldsymbol{u} \in \mathcal{U}$ the current viewpoint and $\boldsymbol{x} \in \mathcal{X}$ the current view, i.e. $\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u} \sim p(X,Z,U)$.
+Stemming from a general POMDP standpoint, important simplifications are considered here, namely (i) \emph{Emitters independence}, that is $p(\boldsymbol{z}, \boldsymbol{u}) = p(\boldsymbol{z})p(\boldsymbol{u})$ so that
+any scene can be observed from any viewpoint; 
+\emph{(ii) End-effector control}, 
+that is that the controlled generative process is relatively ``fast'' in comparison with the uncontrolled one
+(for, e.g, saccades can be realized in a 100-200 ms interval). 
+In consequence the motor command  $\boldsymbol{u}$ is considered as a setpoint (or posture) in the actuator space, that is supposed to be reached 
+at short notice once the command is emitted, under classical stability/controllability constraints; \emph{(iii) Uncontrolled environment}, that is that the motor command $\boldsymbol{u}$ \emph{is not expected to affect the  latent state $\boldsymbol{z}$},
+so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process); and
+\emph{(iv) Static assumption}
+i.e. the scene is not changing over time \cite{butko2010infomax}. 
+The uncontrolled latent emitter $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process.
+
+Each different viewpoint $\boldsymbol{u}$ thus drives a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent state}) are now the realization of a generative model parametrized by $\boldsymbol{u}$, i.e.
+\begin{align}
+\boldsymbol{x}, \boldsymbol{z} | \boldsymbol{u} \sim p(X|Z, \boldsymbol{u}), p(Z)
+\end{align}  
+Each measure $\boldsymbol{x}$ is generated from a mixed code $(\boldsymbol{z}, \boldsymbol{u})$, with $\boldsymbol{u}$ the controlled part of the code and  $\boldsymbol{z}$ the uncontrolled part. %, so that $p(X,Z,U) = p(X|Z, U) p(X, U)$. 
+Note that $\boldsymbol{z}$ is said the latent state out of habit, though both $\boldsymbol{u}$ and $\boldsymbol{z}$ contribute to the generation of $\boldsymbol{x}$.
+
+%The generative model may finally write:
+%\begin{align}
+%p(X, Z, U) = p(X| Z, U)p(Z) p(U)
+%\end{align}
+%It should be noted that the dependencies between the three variables can moreover be symetrically decomposed in the form of three conditional models, i.e. :
+%\begin{align}
+%p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
+%&= p(Z| X, U)p(X) p(U)\nonumber\\
+%&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
+%\end{align}
+%comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
+%conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
+\paragraph{Scene encoding}\label{sec:encoding}
+In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
+to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
+is a code that is both compact and accurate at restoring the data. 
+If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
+Then, the efficacy of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
+\begin{align}
+F(\boldsymbol{x}) = - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)
+= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
+\label{eq:FEP-energy}
+\end{align}
+with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
+The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
+%$F$ is also called the variational Free Energy for it is mathematically analog to the Helmhotz Free Energy.
+It is shown in \cite{kingma2013auto} that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be approached through a stochastic gradient descent over $p$ and $q$ according to $\nabla_{p,q} F(\boldsymbol{x}) $	so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+$
+h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})%\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
+$
+that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. %Minimizing the cost $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
+
+If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}) 
+&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})p(\boldsymbol{z}))\right] - H(q)\\
+&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))
+\label{eq:FEP-prior-u}\\
+&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+\label{eq:FEP-posterior-u}\end{align}
+with each viewpoint $\boldsymbol{u}$ providing a distinct optimization problem. 
+
+\paragraph{Scene decoding}
+The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene. The sharing of information between two sensory fields can be quantified by their \emph{mutual information}:
+\begin{align}
+I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}', X', \boldsymbol{u})\\
+&= \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}', X', \boldsymbol{u})\right] \nonumber
+%&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
+\end{align}
+
+with 
+($i$) $ p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')$ 
+the \emph{post-sample} likelihood, i.e. the updated likelihood of $\boldsymbol{x}$ at $\boldsymbol{u}$ after seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$,
+%($ii$) $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
+%the \emph{post-sample} approximate natural Shannon Information, 
+and ($ii$) 
+$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the 
+\emph{information gain} \citep{tishby2011information}.
+
+
+
+%We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
+%with: % the post-sample Shannon Information approached by the post-sample Free Energy as: 
+
+An approximation of the information gain, referred as the \emph{compression improvement} \cite{schmidhuber2007simple,houthooft2016vime},
+writes~:
+\begin{align}
+\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}, \boldsymbol{u}) = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+\end{align}	
+with $F(\boldsymbol{x}|\boldsymbol{u})$ the pre-sample cost and  
+\begin{align}
+F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) = 
+\mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}'))\right] +\text{KL}(q(Z)||p(Z))
+\end{align}
+the \emph{post-sample} cost, with $q(\boldsymbol{z}) \simeq p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}$ after optimization the shared posterior (or shared \emph{code}). From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}
+%and  $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ is the \emph{posterior update cost} (PUC). 
+%Symmetrically, the regularization cost $\text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))$ in eq~(\ref{eq:FEP-uxu}) can be named the \emph{prior escape cost} (PEC)
+%\footnote{
+%	Also called the ``epistemic value'' \cite{friston2015active}.}.
+%in It must be noted that the post-sample cost
+%defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
+%$$ F(\boldsymbol{x})
+%= -\log p(\boldsymbol{x}) 
+%+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
+%that is then put in a conditional form as:
+%$$ F(\boldsymbol{x}|\boldsymbol{u})
+%= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
+%- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
+%with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}.}
+
+Considering now the mutual information between $(\boldsymbol{x}, \boldsymbol{u})$ and $(\boldsymbol{x}', \boldsymbol{u}')$ 
+estimated  as the difference between the pre-sample and post-sample costs, with a \emph{shared} encoding $q$, i.e:
+
+the update of the posterior from  $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ comes with an \emph{increase} of the information gain estimate, entailing an increase of the PEC and a decrease of the PUC, so that the variational posterior update is consistent with an \emph{information gain maximization objective} (i.e. maximize the PEC and minimize the PUC). 
+
+
+%This separation 
+%is consistent with the ``hidden state''/``hidden control'' distinction stated in \cite{friston2012perceptions}.
+
+Depending on the viewpoint, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
+estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
+That turns  to minimize the number of samples so as to provide an accurate estimate. This approach to inference is called \emph{active sampling} \cite{friston2012perceptions}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
+
+A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
+More elaborate strategies consider the past observations $\{\boldsymbol{u}^{(1:n-1)}, \boldsymbol{x}^{(1:n-1)}\}$ to choose the most promising action $\boldsymbol{u}^{(n)}$. We have seen in  \ref{sec:perception-driven-control} that, under a Markov assumption, the memory of the past context
+at step $n$ can be absorbed in single posterior distribution $q^{(n-1)}$.  The problem turns out to design  a \emph{controller} $C$ which, given a context $q^{(n-1)}$, sets up an action $\boldsymbol{u}^{(n)} = C(q^{(n-1)})$. Here the role of the controller is not to achieve a goal-oriented task, but to render the estimation of the latent state more accurate. The controller is said \emph{perception-driven}. 
+
+The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual latent state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. In order to estimate how good a motor command is, one needs to provide an estimate of the value-of-action (regarding scene understanding). There is currently no consensus about what a good value is regarding the scene decoding task. 
+
+A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
+\begin{align}
+\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
+\end{align}
+Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \cite{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \cite{sutton1998reinforcement}. Several intrinsic reward candidates can be developed in the scene decoding context.
+We propose here a tour of the most common intrinsic value estimators and reformulate them under the scene decoding setup \footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of the different approaches.
+%, and end up with new objective formulation called the \emph{encoding accuracy}. 
+
+
+
+\subsection{Style}
+
+
+\section*{References}
+\bibliographystyle{apalike}
+\bibliography{biblio}
+
+
+
+\end{document}
