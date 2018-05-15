@@ -300,7 +300,7 @@ with $\text{KL}(q||p) = \sum_z q(\boldsymbol{z}) \log \frac{q(\boldsymbol{z})}{p
 \begin{align*}
 h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})%\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
 \end{align*}
-that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
+that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing the cost $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
  
  
 %, that is composed of two terms, namely the reconstruction accuracy $- \mathbb{E}_{\boldsymbol{z}\sim q} \log p(\boldsymbol{x}|\boldsymbol{z})$ and the Kullback-Leibler divergence $\text{KL}(q||\rho)$ between the current code $q$ and a  
@@ -323,56 +323,77 @@ I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \b
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
 &\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
 \end{align}
-with $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the approximate \emph{conditional} natural Shannon Information provided by seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$, and $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$ the \emph{conditional} Free Energy, 
+with 
+($i$) $ p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}') p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})$ 
+	the \emph{post-sample} likelihood, i.e. the likelihood of seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$,
+($ii$) $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
+the \emph{post-sample} approximate natural Shannon Information, and ($iii$) $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
+the \emph{post-sample} cost, 
 %We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
-with the conditional Shannon Information approached by the conditional Free Energy as: 
+with: % the post-sample Shannon Information approached by the post-sample Free Energy as: 
 \begin{align}
 -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 &\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
-&\stackrel{q(z) = p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})}{\simeq} 
-- \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
-&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] \label{eq:cond-F}
+%&\stackrel{q(z) = p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})}{\simeq} 
+%- \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
+%&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] \label{eq:cond-F}
+%\end{align}
+% defined as~:
+%\begin{align}
+%F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+%&\triangleq
+&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
+\label{eq:FEP-uxu}\\
+%\end{align}
+%Additional reformulations give:
+%\begin{align}
+%\mathbb{E}_{\boldsymbol{z} \sim q(Z)} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', %\boldsymbol{z})\right]
+%&= -\log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))\label{eq:cond-F-KL}
+%\end{align}
+%so that:
+%\begin{align}
+%F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+%&=  -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
+%\label{eq:FEP-uxu2}\\
+&=  -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
+\label{eq:FEP-uxu2}\\
+&= F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})\nonumber
 \end{align}
- defined as~:
+
+with $q(\boldsymbol{z}) \simeq p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}$ after optimization the shared posterior (or shared \emph{code}). From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}
+and  $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ is the \emph{posterior update cost} (PUC). 
+Symmetrically, the regularization cost $\text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))$ in eq~(\ref{eq:FEP-uxu}) can be named the \emph{prior escape cost} (PEC)
+\footnote{
+	Also called the ``epistemic value'' \cite{friston2015active}.}.
+	%in It must be noted that the post-sample cost
+	%defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
+	%$$ F(\boldsymbol{x})
+	%= -\log p(\boldsymbol{x}) 
+	%+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
+	%that is then put in a conditional form as:
+	%$$ F(\boldsymbol{x}|\boldsymbol{u})
+	%= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
+	%- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
+	%with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}.}
+
+Considering now the mutual information between $(\boldsymbol{x}, \boldsymbol{u})$ and $(\boldsymbol{x}', \boldsymbol{u}')$ 
+estimated  as the difference between the pre-sample and post-sample costs, with a \emph{shared} encoding $q$, i.e:
+\begin{small}
 \begin{align}
-F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
-&\triangleq \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
-\label{eq:FEP-uxu}
+F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
++\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) - \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))\label{eq:PEC-PUC}
 \end{align}
-
-
-Additional reformulations give:
-\begin{align}
-\mathbb{E}_{\boldsymbol{z} \sim q(Z)} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right]
-&= -\log p(\boldsymbol{x}'|\boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))\label{eq:cond-F-KL}
-\end{align}
-so that\footnote{It must be noted that the conditional Free Energy
-	defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
-	$$ F(\boldsymbol{x})
-	= -\log p(\boldsymbol{x}) 
-	+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
-	that is then put in a conditional form as:
-	$$ F(\boldsymbol{x}|\boldsymbol{u})
-	= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
-	- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
-	with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}:
-\begin{align}
-F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) =  -\log p(\boldsymbol{x}'| \boldsymbol{u}') + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
-\label{eq:FEP-uxu2}
-\end{align}
-
-
-
-
+\end{small}
+the update of the posterior from  $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ comes with an \emph{increase} of the information gain estimate, entailing an increase of the PEC and a decrease of the PUC, so that the variational posterior update is consistent with an \emph{information gain maximization objective} (i.e. maximize the PEC and minimize the PUC). 
 
 \subsubsection{Sequential Bayesian inference}
-If we look in detail at eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
+When looking at eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
 According to the Bayes rule, the chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
 \begin{align}
 q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) p(\boldsymbol{x}'|Z,\boldsymbol{u}') ... p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \label{eq:accum}
 \end{align}
- 
  
 It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
 \begin{align} 
@@ -391,14 +412,14 @@ with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and 
 
 \subsection{Action selection and scene decoding optimization}
 
-Consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model  is given to the agent. 
+{\color{blue}In order to ...}, we consider now the \emph{scene decoding task} where an agent has to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model  is given to the agent. 
 Depending on  the current viewpoint $\boldsymbol{u}$, a different view $\boldsymbol{x}$ is observed at the sensors. So, each different command $\boldsymbol{u}$ provokes a different observation, and thus a different 
 estimation of the latent state. It is thus worth to question what is the optimal choice for $\boldsymbol{u}$ in order to maximize the accuracy of the posterior estimate?
 That turns  to minimize the number of samples so as to provide an accurate estimate. This approach to inference is called \emph{active sampling} \cite{friston2012perceptions}, for the choice of $\boldsymbol{u}$ determines the sensory sample $\boldsymbol{x}$ that is observed, conditioning the final posterior estimate.
 
 A baseline sampling strategy is to choose $\boldsymbol{u}$ at random and condition the posterior  estimate on this random action. 
 More elaborate strategies consider the past observations $\{\boldsymbol{u}^{(1:n-1)}, \boldsymbol{x}^{(1:n-1)}\}$ to choose the most promising action $\boldsymbol{u}^{(n)}$. We have seen in  \ref{sec:perception-driven-control} that, under a Markov assumption, the memory of the past context
-at step $n$ can be absorbed in single posterior distribution $q^{(n-1)}$.  The problem turns out to design  a \emph{controller} $C$. A controller is a function that, given a context $q^{(n-1)}$, sets up an action $\boldsymbol{u}^{(n)} = C(q^{(n-1)})$. Here the role of the controller is not to achieve a goal-oriented task, but to render the estimation of the latent state more accurate. The controller is said \emph{perception-driven}. 
+at step $n$ can be absorbed in single posterior distribution $q^{(n-1)}$.  The problem turns out to design  a \emph{controller} $C$ which, given a context $q^{(n-1)}$, sets up an action $\boldsymbol{u}^{(n)} = C(q^{(n-1)})$. Here the role of the controller is not to achieve a goal-oriented task, but to render the estimation of the latent state more accurate. The controller is said \emph{perception-driven}. 
 
 The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual latent state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. In order to estimate how good a motor command is, one needs to provide an estimate of the value-of-action (regarding scene understanding). There is currently no consensus about what a good value is regarding the scene decoding task. 
 
@@ -422,7 +443,7 @@ knowing $q^{(n-1)}$ (the estimated posterior at step $n-1$).
 If the agent has to choose an action $\boldsymbol{u} \in \mathcal{U}$, knowing only $q^{(n-1)}$, the \emph{predicted} accuracy attached to $\boldsymbol{u}$ is:
 \begin{align*}
 \bar{A}(\boldsymbol{u}, q^{(n-1)})
-&= \mathbb{E}_{q^{(n-1)},p}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right]  \\
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[A(X, \boldsymbol{u}, q^{(n-1)})\right]  \\
 &= \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x}  
 \end{align*}
 and the optimal action to choose is:
@@ -438,15 +459,22 @@ so that:
 $$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)},p}\left[H(q^{(n)})\right] $$ 
 which makes sense for a low entropy of the posterior is expected when the estimated posterior accuracy is high.
 
-This approach to optimal visual sampling was further on linked to an ``Infomax'' principle in \cite{butko2010infomax} and shown efficient in artificial visual search using policy gradient \cite{williams1992simple} to learn the controller. The Infomax approach uses the same formalism than the Information gain (see eq.~\ref{eq:infomax}), except the information gain is estimated in the latent space:
+This approach to optimal visual sampling was further on linked to an ``Infomax'' principle in \cite{butko2010infomax} and shown efficient in artificial visual search using policy gradient \cite{williams1992simple} to learn the controller. The Infomax approach uses the same principles as the Information gain, except it is estimated in the latent space while the information gain was defined relatively to the data space in eq~(\ref{eq:infomax}):
 \begin{align}
 A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) &= I(Z^{(n)}; Z^{(n-1)}|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\nonumber\\
 &= H(q^{(n-1)}) - H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})
 \end{align}
 so that a maximal information gain is expected when $H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})$ is minimal.
 
-The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no strict comparison between $q^{(n-1)}$ and $q^{(n)}$.
+With our framework, the infomax objective appears consistent with the ``PEC - PUC'' variational information gain objective (see eq.~(\ref{eq:PEC-PUC})),  
+when considering $H(q^{(n-1)})$ as a proxy for: 
+\begin{align*}
+-\text{ PUC } + \text{ PEC } &= -KL(q^{(n-1)}||q^{(n)})  + KL(q^{(n)}||q^{(n-1)})\\
+&=  H(q^{(n-1)}) - H(q^{(n-1)}, q^{(n)}) - H(q^{(n)}) + H(q^{(n)}, q^{(n-1)})
+\end{align*}
+at the difference the cross-entropy terms are neglected. The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no cross-entropy comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$. 
+
 
 \subsubsection{Innovation-based control}\label{sec:saliency}
 
@@ -474,71 +502,80 @@ $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(q(Z| \boldsymbol{x}, \boldsymbol
 which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $q$ and the data. A high salience reports a strong inconsistency with the model ({\color{blue} a high Bayesian surprise}), while a low salience reports a strong consistency with the model ({\color{blue} a low Bayesian surprise}).
 
 Generalized to the sequential setup, the saliency measure becomes:
-$$ S(\boldsymbol{x},\boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))$$
-Here, contrary to the previous case
+$$ S(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}, q^{(n-1)}) = \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))$$
+Here, consistent with the PEC alone, 
 with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$.
-It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
+%It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
 
 According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). 
 In a sequential setup, a corresponding predictive policy would be:
-$$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{q^{(n-1)}, p}\left[\text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))\right]$$
+$$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))\right]$$
 
 
 The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
 Its scalability moreover provides straightforward applications in image and video compression  \cite{wang2003foveation,guo2010novel}.
-It  however constitutes a challenge to modelers, for it is at odd with scene interpretation,  
+%It  however constitutes a challenge to modelers, for it is at odd with scene interpretation,  
 %It thus provides little explanation about the sight-orientation cognitive operations. 
 %It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
-i.e. enters in contradiction 
+%i.e. enters in contradiction 
 %(or in ``dialectic'' contrast) 
-with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
+%with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
 
 \subsubsection{Conservation-based action selection}
 
 The active inference paradigm was introduced in neuroscience through the work of ~\cite{friston2010free,friston2012perceptions}. % 
-The general setup proposed by Friston and colleagues is that of a tendency of the brain to counteract surprising and unpredictable sensory events through 
+The general setup is that of a tendency of the brain to counteract surprising and unpredictable sensory events through 
 improving a generative models by gradient descent over its variational Free Energy (see eq~\ref{eq:FEP}). 
 %that improve their predictions over time and render the world more amenable. This improvement is mainly done through sampling the environment and extracting statistical invariants that are used in return to predict upcoming events.
 %Building a model thus rests on extracting a repertoire of invariants and organizing them so as to process the incoming sensory data efficiently through predictive coding (see \cite{rao1999predictive}). 
-This proposition is reminiscent of Hinton's auto-encoding theory (see section \ref{sec:encoding}), but introduces a new perspective on coding
+Though consistent with Hinton's auto-encoding theory (see section \ref{sec:encoding}), it introduces a new perspective on encoding
 for \emph{it formally links scene encoding from data with (optimal) motor control}.
 In particular, motor control is here considered as a particular implementation of a \emph{sampling process}
-that tends to follow a minimal free-Energy path \cite{friston2015active}.
+following a minimal free-Energy path \cite{friston2012perceptions}. %\cite{friston2015active}.
 %that is at the core of the estimation of a complex posterior distribution. 
 %The objective highlighted by \cite{friston2012perceptions} is to output a control $u$ so as to maximize the accuracy of inference estimate (\ref{eq:post}) through minimizing the Free Energy criterion (upper bound of the negative log evidence) over the actions set $\mathcal{U}$. 
 
-Considering the conditional Free Energy at step $n$ (eq.~(\ref{eq:FEP-uxun}))
+The Free-Energy minimization setup is generally consistent with minimizing the posterior update cost (PUC)\footnote{Minimizing the Free Energy is indeed known to drive the sight toward unsurprising (and thus uninformative) locations (the so-called ``dark room'' problem --~see \cite{friston2012perceptions}~--).}., with the PUC estimate defined as:
+\begin{align*}
+\text{PUC} &= \text{KL}(q^{(n-1)}||q^{(n)})\\
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
+\end{align*}
+  
+%Considering the sample cost at step $n$ (eq.~(\ref{eq:FEP-uxun}))
 %now writes like:
 %\begin{align}
 %F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log (p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{z})q^{(n-1)}(\boldsymbol{z}))\right] - \text{H}(q^{(n)}(Z))
 %\end{align}
-with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current variational distribution. In a sampling procedure, %the new sample 
+%with $q^{(n-1)}$ the previous posterior estimate and $q^{(n)}$ the current posterior estimate. In a sampling procedure, %the new sample 
 %$(\boldsymbol{x}|\boldsymbol{u})$ is expected to provide an information that is not yet present at sample time. This 
-minimizing $\text{KL}(q^{(n)} || q^{(n-1)})$ entails 
-$q^{(n)} = q^{(n-1)}$ at sample time, so that the conditional Free Energy writes:
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\sum_z q^{(n-1)}(\boldsymbol{z}) \log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})\nonumber\\
-&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} -\log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})
-\end{align}
-that is consistent with eq.~(\ref{eq:cond-F}).
+%minimizing $\text{KL}(q^{(n)} || q^{(n-1)})$ entails 
+%$q^{(n)} = q^{(n-1)}$ at sample time, so that the sample cost writes:
+%\begin{align}
+%F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\sum_z q^{(n-1)}(\boldsymbol{z}) \log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})\nonumber\\
+%&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} -\log p(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{z})
+%\end{align}
+%that is consistent with eq.~(\ref{eq:cond-F}).
 % so that the conditional free Energy minimization finally participates to the Information gain objective \cite{tishby2011information}.
 
-Consistently with eq.~(\ref{eq:cond-F-KL}), an additional reformulation gives:
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
-\end{align}
-with $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$ the divergence between the \emph{past} cumulated posterior and the \emph{present} posterior, measured at viewpoint $\boldsymbol{u}$ only. This divergence is here interpreted as the Free Energy \emph{margin}, i.e. the difference between the \emph{present} conditional Free Energy and 
-the \emph{present} Shannon information.
+%Consistently with eq.~(\ref{eq:cond-F-KL}), an additional reformulation gives:
+%\begin{align}
+%F(\boldsymbol{x}|\boldsymbol{u}, q^{(n-1)}) &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+%\end{align}
+%with $\text{KL}(q^{(n-1)}||q^{(n)})$ the divergence between the \emph{past} cumulated posterior and the \emph{updated} cumulated posterior, measured at viewpoint $\boldsymbol{u}$, i.e. the posterior update cost. 
+%This divergence is here interpreted as the sample cost \emph{margin}, i.e. the difference between the \emph{present} sample cost and 
+%the \emph{present} Shannon information.
 % (i.e. the ``surprise'') carried out by data $\boldsymbol{x}$ at viewpoint $\boldsymbol{u}$.
 
-The lower $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$, the closer the Free Energy estimate to the actual surprise. The active inference setup thus generally considers minimizing the margin rather than minimizing the Free Energy \emph{per se} 
-\footnote{Minimizing the Free Energy is indeed known to drive the sight toward unsurprising (and thus uninformative) locations (the so-called ``dark room'' problem --~see \cite{friston2012perceptions}~--).}.
-
-In our scene decoding setup, viewpoint selection is expected to maximize the \emph{expected encoding accuracy} through minimizing $\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))$.
-Put in a predictive form, the selection of action finally relies on the reduction of the predicted margin, i.e.~:
+The lower the PUC, the closer $q^{(n-1)}$ to $q^{(n)}$ i.e. the more accurate the  code. 
+%closer the sample cost estimate to the actual surprise. The active inference setup thus generally considers minimizing the margin rather than minimizing the sample cost \emph{per se} 
+%
+Put in a predictive form, the selection of a viewpoint $\boldsymbol{u}$ is expected to maximize the \emph{expected code accuracy} through minimizing the PUC.
+Put in a predictive form, the selection of action finally relies on the reduction of the predicted log ratio, i.e.~:
 \begin{align}
- \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)}, p}\left[\text{KL}(q^{(n-1)}(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u})\right]
+ \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
 \end{align}
+It is to be noticed here that the initial Kullback-Leibler divergence is here absorbed in the general expectation over the $\boldsymbol{x}$'s and the $\boldsymbol{z}$'s.
+
 %which, though related to the information gain, appears as an original objective, as far as we know. 
 On contrary to the Infomax objective (section \ref{sec:infomax}), the encoding accuracy objective selects the local posterior having the highest consistency with the cumulated posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy.
 Though sharing a formal similarity, the encoding consistency is moreover at odd with the Saliency objective (see section \ref{sec:saliency}) whose objective is to maximize the \emph{in}consistency between the cumulated posterior and the current posterior.
