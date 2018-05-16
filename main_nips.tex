@@ -30,7 +30,7 @@
 \usepackage{microtype}      % microtypography
 \usepackage[pdftex]{graphicx} 
 
-\title{TODO}
+\title{Optimal scene decoding with foveal computation: a variational perspective}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -101,7 +101,7 @@ Selecting the relevant pixels across time may then be a part of computer vision 
 The idea of viewpoints selection turns out to consider beforehand the pixels that need to be processed to achieve the scene decoding. The general principle is that of
 choosing the viewpoint that is the most {\color{blue} informative} \emph{in expectation}. This entails \emph{predicting the future {\color{blue} information gain}} made by choosing a given viewpoint over the total scene. Two parallel research tracks adopted and refined this very idea over the last twenty years. A first track, developed in robotics and control, insists on the formal contribution of action in the encoding the sensory field. This resorts to consider action as a \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \citep{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the code effectiveness, allowing to improve both the policy and the data model in the course of learning \citep{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}. Another line of research, initially developed in human visual search modeling, considers action as a \emph{sample} (or viewpoint) over an underlying (covert) sensory scene. Then appropriate viewpoints should be selected to maximize the \emph{decoding accuracy}, that resorts to refine the beliefs about the underlying scene to reduce the posterior entropy (see \cite{najemnik2005optimal,najemnik2009simple,butko2010infomax,friston2012perceptions}).
   
-This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place. The encoding efficacy objective encourages that provide informationally-rich content, which is formally defined as the information gain provided by improving prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This first approach may be referred as the ``innovation-based'' approach to action selection. In contrast, the decoding accuracy objective encourage actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This second approach may be referred as the ``conservation-based'' approach to action selection.  
+This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place. The encoding efficacy objective encourages actions that provide informationally-rich content, which is formally defined as the information gain provided by improving prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This first approach may be referred as the ``innovation-based'' approach to action selection. In contrast, the decoding accuracy objective encourage actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This second approach may be referred as the ``conservation-based'' approach to action selection.  
 
 We show here the two objectives can be reconciled when considering action as being both a code and a sample. This is done through postulating a bijection between the motor command and the actuator state.
 %, resting on an \emph{inverse control} principle.
@@ -123,10 +123,10 @@ We here suppose that a generative model $p$ is given to the agent, that is a pro
 Stemming from a general POMDP standpoint, important simplifications are considered here, namely (i) \emph{Emitters independence}, that is $p(\boldsymbol{z}, \boldsymbol{u}) = p(\boldsymbol{z})p(\boldsymbol{u})$ so that
 any scene can be observed from any viewpoint; 
 \emph{(ii) End-effector control}, 
-that is that the controlled generative process is relatively ``fast'' in comparison with the uncontrolled one
+that is the controlled generative process is relatively ``fast'' in comparison with the uncontrolled one
 (for, e.g, saccades can be realized in a 100-200 ms interval). 
 In consequence the motor command  $\boldsymbol{u}$ is considered as a setpoint (or posture) in the actuator space, that is supposed to be reached 
-at short notice once the command is emitted, under classical stability/controllability constraints; \emph{(iii) Uncontrolled environment}, that is that the motor command $\boldsymbol{u}$ \emph{is not expected to affect the  latent state $\boldsymbol{z}$},
+at short notice once the command is emitted, under classical stability/controllability constraints; \emph{(iii) Uncontrolled environment}, that is the motor command $\boldsymbol{u}$ \emph{is not expected to affect the  latent state $\boldsymbol{z}$},
 so that $\boldsymbol{z}$ should depend only on the external dynamics (the external ``uncontrolled'' process); and
 \emph{(iv) Static assumption}
 i.e. the scene is not changing over time \cite{butko2010infomax}. 
@@ -181,7 +181,7 @@ F(\boldsymbol{x}|\boldsymbol{u};p,q)
 \label{eq:FEP-posterior-u}\end{align}
 with each viewpoint $\boldsymbol{u}$ providing a distinct optimization problem. 
 
-\paragraph{Shared code and information gain estimate}
+\paragraph{Shared code and information gain}
 
 The structure of the problem (many views on the same scene) implies that the different  views should share a common \emph{information} corresponding to the actual (covered) sensory scene. The sharing of information between two sensory fields can be quantified by their \emph{mutual information}:
 \begin{align}
@@ -198,12 +198,8 @@ the \emph{mutual} likelihood, i.e. the updated likelihood of $\boldsymbol{x}$ at
 and ($ii$) 
 $-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the 
 \emph{information gain} \citep{tishby2011information}.
-
-
-
 %We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
 %with: % the post-sample Shannon Information approached by the post-sample Free Energy as: 
-
 An approximation of the information gain, known as the \emph{compression improvement} \cite{schmidhuber2007simple,houthooft2016vime},
 writes~:
 \begin{align}
@@ -223,10 +219,10 @@ after optimizing the shared posterior (or shared \emph{code}). From a variationa
 
 By subtracting (\ref{eq:CI-prior}) from (\ref{eq:FEP-prior-u}), the CI writes:
 \begin{align}
-\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}';p,q,q')=
-&  - \mathbb{E}_{z\sim q} \left[\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))\nonumber\\
+\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}'&;p,q,q')=
+  - \mathbb{E}_{z\sim q} \left[\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))\nonumber\\
 & + \mathbb{E}_{z\sim q'} \left[\log p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})\right] 
-+ \mathbb{E}_{z\sim q'} \left[\log p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')\right] -\text{KL}(q'(Z)||p(Z))
++ \mathbb{E}_{z\sim q'} \left[\log p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')\right] -\text{KL}(q'(Z)||p(Z))\label{eq:CI}
 \end{align} 
 Knowing that $q$ and $q'$ are free parameters, it is tempting to take $q=q'$ to provide a rough CI estimate, that is :
 \begin{align}
@@ -238,10 +234,10 @@ This estimate is maximal at $q(Z) = p(Z|\boldsymbol{x}', \boldsymbol{u}')$.
 Taking instead $q(Z)= p(Z|\boldsymbol{x}, \boldsymbol{u})$ (the pre-sample code), the 
 approximate information gain is maximized when $p(Z|\boldsymbol{x}', \boldsymbol{u}')\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$, i.e. when $p(Z|\boldsymbol{x}', \boldsymbol{u}')$ and $p(Z|\boldsymbol{x}, \boldsymbol{u})$ are highly consistent. If now $\boldsymbol{u}'$ is at choice \emph{before} sampling  $\boldsymbol{x}'$, it is sensible to maximize the \emph{predicted compression improvement} (PCI) to maximize the code consistency, i.e.:
 \begin{align}
-\boldsymbol{u}' 
+\hat{\boldsymbol{u}}' 
 %&= \underset{\upsilon \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z}\sim q;\boldsymbol{x}'\sim p(X|\boldsymbol{z},\upsilon))} \tilde{\text{CI}}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}',\upsilon;p, q)\nonumber\\
-&= \underset{\upsilon \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q; \boldsymbol{x}'\sim p(X|\boldsymbol{z},\upsilon))} 
-\left[\log p(\boldsymbol{z}|\boldsymbol{x}', \upsilon)\right]
+&= \underset{\boldsymbol{u}' \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q; \boldsymbol{x}'\sim p(X|\boldsymbol{z},\boldsymbol{u}'))} 
+\left[\log p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')\right]
 \end{align}
 thus providing a general predictive setup to optimize action.
 
@@ -259,12 +255,12 @@ q^{(n)}(Z) \propto p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1
 
 Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
 \begin{align}
-F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}, p, q^{(n)}) 
+F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}, p, q^{(n)}) 
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
 \label{eq:FEP-uxun}
 \end{align}
 %The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
-with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and current observations, providing a \emph{forward} variational encoding scheme (see also \cite{fraccaro2016sequential} for a backward variational encoding scheme). 
+with $q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and $q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \cite{fraccaro2016sequential} for a backward variational encoding scheme). 
 
 \paragraph{Scene decoding optimization}
 The scene decoding setup shares a common formalism with the variational encoding setup, at the difference the changing of $F$ now relies on updating the observation set
@@ -280,7 +276,7 @@ Considering the knowledge about past observations absorbed in single posterior d
 %On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). 
 
 The predictive approach to perception-driven control was originally developed by \cite{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
-Given a generative model $p(X,Z,U)$,  the predictive approach relies on predicting an \emph{objective} measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
+Given a generative model $p(X,Z,U)$,  the predictive approach relies on predicting an \emph{objective} function $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
 The objective may tell for instance how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
 knowing $q^{(n-1)}$.
 % (the estimated posterior at step $n-1$).
@@ -292,53 +288,62 @@ The optimal action at time $n$ is:
 \end{align*}
 with $\bar{A}(\boldsymbol{u}, q^{(n-1)})
 = \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\right]$ the \emph{predicted} objective attached to $\boldsymbol{u}$, 
-formally similar to the Value in Reinforcement Learning, seen as an estimate of a future objective.
+formally similar to the Value in Reinforcement Learning (i.e. estimate of a future objective)\footnote{It must be noted that in order to render the computation tractable, a sampling approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.}.
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \cite{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in Reinforcement Learning \cite{sutton1998reinforcement}.
-
-
-It must be noted that in order to render the computation tractable, a \emph{sampling} approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.
-
 The accuracy measure used in the original paper was an ad-hoc one \cite{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \cite{najemnik2009simple}, i.e.:
-$$A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = -H(q^{(n)}) = \sum_{z \in \mathcal{Z}} q^{(n)}(\boldsymbol{z}) \log q^{(n)}(\boldsymbol{z})$$
-with: $q^{(n)}(\boldsymbol{z}) \propto p(\boldsymbol{x|\boldsymbol{z}, \boldsymbol{u}})q^{(n-1)}(\boldsymbol{z}) $
-so that:
-$$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{q^{(n-1)},p}\left[H(q^{(n)})\right] $$ 
-which makes sense for a low entropy of the posterior is expected when the estimated posterior accuracy is high.
-
-
-By design, the actual latent state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. In order to estimate how good a motor command is, one needs to provide an estimate of the value-of-action (regarding scene understanding). There is currently no consensus about what a good value is regarding the scene decoding task. 
-A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
-\begin{align}
-\hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
-\end{align}
-
- Several intrinsic reward candidates can be developed in the scene decoding context.
-%We propose here a tour of the most common intrinsic value estimators and reformulate them under the scene decoding setup \footnote{Note the estimators provided here are compatible with the POMDP setup, but restrained to the ``three-party'' case --~see eq.~(\ref{eq:three-party})~-- for mathematic simplicity.}, and try to evaluate the pros and cons of the different approaches.
-%, and end up with new objective formulation called the \emph{encoding accuracy}. 
-
-
-
-This approach to optimal visual sampling was further on linked to an ``Infomax'' principle in \cite{butko2010infomax} and shown efficient in artificial visual search using policy gradient \cite{williams1992simple} to learn the controller. The Infomax approach uses the same principles as the Information gain, except it is estimated in the latent space while the information gain was defined relatively to the data space in eq~(\ref{eq:infomax}):
-\begin{align}
-A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) &= I(Z^{(n)}; Z^{(n-1)}|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\nonumber\\
-&= H(q^{(n-1)}) - H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})
-\end{align}
-so that a maximal information gain is expected when $H(q^{(n)}|\boldsymbol{x}, \boldsymbol{u})$ is minimal.
-
-With our framework, the infomax objective appears consistent with the ``PEC - PUC'' variational information gain objective (see eq.~(\ref{eq:PEC-PUC})),  
-when considering $H(q^{(n-1)})$ as a proxy for: 
-\begin{align*}
--\text{ PUC } + \text{ PEC } &= -KL(q^{(n-1)}||q^{(n)})  + KL(q^{(n)}||q^{(n-1)})\\
-&=  H(q^{(n-1)}) - H(q^{(n-1)}, q^{(n)}) - H(q^{(n)}) + H(q^{(n)}, q^{(n-1)})
-\end{align*}
-at the difference the cross-entropy terms are neglected. The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no cross-entropy comparison between $q^{(n-1)}$ and $q^{(n)}$.
+$A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = -H(q^{(n)}) = \sum_{z \in \mathcal{Z}} q^{(n)}(\boldsymbol{z}) \log q^{(n)}(\boldsymbol{z})$. This approach to optimal visual sampling was further on linked to an ``Infomax'' principle in \cite{butko2010infomax} 
+%and shown efficient in artificial visual search using policy gradient \cite{williams1992simple} to learn the controller, with 
+taking
+$$A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) = I(Z; \boldsymbol{x}|\boldsymbol{u}, q^{(n-1)})
+= H(Z|q^{(n-1)}) - H(Z|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$$
+with  $H(Z|X, \boldsymbol{u}, q^{(n-1)}) \equiv H(q^{(n)})$.
+The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no cross-entropy comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$. 
 
 
- that are considered given in a first place. 
+Another quantity of interest is the so-called \emph{Bayesian surprise} (or \emph{ Saliency}) \citep{itti2005bayesian},
+% defined as the Kullback-Leibler divergence {\color{blue} between an actual view $(\boldsymbol{x}, \boldsymbol{u})$ and a model $q^{(n-1)}$}.  
+%In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $q(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the \emph{salience} (or ``\emph{Bayesian surprise}'') of the actual view $\boldsymbol{x}$ given the model is:
+%$$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(q(Z| \boldsymbol{x}, \boldsymbol{u})||q(Z))$$
+which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $q$ and the data $(\boldsymbol{x}, \boldsymbol{u})$. 
+In our sequential setup, the saliency writes:
+$$ S(\boldsymbol{x},\boldsymbol{u}, q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})$$
+%A high salience reports a strong inconsistency with the model ({\color{blue} a high Bayesian surprise}), while a low salience reports a strong consistency with the model ({\color{blue} a low Bayesian surprise}).
+%Here, consistent with the PEC alone, 
+%with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$.
+%It interestingly shares a formal similarity with the second term of the variational Free Energy (see eq.\ref{eq:FEP-uxun}). 
+According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most, so that, in a predictive setup, the predicted saliency is to be \emph{maximized}.
+%The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). 
+%In a sequential setup, a corresponding predictive policy would be:
+%$$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))\right]$$
+The saliency model has a strong explanatory power and provides among the best fit with the preferred fixation zones observed in humans.
+Its scalability moreover provides straightforward applications in image and video compression  \cite{wang2003foveation,guo2010novel}.
+%It  however constitutes a challenge to modelers, for it is at odd with scene interpretation,  
+%It thus provides little explanation about the sight-orientation cognitive operations. 
+%It is for instance known from eye-tracking data that humans sight is attracted by ``high-level'' features like faces, text or letters \cite{judd2009learning}, that are not captured by the low-level approach. 
+%i.e. enters in contradiction 
+%(or in ``dialectic'' contrast) 
+%with the scene encoding setup, where one objective of the encoder is to minimize the divergence between the inferred code and the prior expectations (see \cite{friston2015active} for a discussion).
+{\color{blue} Turning now to eqs (\ref{eq:CI-post}) and (\ref{eq:FEP-posterior-u}), and taking $q^{(n)}(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ the approximate information gain writes:
+\begin{small}
+	\begin{align}
+	\tilde{\text{CI}}(\boldsymbol{x},\boldsymbol{u}; q^{(n-1)}) \simeq
+	-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{u}^{(n-1)}; q^{(n-1)}) 
+	+ \text{KL}(q^{(n)}||q^{(n-1)})
+	+ \log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{u}^{(n-1)}, \boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) 
+	\end{align}
+\end{small}
+that is the overestimation made after posterior update by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation.}
 
+At last, the  active inference setup \citep{friston2010free,friston2012perceptions} 
+considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the Free Energy with action, that is  interpreted here as maximizing~:
+$$-F(\boldsymbol{x}|\boldsymbol{u}; q^{(n-1)}) = 
+\log p(\boldsymbol{x}| \boldsymbol{u}; q^{(n-1)}) - \text{KL}(q^{(n-1)}||q^{(n)}))
+$$
+with $\text{KL}(q^{(n-1)}||q^{(n)}))$ symmetrically interpreted as the \emph{watchful} or \emph{memory-consistent} bias at $q^{(n)}\simeq q^{(n-1)}$, that participates in underestimating the future information gain before posterior update. It also represents the interpretative effort made by interpreting  $\boldsymbol{x}|\boldsymbol{u}$ with $q^{(n)}$ instead of $q^{(n-1)}$. Minimizing $\text{KL}(q^{(n-1)}||q^{(n)}))$ thus corresponds to a \emph{conservative} approach to the scene interpretation that should minimize the risk made by updating the posterior. 
 
 {\color{magenta}
+	
 Substracting now (\ref{eq:CI-post}) from (\ref{eq:FEP-posterior-u}) gives:
 \begin{align}
 \text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}';q) \stackrel{q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}))}{\simeq}  
