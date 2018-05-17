@@ -231,10 +231,11 @@ knowing $q^{(n-1)}$.
 % (the estimated posterior at step $n-1$).
 %If the agent has to choose an action $\boldsymbol{u} \in \mathcal{U}$, knowing only $q^{(n-1)}$, 
 The optimal action at time $n$ is:
-\begin{align*}
+\begin{align}
 \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \bar{A}(\boldsymbol{u}, q^{(n-1)})
 %&= \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x}  
-\end{align*}
+\label{eq:predictive-policy}
+\end{align}
 with $\bar{A}(\boldsymbol{u}, q^{(n-1)})
 = \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\right]$ the \emph{predicted} objective attached to $\boldsymbol{u}$, 
 formally similar to the Value in Reinforcement Learning (i.e. estimate of a future objective)\footnote{It must be noted that in order to render the computations tractable, a sampling approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.}.
@@ -386,8 +387,6 @@ Using (\ref{eq:saliency}) or (\ref{eq:ELBO}) as an objective (instead of (\ref{e
 \paragraph{Fovea-based computation} 
 In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
 
-
-
 \begin{figure}[b!]
 	\centerline{
 		\hspace{2cm}
@@ -403,53 +402,48 @@ In superior vertebrates, two principal tricks are used to minimize sensory resou
 	\centerline{
 		\includegraphics[width = \linewidth]{img/ICLR-foveated-model.pdf} 
 	}
-\centerline{\textbf{e}}	
-\centerline{
-	\includegraphics[width = \linewidth]{img/NIPS-convolutional.pdf} 
-}
-	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from original image.
+
+	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image.
 	\textbf{d}. Image reconstruction from 60 central coefficients, issuing a 92 \% compression rate.  
 	\textbf{e}. Wavelet-based hierarchical CNN encoder.}\label{fig:foveated}
 \end{figure}
 
 The baseline vision model we propose relies first on learning local foveated views on images.
 %The essential property of foveated images is that they retain high spatial frequency information at the center and keep only low-frequency information at the periphery.  %Foveated image decomposition is rarely proposed in literature for machine learning purposes, at the exception of Simoncelli's group that has developed a framework to process centrally-magnified images in a bio-realistic fashion (see \cite{freeman2011metamers} and \cite{Deza2016piranhas}). 
-Consistently with \cite{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u}$ as a set of 3 coordinates $(i,j,h)$, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j} \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (as opposed to 784 pixels in the original image).
+Consistently with \cite{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u}$ as a set of 3 coordinates $(i,j,h)$, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j} \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (which is a radical compression when the 784 pixels of the original image are considered).
 Fig. \ref{fig:foveated}d displays a reconstructed image from the 4 central viewpoints at coordinates (7, 7), (7, 8) (8, 7) and (8, 8).
-
-A generative model is learned for each $\boldsymbol{u} = (i,j,h)$ (making a total of 266 data models) over the 55,000 examples of the MNIST training set. For each category $\boldsymbol{z}$ and each gaze orientation $\boldsymbol{u}$, a generative model is built over parameter set $\Theta_{\boldsymbol{z},\boldsymbol{u}} = (\rho_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})$, so that $\forall \boldsymbol{z},\boldsymbol{u}, \tilde{\boldsymbol{x}}_{\boldsymbol{z},\boldsymbol{u}} \sim \mathcal{B}(\rho_{\boldsymbol{z},\boldsymbol{u}}) \times \mathcal{N}(\boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})$ with $\mathcal{B}$ a Bernouilli distribution and $\mathcal{N}$ a multivariate Gaussian. The Bernouilli reports the case where the coefficient triplet is null in the considered portion of the image (which is quite common at high spatial frequencies and/or in the periphery of the image), which results in discarding the corresponding triplet from the Gaussian moments calculation. Each resulting generative model $p(X|\boldsymbol{z},\boldsymbol{u})$ is a mixture of Bernouilli-gated Gaussians over the 10 MNIST labels. 
-
-Two complementary models are used on the encoding side:
-($i$) a baseline inference model, with the posterior explicitly calculated using Bayes rule, i.e. $q(Z|\boldsymbol{x},\boldsymbol{u}) = \text{softmax} \log p(\boldsymbol{x}|Z,\boldsymbol{u})$, issuing about 92\% recognition rate on the MNIST test set when combining the 266 models on each wavelet triplet.
-($ii$) a convolutional neural network made of five convolution layers corresponding to the five hierarchical levels of the wavelet decomposition (see figure \ref{fig:foveated}e). The CNN is biasless, uses a (2,2) stride for the convolution \emph{without max-pooling}, maximizing \emph{neighbour independence} in the convolutional computational track. The training data is degraded (or compressed) at random, with about 50\% of the wavelet coefficients selected (the others being set at 0).  Without hectic optimization, the network attains a 99\% recognition rate on test set using plain inputs. The cross-entropy loss used in training makes the network output is expected to approach the data log-likelihood, and this is how it is interpreted further on.
 
 \paragraph{Algorithms}
 
-Both the encoder and decoder are thus trained apart for  
+%Both the encoder and decoder were trained apart for  
 %The discriminator and the generator are trained separately in a supervised fashion so that we 
-our different objectives can be compared over established models.
-Our \emph{model-based} sequential scene decoding algorithm is provided in algorithms \ref{algo:saccade-policy} and \ref{algo:saccade}. 
+%our different objectives could be compared on solid ground.
+The generic sequential scene decoding setup is provided in algorithms \ref{algo:saccade-policy} and \ref{algo:saccade}. A significant algorithmic add-on when compared with formula
+(\ref{eq:predictive-policy}) is the use of a \emph{dynamic actions set} : $\mathcal{U}$. At each turn, the new selected action $\tilde{u}$ is drawn off from $\mathcal{U}$, so that the next choice is made over fresh directions that have not yet been explored. This implements the inhibition of return principle stated in \cite{itti2001computational}. A second algorithmic aspect is the use of a threshold $H_\text{ref}$ to stop the evidence accumulation process when enough evidence has been gathered. This threshold is a free parameter of the algorithm that sets whether we privilege a conservative (tight) or optimistic (loose) threshold. The stopping criterion needs to be optimized to arbitrate between resource saving and coding accuracy. 
 
 
 \begin{algorithm}[t]
 	\caption{Prediction-Based Policy}\label{algo:saccade-policy}
 	\begin{algorithmic}
-		\REQUIRE  $p$ (generator), $q$ (inference), $\rho$ (prior), $\mathcal{U}$ (actions set)
-		\STATE predict $z \sim \rho$
-		\STATE $\forall u \in \mathcal{U}$, generate $\tilde{\boldsymbol{x}}_u \sim p(\boldsymbol{x}|z,u)$
-		%		\RETURN $\tilde{u} = \underset{u \in \mathcal{U}}{\text{argmax }} q(z|\tilde{\boldsymbol{x}}_u,u)$
+		\REQUIRE  $p$ (decoder), $q$ (encoder), $\rho$ (prior), $A$ (objective), $\mathcal{U}$ (actions set)
+		%\STATE predict $z \sim \rho$
+		\FOR{$\boldsymbol{z},\boldsymbol{u} \in \mathcal{Z,U}$}
+			\STATE sample: $\tilde{\boldsymbol{x}}_{z,u} \sim p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})$
+			\STATE $r(\boldsymbol{z},\boldsymbol{u}) \leftarrow A(\boldsymbol{z},\boldsymbol{u},\tilde{\boldsymbol{x}}_{z,u},q,\rho)$ 
+		\ENDFOR
+		\RETURN $\tilde{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{argmax }} \langle\rho, r(:,\boldsymbol{u})\rangle$
 	\end{algorithmic}
 \end{algorithm}
 
 \begin{algorithm}[t]
 	\caption{Scene Exploration}\label{algo:saccade}
 	\begin{algorithmic}
-		\REQUIRE  $p$ (generator), $q$ (inference), $\rho_0$ (initial prior), $\mathcal{U}$ (actions set)
+		\REQUIRE  $p$ (decoder), $q$ (encoder), $\rho_0$ (initial prior), $A$ (objective), $\mathcal{U}$ (actions set)
 		\STATE $\rho \leftarrow \rho_0$ 
 		\WHILE {$H(\rho) > H_\text{ref}$}
-		\STATE choose: $\tilde{u} \leftarrow \text{Prediction-Based Policy}(p, q, \rho, \mathcal{U})$
+		\STATE choose: $\tilde{\boldsymbol{u}} \leftarrow \text{Prediction-Based Policy}(p, q, \rho, A, \mathcal{U})$
 		\STATE read: $\boldsymbol{x}_{\tilde{u}}$
-		\STATE update: $\forall z, \text{odd}[z] \leftarrow \log q(z|\boldsymbol{x}_{\tilde{u}},\tilde{u}) + \log \rho(z)$ 
+		\STATE update: $\forall z, \text{odd}[z] \leftarrow \log q(z|\boldsymbol{x}_{\tilde{u}},\tilde{u};\rho)$ 
 		\STATE $\rho \leftarrow \text{softmax} (\text{odd})$ \COMMENT{\emph{the posterior becomes the prior of the next turn}}
 		\STATE $\mathcal{U} \leftarrow \mathcal{U} \setminus \{\tilde{u}\}$ 
 		\ENDWHILE
@@ -457,40 +451,61 @@ Our \emph{model-based} sequential scene decoding algorithm is provided in algori
 	\end{algorithmic}
 \end{algorithm}
 
-\begin{itemize}
-	\item A significant algorithmic add-on when compared with formulas (\ref{eq:step-1}--\ref{eq:step-3}) is the use of a \emph{dynamic actions set} : $\mathcal{U}$. At each turn, the new selected action $\tilde{u}$ is drawn off from $\mathcal{U}$, so that the next choice is made over fresh directions that have not yet been explored. This implements the inhibition of return principle stated in \cite{itti2001computational}.
-	\item A second algorithmic aspect is the use of a threshold $H_\text{ref}$ to stop the evidence accumulation process when enough evidence has been gathered. This threshold is a free parameter of the algorithm that sets whether we privilege a conservative (tight) or optimistic (loose) threshold. The stopping criterion needs to be optimized to arbitrate between resource saving and coding accuracy. 
-	%is to carefully evaluate the kind of exploratory behavior provided by those principles, and see how they compare with existing active vision algorithms. In practice
-\end{itemize}
-
-The saccade exploration algorithm moreover adapts algorithm \ref{algo:saccade} the following way. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is calculated on the basis of the final coordinates $(i,j) \in [0,..,15]^2$, so that the posterior calculation is based on several coefficient triplets. After selecting $(i,j)$, all the corresponding coordinates $(h,i,j)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
+The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:saccade} the following way. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is calculated on the basis of the final coordinates $(i,j) \in [0,..,15]^2$, so that the posterior calculation is based on several coefficient triplets. After selecting $(i,j)$, all the corresponding coordinates $(h,i,j)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
 
 \begin{figure}[b!]
 	\centerline{
-		%\includegraphics[width = .7\linewidth]{img/ICLR-foveated-saccades.png} 
-		\includegraphics[width = .2\linewidth]{img/saccade-3-full-traj.png} 
-		\includegraphics[width = .2\linewidth]{img/saccade-3-step-1.png} 
-		\includegraphics[width = .2\linewidth]{img/saccade-3-step-2.png} 
-		\includegraphics[width = .2\linewidth]{img/saccade-3-step-3.png} 
-		\includegraphics[width = .2\linewidth]{img/saccade-3-step-4.png}}
-	\centerline{\textbf{a} \hspace{2.6cm} \textbf{b} \hspace{2.4cm} \textbf{c} \hspace{2.4cm} \textbf{d} \hspace{2.6cm} \textbf{e}}
-	\centerline{\includegraphics[width = .4\linewidth,height=4cm]{img/saccade-3-post.png} 
-		\includegraphics[width = .4\linewidth,height=4cm]{img/saccade-3-entropy.png} }
+	\includegraphics[width=\linewidth]{img/NIPS-saccade.pdf}}
 	\vspace{-.2cm}
-	\centerline{Read-out steps \hspace{3.6cm} Read-out steps}
-	\centerline{\textbf{f} \hspace{5.5cm} \textbf{g}}
-	\caption{\textbf{Scene exploration through saccades in the foveated vision model}. \textbf{a}. Saccades trajectory over the original image (initial gaze orientation indicated with a red "plus"). \textbf{b--e}. Progressive image reconstruction over the course of saccades, with \textbf{b}: 5 coefficients triplets + root coefficient (initial gaze orientation), \textbf{c}: 9 coefficients triplets + root coefficient (first saccade), \textbf{d}: 13 coefficients triplets + root coefficient (second saccade), \textbf{e}: 17 coefficients triplets + root coefficient (third saccade) \textbf{f}. Posterior update in function of the number of read-out steps (noting that step 1 stems for the root coefficient and the next steps stem for 3 Haar wavelet coefficients read-out), with one color per category (the numbers over the lines provide the competing labels) \textbf{g}. Posterior entropy update in function of the number of read-out steps.}\label{fig:foveated-saccades}
+	\caption{\textbf{Scene exploration through saccades in the foveated vision model}. \textbf{a}. Saccades trajectory over the original image (initial gaze orientation indicated with a red "plus"). \textbf{b--e}. Progressive image reconstruction over the course of saccades, with \textbf{b}: 5 coefficients triplets + root coefficient (initial gaze orientation), \textbf{c}: 9 coefficients triplets + root coefficient (first saccade), \textbf{d}: 13 coefficients triplets + root coefficient (second saccade), \textbf{e}: 17 coefficients triplets + root coefficient (third saccade) \textbf{f}. Posterior update in function of the number of read-out steps (noting that step 1 stems for the root coefficient and the next steps stem for 3 Haar wavelet coefficients read-out), with one color per category (the numbers over the lines provide the competing labels) \textbf{g}.  Classification rate measured on the test set in function of the decoding compression rate, for different objective functions. The stopping criterion varies from $H_\text{ref}=1e-5$ up to  $H_\text{ref}=1e-1$ (from left to right).}\label{fig:foveated-saccades}
 \end{figure}
 
+\paragraph{Baseline generative model and decoding compression}
+A generative model is learned for each $\boldsymbol{u} = (i,j,h)$ (making a total of 266 data models) over the 55,000 examples of the MNIST training set. For each category $\boldsymbol{z}$ and each gaze orientation $\boldsymbol{u}$, a generative model is built over parameter set $\Theta_{\boldsymbol{z},\boldsymbol{u}} = (\rho_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})$, so that 
+\begin{align}
+\forall \boldsymbol{z},\boldsymbol{u}, \tilde{\boldsymbol{x}}_{\boldsymbol{z},\boldsymbol{u}} \sim \mathcal{B}(\rho_{\boldsymbol{z},\boldsymbol{u}}) \times \mathcal{N}(\boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})\label{eq:bernouilli-gated}
+\end{align} 
+with $\mathcal{B}$ a Bernouilli distribution and $\mathcal{N}$ a multivariate Gaussian. The role of the Bernouilli is to ``gate'' the multivariate Gaussian model in the high frequencies, where digit deformations is reflected in an alternating presence or absence of pixels for high level coefficients and at the periphery, allowing to discard the ``white'' triplets from the Gaussian moments calculation. Each resulting generative model $p(X|Z,\boldsymbol{u})$ is a mixture of Bernouilli-gated Gaussians over the 10 MNIST labels. On the encoding side, the posterior is explicitly calculated using Bayes rule, i.e. $q(Z|\boldsymbol{x},\boldsymbol{u}) = \text{softmax} \log p(\boldsymbol{x}|Z,\boldsymbol{u})$, issuing about 92\% recognition rate on the MNIST test set when combining the 266 log likelihoods of each wavelet triplet of the full images with (\ref{eq:accum}), a typical recognition rate for a shallow models.
 
-An example of such saccadic image exploration is presented in figure \ref{fig:foveated-saccades}\textbf{a} over one MNIST sample.
-The state of the recognition process after one saccade is shown on fig. \ref{fig:foveated-saccades}\textbf{b}. The next saccade (fig. \ref{fig:foveated-saccades}\textbf{c})  heads toward a region of the image that is expected to help confirm the guess. The continuing saccade (fig. \ref{fig:foveated-saccades}\textbf{d}) makes a close-by inspection and the final saccade (fig. \ref{fig:foveated-saccades}\textbf{e}) allows to reach the posterior entropy threshold, set at $H_\text{ref} = 1e^{-4}$ here. The second row shows the accumulation of evidence over the coefficients triplets, with fig. \ref{fig:foveated-saccades}\textbf{f} showing the posteriors update of different labels and fig. \ref{fig:foveated-saccades}\textbf{g} showing the posterior entropy update according to the coefficients triplets actually read. Note that several triplets are read for each end-effector position ($i,j$) (see fig. \ref{fig:foveated}c). There is for instance a total of 5 triplets read out at the initial gaze orientation (\textbf{b}), and then 4 triplets read-out for each continuing saccades.
+The example of an ``Infomax''-based sequential scene decoding is presented in figure \ref{fig:foveated-saccades}\textbf{a}--\textbf{f} for one MNIST sample using algorithm \ref{algo:saccade}.
+The original image is presented in fig~\ref{fig:foveated-saccades}\textbf{a} with on overlay a four ``saccades'' trajectory over the image. The corresponding decoding process is illustrated in figs~\ref{fig:foveated-saccades}\textbf{b}--\textbf{e}, giving the reconstructed pixels from  coefficients read-out at successive steps of the decoding process.
+%The state of the recognition process after one saccade is shown on fig. \ref{fig:foveated-saccades}\textbf{b}. The next saccade (fig. \ref{fig:foveated-saccades}\textbf{c})  heads toward a region of the image that is expected to help confirm the guess. The continuing saccade (fig. \ref{fig:foveated-saccades}\textbf{d}) makes a close-by inspection and the final saccade (fig. \ref{fig:foveated-saccades}\textbf{e}) allows to reach the posterior entropy threshold, set at $H_\text{ref} = 1e^{-4}$ here. Fig. \ref{fig:foveated-saccades}\textbf{f} shows the posteriors update of different labels over the decoding sequence and fig. \ref{fig:foveated-saccades}\textbf{g} gives the posterior entropy update according to the coefficients triplets actually read. 
+Note that several coefficient triplets are read at each end-effector position ($i,j$) (see fig. \ref{fig:foveated}c). There is for instance a total of 5 triplets read out at the initial gaze orientation (\textbf{b}), and then 4 triplets read-out for each continuing saccade. 
+Last, the \emph{decoding compression rate} is defined as the proportion of wavelet coefficients that are bypassed for reaching decision. In the considered example, a total of 18 coefficient triplets is  actually read-out, representing about 7\% of the total 256 coefficient triplets, issuing a 93\% decoding compression rate. 
 
-The model provides apparently realistic saccades, for they cover the full range of the image and tend to point over regions that contain class-characteristic pixels. The image reconstruction after 4 saccades allows to visually recognize a "fuzzy" three, while it would not necessarily be the case if the saccades were chosen at random.
-The observed trajectory illustrates the \emph{guess confirmation} logic that is behind the active vision framework. Every saccade heads toward a region that is supposed to confirm the current hypothesis. This confirmation bias appears counter-intuitive at first sight, for some would expect the eye to head toward places that may \emph{disprove} the assumption (to challenge the current hypothesis). This is actually not the case for the class-confirming regions are more scarce than the class-disproving regions, so that heading toward a class-confirming region may bring more information in the case it would, by surprise, invalidate the initial assumption.
+Fig.~\ref{fig:foveated-saccades}\textbf{g} shows the classification rate and the decoding compression rate  obtained in the test set for different objective functions and $H_\text{ref} \in \{1e-1, 1e-2, 1e-3, 1e-4, 1e-5\}$. The objectives are also compared with a random baseline policy. The classification rates monotonically decrease with an \emph{increasing} recognition threshold. Considering 92\% as the upper bound here, a near optimal recognition rate is obtained  at $H_\text{ref}=1e^{-5}$ for the CI objective. Though all objectives functions show a consistent increase of the classification rate with decreasing $H_\text{ref}$, the coding improvement objective clearly overtakes the others ones. The Infomax and the ELBO behave in a close-by fashion, and then the Salience objective seems unfitted to the task. 
+The compression rates are generally good, with a close to optimal classification obtained at 85\% compression. It needs to be noticed that still a correct 90\% classification rate can be obtained with random exploration at around 70\% compression rate, reflecting a strong redundancy in the original dataset.  
+
+%The model provides apparently realistic saccades, for they cover the full range of the image and tend to point over regions that contain class-characteristic pixels. The image reconstruction after 4 saccades allows to visually recognize a "fuzzy" three, while it would not necessarily be the case if the saccades were chosen at random.
+%The observed trajectory illustrates the \emph{guess confirmation} logic that is behind the active vision framework. Every saccade heads toward a region that is supposed to confirm the current hypothesis. This confirmation bias appears counter-intuitive at first sight, for some would expect the eye to head toward places that may \emph{disprove} the assumption (to challenge the current hypothesis). This is actually not the case for the class-confirming regions are more scarce than the class-disproving regions, so that heading toward a class-confirming region may bring more information in the case it would, by surprise, invalidate the initial assumption.
 
 %{\color{green} With a final posterior approaching $1 - 1e^{-5}$, the model is actually overconfident in its own predictions which introduces a confirmation bias that may harm the final recognition rate. This is not the case in our setup (see next section for quantitative accuracy estimate), but one can not exclude the process to be overconfident at a local minimum. It must be noticed however that the confirmation bias is a more general feature of the active inference framework that should be specifically addressed (with a $T$-horizon forward planning at exponential cost and/or reward-based policy learning -- see \cite{butko2010infomax}). For there is no free lunch, it corresponds to the "price to pay" for reducing the observation range of the image at the risk of potentially neglecting critical covert information. }
 
+\begin{figure}
+\centerline{
+	\includegraphics[width = \linewidth]{img/NIPS-convolutional.pdf} 
+}
+\vspace{-.2cm}
+\caption{\textbf{Hierarchical Convolutional Neural Network for Scene Decoding}. (Left) The hierarchical organization of the input is reflected in the CNN computational graph. (Right) Objective functions comparison on the CNN model.}\label{fig:CNN}
+\end{figure}
+
+\paragraph{Information gain in Convolutional Neural Networks}
+A convolutional neural network was designed in order to provide a more effective encoding and facilitate comparison with state-of-the-art classifiers (see fig.~\ref{fig:CNN}). 
+It is made of five convolution layers having each a distinct input corresponding to the five hierarchical levels of the wavelet decomposition. 
+The CNN is biasless, uses a (2,2) stride for the convolutions \emph{without max-pooling}, maximizing \emph{neighbour independence} in the convolutional computational track.
+The training data was compressed at random by discarding wavelet coefficient triplets, with a varying compression rate. The network was trained during about $10^6$ epochs\footnote{trained with Tensorflow on a laptop.}. Without specific parameter tuning, the network attained a 99\% recognition rate on the test set with non-compressed wavelet transformed inputs. 
+
+The cross-entropy loss used in training makes the network output is expected to approach the data log-likelihood, and this is how it is exploited further on. For decoding a scene, the input layers are initialized a zero  and progressively filled with new wavelet coefficients, implementing the posterior update \emph{from the data}. There is thus no recurrence, sequential accumulation or memory implemented in the network. The output is driven by adding supplementary data at the input only, complementing the data that was read out at the previous decoding steps. 
+Following algorithm \ref{algo:saccade} with the CNN as the encoder, the decoding efficacy is shown for different objective functions on the right-hand side of fig.\ref{fig:CNN}. A clear decoding improvement is obtained, with higher classification rates with less signal, attaining about 98,8\% correct classification with less than 8\% of the original image. Still, the general good performances of the decoder blurs the differences between the different policies. All objectives appear here equally good at effectively decoding the scene. 
+\paragraph{Failed model and failure robustness}
+The predictive policies are very dependent on the generative models and thus sensible to model flaws. Resistance to model flaws is thus a property that should be prioritized when acting in unknown or coarsely modeled environments, or in the course of learning. In contrast with CNN-based optimal decoding, we designed a failed probabilistic model by simply setting $\rho_{u,z} = 1$ in eq.~(\ref{eq:bernouilli-gated}).  This tends to overestimate the signal strength at high frequencies, predicting a dense signal in effectively sparse regions. 
+
+
+
+
+\paragraph{Method upscaling}
+
+\section{Conclusions}
 
 \section*{References}
 \bibliographystyle{apalike}
