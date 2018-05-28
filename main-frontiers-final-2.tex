@@ -64,19 +64,23 @@
 	
 \section{Introduction}
 
-In complement with goal-oriented activity, animal motor activity also relates to the search for sensory clues in order to better understand its sensory environment. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
+In complement with goal-oriented activity, animal control of action also relates to the search for sensory clues in order to better understand its sensory environment. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
 
 %{\color{magenta} Revue de litterature}
 
-%\paragraph{Multi-view image processing}
+Superior vertebrates oculo-motor activity typically underlies such a decoding task. The important redundancy present in the visual data was exploited by natural selection, ending up in a combination of energy-efficient sensors and resource-saving visuo-motor control, exploiting only little portions of the visual environment to decode the total sensory scene. A salient feature of superior vertebrates visual apparatus is indeed their anosotopic visual sensor, that concentrates  photoreceptors over a small central portion of the retina : the fovea \cite{osterberg1935topography}. Then, by moving the gaze with the eyes, the center of sight is constantly and actively moving around during all waking time. 
+This scanning of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. This makes the oculo-motor activity an essential element of man and animal behavior, underlying most of daily displacements, movements, instrumental and social interactions. 
 
-Scene decoding through action (or ``active perception'') has attracted strong interest in robotics and artificial vision.  
-It mostly refers to the oculo-motor activity, for the movements of the eyes is a salient feature of superior vertebrates vision. The oculo-motor activity is an essential component of man and animal behavior, underlying most of daily displacements, movements, instrumental and social interactions. By moving the gaze with the eyes, the center of sight is constantly and actively moving around during all waking time. 
-A salient feature of superior vertebrates visual apparatus is the foveated retina that concentrates  photoreceptors over a small central portion of the visual field \cite{osterberg1935topography}. The scanning of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. 
-Though ubiquitous in biology, object recognition through saccades is seldom considered in artificial vision. 
-%The reasons are many, of which the existence of high-performance sensors that provide millions of pixels at low cost.
-The opportunity to neglect large parts of the {\color{blue} visual/sensory} scene should however be considered when the energy is scarce, for the important redundancy present in the {\color{blue} visual/sensory} data allows to envisage energy-efficient visual exploring devices  
+This scene decoding through action (or ``active perception'') has attracted strong interest in robotics and artificial vision,
+%Though ubiquitous in biology, object recognition through saccades is seldom considered in artificial vision. 
+ for the important redundancy present in the {\color{blue} visual/sensory} data allows to envisage energy-efficient visual exploring devices  
 using only little portions of the total sensory scene.
+%The reasons are many, of which the existence of high-performance sensors that provide millions of pixels at low cost.
+The opportunity to neglect large parts of the {\color{blue} visual/sensory} scene should mainly be considered when the energy is scarce, as it is the case for drones and robots. 
+It is also relevant in computer vision, where mega-pixel images appeals for selective convolutions, in order to avoid unnecessary matrix products. 
+The example of animal vision thus encourages a more parsimonious approach to robotic and computer vision, \emph{including the control of the sensory flow}. 
+%A computer vision program should for instance look back from past experience to see which viewpoint to use to provide the most useful information about a scene. 
+Optimizing the sensor displacements across time may then be a part of robotic control, in combination with goal-oriented operations. 
 
 %itself, with critical or useful information only present in 
 
@@ -87,37 +91,53 @@ using only little portions of the total sensory scene.
  %\footnote{in contrast with animals retina whose actual design relies on a long optimization process under severe resource constraints.}.
 %Increasingly powerful computing devices are then assigned to compute in parallel those millions of pixels to perform recognition, consuming resources in a brute-force fashion. 
 
-The example of animal vision thus encourages a more parsimonious approach to computer vision \emph{including the control of the sensory flow}. 
-%A salient aspect of animal vision is the use of \emph{active} sensing devices, capable of moving around under some degrees of freedom in order to choose a particular viewpoint. The existence of a set of possible sensor movements calls for the development of specific algorithms that should \emph{solve the viewpoint selection problem}. 
-A computer vision program should for instance look back from past experience to see which viewpoint to use to provide the most useful information about a scene. Optimizing the sensor displacements across time may then be a part of computer vision algorithms, in combination with traditional pixel-based operations. 
 
-Changing the viewpoint can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. 
-A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
+%A salient aspect of animal vision is the use of \emph{active} sensing devices, capable of moving around under some degrees of freedom in order to choose a particular viewpoint. The existence of a set of possible sensor movements calls for the development of specific algorithms that should \emph{solve the viewpoint selection problem}. 
+
+Changing the viewpoint can be seen as a way to leverage ambiguities present in the current visual field. In \cite{aloimonos1988active}, the authors show that some ill-posed object recognition problems become well-posed as soon as several views on the  same object are considered. A more general perspective is developed in \cite{bajcsy1988active}, with a first attempt to interpret active vision in the terms of sequential Bayesian estimation:
 \begin{quote}
 	\emph{The problem  of Active Sensing can be stated as a problem of controlling strategies 
 		applied to the data acquisition process which will depend on the current state 
 		of the data interpretation and  the  goal  or the  task of  the  process.}
 \end{quote}
-thus providing a roadmap for the development of active artificial vision systems.
+thus providing a roadmap for the development of active vision and sensory systems.
 
-Selecting 
-
-multi-view image-processing
-
-The active vision literature considers the case of 
-
-
-
-
-further developed in \cite{najemnik2005optimal,butko2010infomax,ahmad2013active,potthast2016active}.
+Work on central vision control is quite scarce until the late 2000's.
+On the machine learning side, an example of fovea-based vision motor control was for instance addressed in \cite{schmidhuber1991learning}, with a direct policy learning from gradient descent by using BPTT through a pre-processed forward model. 
+From the biological vision side, early models from the late nineties  consider the case of fovea-based image decoding, ending up in the simplified ``pyramidal'' focal image encoding model \cite{kortum1996implementation}. Active vision models are however largely dominated by the \emph{salience} models \cite{itti2000saliency,itti2001computational,itti2005bayesian}, that are known to provide among the best fit with the preferred fixation zones observed in humans. 
+Motor control is however generally bypassed in that case, putting the focus on characterizing the attractiveness of fixation zones rather that explicitating a sequential step-by-step image decoding process through changing fixation point.
+%Despite their strong explanatory power, they generally bypass central/foveal vision aspects. 
+Combined with a focal pyramidal image encoding, the salience approach however still effective outcome in image and video compression  \cite{wang2003foveation,guo2010novel}.
 
 
+The salience approach to active vision is generally referred as a ``bottom-up'' approach, for only low-level aspects of the images are considered in the decoding process. In contrast, scene interpretation and active object search in images is generally referred as the ``top-down'' approach, for ``high level'' assumption are made over the actual content of the image. 
+%The idea of viewpoints selection turns out to consider beforehand the pixels that need to be processed to achieve the scene decoding. 
 
-{ different strategies can be adopted to refine the inference accuracy. One way to refine the posterior estimate is to **actively sample** the environment. This is called active inference.} 
+Two parallel research tracks adopted and refined this very idea over the last twenty years.
+On the one side, human visual search modeling considers action as  \emph{sampling} over an underlying (covert) sensory scene obeying to a mixture-based generative model. 
+%The general principle is that of choosing the sample that is the most {\color{blue} informative} \emph{in expectation}. 
+%Then appropriate viewpoints should be selected to maximize the \emph{decoding accuracy}, that resorts to refine the beliefs about the underlying scene to reduce the posterior entropy. 
+Stemming from \cite{bajcsy1988active}'s intuition, a \emph{predictive} approach to perception-driven control was originally developed in \cite{najemnik2005optimal} to the case of visual search.
+It globally complies with the predictive coding framework \cite{rao1999predictive} with the current posterior estimate used to anticipate future sensations. 
+%, later on refined in a \emph{posterior entropy} minimization principle \cite{najemnik2009simple}.
+%Follow-up work of \cite{butko2010infomax} provide a comprehensive overview of a foveated POMDP-based active vision, with examples of visual search in static images using a bank of pre-processed features detectors. 
+Here, appropriate samples should be selected that maximize the expected \emph{decoding accuracy}, that resorts to reduce the number of possible interpretations of the underlying scene, i.e. reduce the expected posterior entropy (see \cite{najemnik2005optimal,najemnik2009simple,butko2010infomax,friston2012perceptions}).
+More generally, the idea of having many (i.e. a mixture of) models to identify a scene complies with the weak classifiers evidence accumulation principle developed in computer vision (see \cite{viola2003fast} and sequels). It also generalizes to the multi-view selection in object search and scene recognition \cite{potthast2016active}.
+
+A second research track insists on the formal contribution of action in the \emph{encoding} of the (future) sensory field. This resorts to consider action as a \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \cite{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the code expressiveness, allowing to improve both the policy and the data model in the course of learning \cite{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}.
 
 
+This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place.
+The sampling efficacy objective encourages actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This  approach may be referred as the ``conservation-based'' approach to action selection.  
+In contrast, the encoding efficacy objective encourages actions that provide informationally-rich content, which is formally defined as the information gain provided by improving the prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This second approach may be referred as the ``innovation-based'' approach to action selection. 
 
-\section{Material and methods}
+We provide here a way to reconcile the two views when considering action as being both a sampling and a code. 
+%This is done through postulating a bijection between the motor command and the actuator state.
+In our setup, the current observation is the decoding of a \emph{mixed code}  
+made of a controlled code (i.e. the actuator state) and an uncontrolled one (i.e. the rest of the environment). This idea is first mathematically developed in section \ref{sec:material}, providing a way to unify the different objective functions found in the literature. 
+Then a fovea-based implementation is proposed in section \ref{sec:results}, allowing to compare in detail the different options in a single setup, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.
+
+\section{Material and methods} \label{sec:material}
 
 \subsection{A ``Three-Party'' generative model}\label{sec:three-party}
 
@@ -720,7 +740,7 @@ The local information gain is defined as :
 
 \subsection{Action selection : the efficient coding perspective}
 
-\section{Results}
+\section{Results} \label{sec:results}
 
 \section{Discussion}
 
