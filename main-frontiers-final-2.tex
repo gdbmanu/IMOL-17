@@ -352,7 +352,7 @@ F(\boldsymbol{x}|\boldsymbol{u})
 When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. Each $\boldsymbol{u}$ may thus drive a different posterior and thus a different reconstruction cost. It is thus feasible to change (and optimize) the reconstruction cost through changing $\boldsymbol{u}$, by considering the \emph{shared information} across different
 sensory fields.
 
-\subsubsection{Mutual Information}
+\subsubsection{Mutual Information and Information Gain}
 
 The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  can be quantified by their \emph{mutual information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one, three samples should provide even more, etc. Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  This sample-based reduction of uncertainty is measured by:
 \begin{align}
@@ -401,11 +401,32 @@ Consider now the reconstruction cost of $\boldsymbol{x}$ after seeing both $\bol
 with $q'(\boldsymbol{z}) \simeq p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
 = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}$ after optimization the shared posterior.
 %(or shared \emph{code}). 
-Now the realization of $\boldsymbol{x}$ (as well as the realization of $\boldsymbol{x}'$) appears to depend both on $\boldsymbol{z}$, $\boldsymbol{u}$ and $\boldsymbol{u}'$.
+%Now the realization of $\boldsymbol{x}$ (as well as the realization of $\boldsymbol{x}'$) appears to depend both on $\boldsymbol{z}$, $\boldsymbol{u}$ and $\boldsymbol{u}'$.
 
-From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the change from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. From there comes the possibility to reduce the cost (or ``surprise'') from additional sampling in a model-based approach.
-Considering now the variational posterior $q'$ \emph{before} its update (meaning in short that $q'$ is initialized at $q$ --~the preceding posterior estimate~-- before considering the new data),
-then $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ is said the \emph{posterior update cost} (PUC), representing how ``far'' the initial $q$ is from the final $q'$ \emph{before} the posterior update.
+From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the change from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. From there comes the possibility to reduce the cost (or ``surprise'') from adequate sampling in a model-based approach \cite{friston2012perceptions}.
+{\color{blue} Imagine now the variational posterior $q'$ initialized at $q$ --~the preceding posterior estimate~-- before update. Then $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ --~see eq. (\ref{eq:FEP-uxu2})~-- represents the \emph{posterior update cost} (PUC), telling how ``far'' the initial $F$ is from the final description length $-\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') $ \emph{before} the posterior update.}
+
+In eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x}',\boldsymbol{u}')$ plays the role of the prior, as in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in subsequent inference steps, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
+When generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$, the final scene decoding $q^{(n)}(Z)$ writes:
+\begin{align}
+q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) p(\boldsymbol{x}'|Z,\boldsymbol{u}') ... p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \label{eq:accum}
+\end{align}
+It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
+\begin{align} 
+q^{(n)}(Z) \propto p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1)}(Z) \label{eq:accum-post}
+\end{align}
+
+Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
+\begin{align}
+F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) 
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
+\label{eq:FEP-uxun}
+\end{align}
+%The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
+with $q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and $q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \cite{chung2015recurrent,fraccaro2016sequential}.  
+
+
+
 
 {\color{magenta}
 
@@ -455,24 +476,6 @@ The structure of the problem (many views on the same scene) implies that the dif
 
 
 The chaining of the posterior to the role of the prior in the next inference step is a classical property of sequential Bayesian inference \cite{wald1945sequential}.
-When generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$, the final scene decoding $q^{(n)}(Z)$ writes:
-\begin{align}
-q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) p(\boldsymbol{x}'|Z,\boldsymbol{u}') ... p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \label{eq:accum}
-\end{align}
-It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
-\begin{align} 
-q^{(n)}(Z) \propto p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1)}(Z) \label{eq:accum-post}
-\end{align}
-
-Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
-\begin{align}
-F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}, p, q^{(n)}) 
-&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
-\label{eq:FEP-uxun}
-\end{align}
-%The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
-with $q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and $q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \cite{chung2015recurrent}, and \cite{fraccaro2016sequential} for a backward implementation).  
-
 
 
 
