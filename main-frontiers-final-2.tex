@@ -103,18 +103,20 @@ Changing the viewpoint can be seen as a way to leverage ambiguities present in t
 thus providing a roadmap for the development of active vision and sensory systems.
 
 Work on central vision control is quite scarce until the late 2000's.
-On the machine learning side, an example of fovea-based vision motor control was for instance addressed in \cite{schmidhuber1991learning}, with a direct policy learning from gradient descent by using BPTT through a pre-processed forward model. 
-From the biological vision side, early models from the late nineties  consider the case of fovea-based image decoding, ending up in the simplified ``pyramidal'' focal image encoding model \cite{kortum1996implementation}. Active vision models are however largely dominated by the \emph{salience} models \cite{itti2000saliency,itti2001computational,itti2005bayesian}, that are known to provide among the best fit with the preferred fixation zones observed in humans. 
-Motor control is however generally bypassed in that case, putting the focus on characterizing the attractiveness of fixation zones rather that explicitating a sequential step-by-step image decoding process through changing fixation point.
+On the machine learning side, an example of fovea-based visuo-motor control was  addressed in \cite{schmidhuber1991learning}, with a direct policy learning from gradient descent by using BPTT through a pre-processed forward model. 
+On the biological  side, early models from the late nineties  consider the case of fovea-based image encoding, ending up in the simplified ``pyramidal'' focal image encoding model \cite{kortum1996implementation}. Active vision models were however largely dominated by the \emph{salience} models \cite{itti2000saliency,itti2001computational,itti2005bayesian}, that are known to provide among the best fit with the preferred fixation zones observed in humans. 
+Motor control were however generally bypassed in that case, putting the focus on characterizing the attractiveness of fixation zones rather that explicitating 
+%a sequential step-by-step 
+the image decoding process through changing fixation point.
 %Despite their strong explanatory power, they generally bypass central/foveal vision aspects. 
-Combined with a focal pyramidal image encoding, the salience approach however still effective outcome in image and video compression  \cite{wang2003foveation,guo2010novel}.
+Combined with a focal pyramidal image encoding, the salience approach  still provides effective outcome in image and video compression  \cite{wang2003foveation,guo2010novel}.
 
 
 The salience approach to active vision is generally referred as a ``bottom-up'' approach, for only low-level aspects of the images are considered in the decoding process. In contrast, scene interpretation and active object search in images is generally referred as the ``top-down'' approach, for ``high level'' assumption are made over the actual content of the image. 
 %The idea of viewpoints selection turns out to consider beforehand the pixels that need to be processed to achieve the scene decoding. 
 
 Two parallel research tracks adopted and refined this very idea over the last twenty years.
-On the one side, human visual search modeling considers action as  \emph{sampling} over an underlying (covert) sensory scene obeying to a mixture-based generative model. 
+On the one side, human visual search modeling considers action as  \emph{sampling} over an underlying (covert) sensory scene obeying to a mixture generative model. 
 %The general principle is that of choosing the sample that is the most {\color{blue} informative} \emph{in expectation}. 
 %Then appropriate viewpoints should be selected to maximize the \emph{decoding accuracy}, that resorts to refine the beliefs about the underlying scene to reduce the posterior entropy. 
 Stemming from \cite{bajcsy1988active}'s intuition, a \emph{predictive} approach to perception-driven control was originally developed in \cite{najemnik2005optimal} to the case of visual search.
@@ -127,19 +129,28 @@ More generally, the idea of having many (i.e. a mixture of) models to identify a
 A second research track insists on the formal contribution of action in the \emph{encoding} of the (future) sensory field. This resorts to consider action as a \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \cite{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the code expressiveness, allowing to improve both the policy and the data model in the course of learning \cite{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}.
 
 
+
 This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place.
 The sampling efficacy objective encourages actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This  approach may be referred as the ``conservation-based'' approach to action selection.  
 In contrast, the encoding efficacy objective encourages actions that provide informationally-rich content, which is formally defined as the information gain provided by improving the prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This second approach may be referred as the ``innovation-based'' approach to action selection. 
+
+
+{\color{blue} Info Gain - TODO
 
 We provide here a way to reconcile the two views when considering action as being both a sampling and a code. 
 %This is done through postulating a bijection between the motor command and the actuator state.
 In our setup, the current observation is the decoding of a \emph{mixed code}  
 made of a controlled code (i.e. the actuator state) and an uncontrolled one (i.e. the rest of the environment). This idea is first mathematically developed in section \ref{sec:material}, providing a way to unify the different objective functions found in the literature. 
-Then a fovea-based implementation is proposed in section \ref{sec:results}, allowing to compare in detail the different options in a single setup, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.
+Then a fovea-based implementation is proposed in section \ref{sec:results}, allowing to compare in detail the different options in a single setup, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.}
 
 \section{Material and methods} \label{sec:material}
 
+We consider here a \emph{scene decoding task} where an agent has to estimate its environment state, here called the ``sensory scene'' from sensory samples. The visual scene is organized in objects (or objects parts), whose presence and position is continuously checked by visual inspection. 
+Then, decoding a visual scene through saccades consists in identifying the ensemble through the sequential foveation of parts of the scene only. 
+
 \subsection{A ``Three-Party'' generative model}\label{sec:three-party}
+
+We provide here ways to interpret a single construct, the viewpoint $\boldsymbol{u}$, as both the realization of a \emph{sampling} of an underlying generative model and as a \emph{code} that participates in generating the incoming sensory data.
 
 \subsubsection{Generic feedback control framework and generative process}
 \paragraph{Generative process}
@@ -175,7 +186,7 @@ When both the transition and the measure models are known, it is possible to \em
 {\text{Pr}(X|\boldsymbol{a},\boldsymbol{s}_0)}\label{eq:post-Pr}
 %&= \frac{\text{Pr}(X|Z,\boldsymbol{u}) \text{Pr}(Z|\boldsymbol{u},\boldsymbol{z}_0)}{\sum_{\boldsymbol{z}'}\text{Pr}(X|\boldsymbol{z}',\boldsymbol{u}) \text{Pr}(\boldsymbol{z}'|\boldsymbol{u},\boldsymbol{z}_0)}\label{eq:post}
 \end{align}
-where $P(S|X,\boldsymbol{a},\boldsymbol{a}_0)$ is the \emph{posterior} probability (a distribution over the latent states) whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. 
+where $P(S|X,\boldsymbol{a},\boldsymbol{s}_0)$ is the \emph{posterior} probability (a distribution over the latent states) whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. 
 The inference of the latent state through model inversion is called \emph{filtering} for it serves to refine the actual state estimate from past observations when the measure process is corrupted by noise \cite{Kalman1960}.
 It may be implemented with a probability density function:
 \begin{align}
@@ -188,17 +199,19 @@ q_\text{\sc post}(\boldsymbol{s}|\boldsymbol{x},\boldsymbol{a}, \boldsymbol{s}_0
 \subsubsection{One scene, many views}
 
 We considers here an organization a the visual scene in objects (or causes), whose presence and position is continuously checked by visual inspection. 
-Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. 
-In that framework, the cause of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called here the ``\emph{Three-Party}'' model.
+We here suppose that a generative model $p$ is given to the agent, that is a probability distribution over the scene, the viewpoint and the view.
+
+%Put formally, exploring a visual scene through saccades consists in identifying objects in space through the foveation of parts of the scene only. 
+Put mathematically, the cause $\boldsymbol{s}$ of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called here the ``\emph{Three-Party}'' model.
 
 We propose here to split the generative process in two parts, namely the controlled generative process and the uncontrolled generative process. 
 This separation 
 is consistent with the ``hidden state''/``hidden control'' distinction stated in \cite{friston2012perceptions}.
 The controlled emitter is $\boldsymbol{u}$ while the uncontrolled emitter is  $(\boldsymbol{y}, \boldsymbol{o})$. 
-For greater simplicity and generality, $(\boldsymbol{y},\boldsymbol{o})$ is here reduced to a single variable $\boldsymbol{z} = (\boldsymbol{y}, \boldsymbol{o})$, 
+For greater simplicity, $(\boldsymbol{y},\boldsymbol{o})$ is here reduced to a single variable $\boldsymbol{z} = (\boldsymbol{y}, \boldsymbol{o})$, 
 so that the generic uncontrolled variable $\boldsymbol{z}$ may report for every possible composition of object identity in space (or more generally every composition of a pose and an identity).
 %for we more specifically put the focus here on the controller setup.% and the generative process   $o \in \mathcal{O}$, position $x \in \mathcal{X}$ and $u \in \mathcal{U}$. 
-The controlled emitter $\boldsymbol{u}$ thus refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The uncontrolled latent emitter $\boldsymbol{z}$  refers to the remaining part of the physical world, i.e. the ``environment''. 
+The controlled emitter $\boldsymbol{u}$ refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The uncontrolled latent emitter $\boldsymbol{z}$  refers to the remaining part of the physical world, i.e. the ``environment''. 
 
 This restricted setup, that separates a body and an environment in the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake: 
 \paragraph{(i) Emitters independence}
@@ -210,7 +223,7 @@ A first assumption is that two emitters are independent, i.e. $p(\boldsymbol{z},
 \paragraph{(ii) End-effector control}
 An additional assumption is that the controlled generative process is relatively ``fast'' in comparison with the uncontrolled one
 (for, e.g, saccades can be realized in a 100-200 ms interval). 
-In consequence we consider the motor command $\boldsymbol{a}$ as a setpoint (or posture) $\boldsymbol{u}$ in the actuator space, that is supposed to be reached 
+In consequence we assimilate the motor command $\boldsymbol{a}$ with a setpoint (or posture) $\boldsymbol{u}$ in the actuator space, that is supposed to be reached 
 at short notice by the motor apparatus once the command is emitted, under classical stability/controllability constraints.
 This entails that, consistently with the `end-effector'' ballistic control setup \cite{mussa2004neural},  \emph{$\boldsymbol{u}$ is independent from $\boldsymbol{u}_0$},
 i.e.:
@@ -218,7 +231,9 @@ i.e.:
 \boldsymbol{u}\sim\text{Pr}(U|\boldsymbol{a})
 \end{align*}
 
-The motor command $\boldsymbol{a}$ then corresponds to the desired end-orientation of the sensor here considered as a setpoint on the actuators space, either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
+The motor command $\boldsymbol{a}$ then corresponds to the desired end-orientation of the sensor,
+% here considered as a setpoint on the actuators space, 
+either expressed in actuators or endpoint coordinates (with hardware-implemented detailed effector response function).  
 Under that perspective, the effector acts on the sensors position and orientation so as to achieve a certain perspective (or view) over the external scene, and the controlled emitter $\boldsymbol{u}$ is now called a \emph{viewpoint}. 
 
 \paragraph{(iii) Uncontrolled environment}
@@ -240,32 +255,42 @@ At last, the measure $\boldsymbol{x}$ may rely on both emitters $\boldsymbol{z}$
 \begin{align}
 \boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{z}, \boldsymbol{u})
 \end{align} 
+Each measure $\boldsymbol{x}$ is generated from a mixed emitter $(\boldsymbol{z}, \boldsymbol{u})$, with $\boldsymbol{u}$ the controlled part of the emitter and  $\boldsymbol{z}$ the uncontrolled part. Note that $\boldsymbol{z}$ is said the latent state out of habit, though both $\boldsymbol{u}$ and $\boldsymbol{z}$ contribute to the generation of $\boldsymbol{x}$.
+
 For notational simplicity, we absorb here the execution noise \cite{van2004role} in the measure process, i.e.:
 $\boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{z}, U)\text{Pr}(U|\boldsymbol{a})$.
 Then, by notational abuse, we assimilate in the rest of the paper  $\boldsymbol{u}$ (the controlled emitter) with $\boldsymbol{a}$ (the motor command), so that 
-a single variable $\boldsymbol{u} \equiv \boldsymbol{a}$ should be used for both. We also call the uncontrolled latent emitter $\boldsymbol{z}$ the \emph{latent state} for simplicity.
+a single variable $\boldsymbol{u} \equiv \boldsymbol{a}$ should be used for both. %We also call the uncontrolled latent emitter $\boldsymbol{z}$ the \emph{latent state} for simplicity.
+Each different $\boldsymbol{u}$ is thus both interpreted as a
+motor command and as a code. As a motor command, it is controllable, i.e. determined by a controller. As a code, it monitors the generation of the sensory field (decoding), in combination with the latent state $\boldsymbol{z}$. 
 
-Each different viewpoint $\boldsymbol{u}$ thus drives a different sensory fields over the same underlying sensory scene, and $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent state}) are the realization of a generative model parametrized by $\boldsymbol{u}$, i.e.
+Finally, both $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent state}) are the realization of a generative model parametrized by $\boldsymbol{u}$, i.e.
 \begin{align}
-\boldsymbol{x}, \boldsymbol{z} | \boldsymbol{u} \sim \text{Pr}(X|Z, \boldsymbol{u}), \text{Pr}(Z)
+\boldsymbol{x}, \boldsymbol{z} | \boldsymbol{u} \sim \text{Pr}(X|Z, \boldsymbol{u}), \text{Pr}(Z) \label{eq:generative}
 \end{align}  
+with $p(Z)$ the \emph{prior}, and each different motor command $\boldsymbol{u}$ providing a different sample over the same underlying distribution. Under that prospect, the action $\boldsymbol{u}$ is interpreted as a \emph{sampling} operation.
 
-The generative model may finally write:
-\begin{align}
-p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z) p_\text{\sc prior}(U)
-\end{align}
-It should be noted that the dependencies between the three variables can moreover be symetrically decomposed in the form of three conditional models, i.e. :
-\begin{align}
-p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
-&= p(Z| X, U)p(X) p(U)\nonumber\\
-&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
-\end{align}
-comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
-conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
+%with $p(X|\boldsymbol{z}, \boldsymbol{u})$ the forward model,  conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$, so that the latent state space (the cause of the visual field) now decomposes in an uncontrolled emitter $\boldsymbol{z}$ and an explicit motor command $\boldsymbol{u}$, and $p(Z)$ the \emph{prior}. 
+ %, so that $p(X,Z,U) = p(X|Z, U) p(X, U)$. 
 
 
 
-%so that the latent state space (the cause of the visual field) now decomposes in an uncontrolled emitter $\boldsymbol{z}$ and an explicit motor command $\boldsymbol{u}$. 
+%The generative model may finally write:
+%\begin{align}
+%p(X, Z, U) = p_\text{\sc meas}(X| Z, U)p_\text{\sc prior}(Z) p_\text{\sc prior}(U)
+%\end{align}
+%It should be noted that the dependencies between the three variables can moreover be symetrically decomposed in the form of three conditional models, i.e. :
+%\begin{align}
+%p(X, Z, U) &= p(X| Z, U) p(Z)p(U)\nonumber\\ 
+%&= p(Z| X, U)p(X) p(U)\nonumber\\
+%&= p(U|X, Z)p(X) p(Z)\label{eq:three-party}
+%\end{align}
+%comprising a \emph{forward model} $p(X|\boldsymbol{z}, \boldsymbol{u})$ 
+%conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse model} $p(Z|\boldsymbol{x}, \boldsymbol{u})$  conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{u}$ and an ``\emph{inverse controller}'' $p(U|\boldsymbol{x}, \boldsymbol{z})$ conditioned on both on  $\boldsymbol{x}$ and $\boldsymbol{z}$. This boils down to implementing three variants of a two \emph{degrees of freedom} generative model. 
+
+
+
+%
 
 %The generative distribution becomes $p(\boldsymbol{x}, \boldsymbol{z}, \boldsymbol{u})$ so that activating the motor effectors updates the state of the plant as well as its visual sensory outcome. In comparison,  i.e.: %changing the state of an external (uncontrolled) emitter would also modify the visual sensory outcome. The command $u$ here participates in a feedback loop that in return updates the visual stream.
 % This generative model is written:
@@ -280,27 +305,17 @@ conditioned on both $\boldsymbol{z}$ and $\boldsymbol{u}$,  an \emph{inverse mod
 
 
 
- 
+\subsubsection{Variational scene encoding}
 
-
-
-
-\subsection{Perception-driven control}\label{sec:perception-driven-control}
-
-In our ``three-party'' framework, 
-%called here the ``three party'' generative setup, 
-saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $q^{(n)}(\boldsymbol{z})$ such that a single cause $\hat{\boldsymbol{z}}$ may dominate the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task we analyze in the next sections.
-
-\subsubsection{Scene encoding and scene decoding in the model-free case}
+We now make a step back and consider the model-free variational encoding setup for it provides ways to specify in more detail what is meant by a \emph{code}.
 
 In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
-
-\paragraph{Scene encoding}\label{sec:encoding}
+%\paragraph{Scene encoding}\label{sec:encoding}
 The \emph{variational encoding} perspective \cite{hinton1994autoencoders} was originally developed 
 to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
 is a code that is both compact and accurate at restoring the data. 
 If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
- 
+
 In short, the efficacy of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
 \begin{align}
 F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)\nonumber\\
@@ -309,23 +324,23 @@ F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \
 \end{align}
 with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
 The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \cite{hinton2006fast,kingma2013auto}.  
-$F$ is also called the variational Free Energy for it is mathematically analog to the Helmhotz Free Energy.
+$F$ is also called the variational Free Energy for it is mathematically analog to the Helmhotz Free Energy \cite{friston2010free}.
 It can then be shown, with some reordering, that:
 \begin{align}
 F(\boldsymbol{x}) 
 &= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
 \label{eq:FEP}
 \end{align}
-with $\text{KL}(q||p) = \sum_z q(\boldsymbol{z}) \log \frac{q(\boldsymbol{z})}{p(\boldsymbol{z})}$ the Kullback-Leibler divergence between $q$ and $p$, so that an optimal code $q(Z)\simeq p(Z|\boldsymbol{x})$ can be optimized through a stochastic gradient descent over $p$ and $q$ according to $\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+with $\text{KL}(q||p) = \sum_z q(\boldsymbol{z}) \log \frac{q(\boldsymbol{z})}{p(\boldsymbol{z})}$ the Kullback-Leibler divergence between $q$ and $p$, so that an optimal encoder $q(Z)\simeq p(Z|\boldsymbol{x})$ can be approached through a stochastic gradient descent over $p$ and $q$ according to $-\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \cite{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
 \begin{align*}
 h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})%\simeq - \log \sum_{\boldsymbol{z} \in \mathcal{Z}} p(\boldsymbol{x},\boldsymbol{z})  
 \end{align*}
 that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing the cost $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing $\boldsymbol{x}$ \cite{friston2010free}.
- 
- 
+
+
 %, that is composed of two terms, namely the reconstruction accuracy $- \mathbb{E}_{\boldsymbol{z}\sim q} \log p(\boldsymbol{x}|\boldsymbol{z})$ and the Kullback-Leibler divergence $\text{KL}(q||\rho)$ between the current code $q$ and a  
 %An efficient encoder is thus obtained by minimizing $F$ by gradient descent over $p$ and $q$, given a dataset $\{\boldsymbol{x}_1, ..., \boldsymbol{x}_n\}$ \cite{Kingma...}.  
- 
+
 If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}) 
@@ -334,26 +349,30 @@ F(\boldsymbol{x}|\boldsymbol{u})
 \label{eq:FEP-prior-u}\\
 &= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
 \label{eq:FEP-posterior-u}\end{align}
-with each viewpoint $\boldsymbol{u}$ providing a distinct optimization problem. 
- 
-\paragraph{Scene decoding}
-The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene. The sharing of information between two sensory fields can be quantified by their \emph{mutual information} (or ``Information gain'' --~see \cite{tishby2011information}~--):
+When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. Each $\boldsymbol{u}$ may thus drive a different posterior and thus a different reconstruction cost. It is thus feasible to change (and optimize) the reconstruction cost through changing $\boldsymbol{u}$, by considering the \emph{shared information} across different
+sensory fields.
+
+\subsubsection{Mutual Information}
+
+The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  can be quantified by their \emph{mutual information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one, three samples should provide even more, etc. Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  This sample-based reduction of uncertainty is measured by:
 \begin{align}
-I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X'| \boldsymbol{u}', X, \boldsymbol{u})\\
-&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X'| \boldsymbol{u}', X, \boldsymbol{u})\right] \nonumber\\
-&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] \label{eq:infomax}
+I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:info-gain}\\
+&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
+%&\simeq \mathbb{E}_{X,X'} \left[F(X|\boldsymbol{u}) - F(X'|\boldsymbol{u}', X, \boldsymbol{u})\right] 
 \end{align}
 with 
-($i$) $ p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}') p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})$ 
-	the \emph{post-sample} likelihood, i.e. the likelihood of seeing $\boldsymbol{x}'$ at $\boldsymbol{u}'$ after seeing $\boldsymbol{x}$ at $\boldsymbol{u}$,
-($ii$) $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
-the \emph{post-sample} approximate natural Shannon Information, and ($iii$) $F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
-the \emph{post-sample} cost, 
-%We call it here the \emph{conditional Free Energy} (for it is conditioned over $\boldsymbol{x}, \boldsymbol{u}$)
-with: % the post-sample Shannon Information approached by the post-sample Free Energy as: 
+($i$) $ p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')$ 
+the \emph{post-sample} likelihood, i.e. the retrospective likelihood of having seen $\boldsymbol{x}$ at $\boldsymbol{u}$ knowing now that $\boldsymbol{x}'$ is observed at $\boldsymbol{u}'$,
+%($ii$) $-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})$
+%the \emph{post-sample} approximate natural Shannon Information, 
+and ($ii$) 
+$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the 
+\emph{information gain} \cite{tishby2011information}, that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$.
+
+Consider now the reconstruction cost of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$. It is easy to show that:
 \begin{align}
--\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
-&\leq - \sum_z q(z) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z}) \frac{p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})} {q(z)}  \nonumber\\
+-\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
+&\leq - \sum_z q'(z) \log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u}) \frac{p(\boldsymbol{z} |\boldsymbol{x}', \boldsymbol{u}')} {q'(z)}  \nonumber\\
 %&\stackrel{q(z) = p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u})}{\simeq} 
 %- \sum_z p(\boldsymbol{z} |\boldsymbol{x}, \boldsymbol{u}) \log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})  \nonumber\\
 %&= \mathbb{E}_{\boldsymbol{z} \sim p(Z |\boldsymbol{x}, \boldsymbol{u})} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] \label{eq:cond-F}
@@ -362,7 +381,7 @@ with: % the post-sample Shannon Information approached by the post-sample Free E
 %\begin{align}
 %F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 %&\triangleq
-&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{z})\right] + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
+&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u})\right] + \text{KL}(q'(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
 \label{eq:FEP-uxu}\\
 %\end{align}
 %Additional reformulations give:
@@ -375,59 +394,86 @@ with: % the post-sample Shannon Information approached by the post-sample Free E
 %F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
 %&=  -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u})) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
 %\label{eq:FEP-uxu2}\\
-&=  -\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
+&=  -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}',\boldsymbol{u}') + \text{KL}(q'(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
 \label{eq:FEP-uxu2}\\
-&= F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u})\nonumber
+&= F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
 \end{align}
+with $q'(\boldsymbol{z}) \simeq p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
+= \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}$ after optimization the shared posterior.
+%(or shared \emph{code}). 
+Now the realization of $\boldsymbol{x}$ (as well as the realization of $\boldsymbol{x}'$) appears to depend both on $\boldsymbol{z}$, $\boldsymbol{u}$ and $\boldsymbol{u}'$.
 
-with $q(\boldsymbol{z}) \simeq p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}$ after optimization the shared posterior (or shared \emph{code}). From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}
-and  $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ is the \emph{posterior update cost} (PUC). 
-Symmetrically, the regularization cost $\text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))$ in eq~(\ref{eq:FEP-uxu}) can be named the \emph{prior escape cost} (PEC)
+From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the change from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. From there comes the possibility to reduce the cost (or ``surprise'') from additional sampling in a model-based approach.
+Considering now the variational posterior $q'$ \emph{before} its update (meaning in short that $q'$ is initialized at $q$ --~the preceding posterior estimate~-- before considering the new data),
+then $\text{KL}(q(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}',\boldsymbol{x}, \boldsymbol{u}))$ is said the \emph{posterior update cost} (PUC), representing how ``far'' the initial $q$ is from the final $q'$ \emph{before} the posterior update.
+
+{\color{magenta}
+
+Symmetrically, the regularization cost $\text{KL}(q'(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))$ in eq~(\ref{eq:FEP-uxu}) can be named the \emph{prior escape cost} (PEC)
 \footnote{
 	Also called the ``epistemic value'' \cite{friston2015active}.}.
-	%in It must be noted that the post-sample cost
-	%defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
-	%$$ F(\boldsymbol{x})
-	%= -\log p(\boldsymbol{x}) 
-	%+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
-	%that is then put in a conditional form as:
-	%$$ F(\boldsymbol{x}|\boldsymbol{u})
-	%= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
-	%- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
-	%with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}.}
+%in It must be noted that the post-sample cost
+%defined here in an information gain context differs from the variational Free Energy defined over the path in \cite{friston2015active}, which can be expressed in our setup as:
+%$$ F(\boldsymbol{x})
+%= -\log p(\boldsymbol{x}) 
+%+ \text{KL}(q(Z, U)||p(Z, U|\boldsymbol{x}))$$
+%that is then put in a conditional form as:
+%$$ F(\boldsymbol{x}|\boldsymbol{u})
+%= -\log p(\boldsymbol{x}|\boldsymbol{u}) 
+%- \text{KL}(p(Z|\boldsymbol{x}, \boldsymbol{u})||p(Z))$$
+%with the first term the ``extrinsic value'' and the second term the ''epistemic value''. Compare with eq.~(\ref{eq:FEP-posterior-u}) and eq.~(\ref{eq:cond-F-KL}) for the KL sign inversion.}.}
 
 Considering now the mutual information between $(\boldsymbol{x}, \boldsymbol{u})$ and $(\boldsymbol{x}', \boldsymbol{u}')$ 
 estimated  as the difference between the pre-sample and post-sample costs, with a \emph{shared} encoding $q$, i.e:
 \begin{small}
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
-&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
-+\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) - \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))\label{eq:PEC-PUC}
-\end{align}
+	\begin{align}
+	F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}'|\boldsymbol{u}', \boldsymbol{x}, \boldsymbol{u}) 
+	&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+	+\log p(\boldsymbol{x}'| \boldsymbol{u}', \boldsymbol{x},\boldsymbol{u}) - \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))\label{eq:PEC-PUC}
+	\end{align}
 \end{small}
-the update of the posterior from  $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ comes with an \emph{increase} of the information gain estimate, entailing an increase of the PEC and a decrease of the PUC, so that the variational posterior update is consistent with an \emph{information gain maximization objective} (i.e. maximize the PEC and minimize the PUC). 
+the update of the posterior from  $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ comes with an \emph{increase} of the information gain estimate, entailing an increase of the PEC and a decrease of the PUC, so that the variational posterior update is consistent with an \emph{information gain maximization objective} (i.e. maximize the PEC and minimize the PUC). }
+
+
+
+\subsection{Perception-driven control}\label{sec:perception-driven-control}
+
+In our ``three-party'' framework, 
+%called here the ``three party'' generative setup, 
+saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $\hat{p}(\boldsymbol{z})$ with a single cause $\hat{\boldsymbol{z}}$ dominating the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task we analyze in the next sections.
+
+
+
+
+ 
+\subsection{Scene decoding}
+The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene.
 
 \subsubsection{Sequential Bayesian inference}
-When looking at eq.~(\ref{eq:FEP-uxu}), the posterior $p(Z|\boldsymbol{x},\boldsymbol{u})$ plays the same role as the prior in eq. (\ref{eq:FEP-prior-u}). This reflects the chaining of the posterior to the role of the prior in the next inference step, a classical property of sequential Bayesian inference \cite{wald1945sequential}.
 
-According to the Bayes rule, the chaining can be generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$ issuing a final scene decoding $q^{(n)}(Z)$:
+%Consider now a sampling the generative distribution (\ref{eq:generative}) through different viewpoints $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ...
+
+
+The chaining of the posterior to the role of the prior in the next inference step is a classical property of sequential Bayesian inference \cite{wald1945sequential}.
+When generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$, the final scene decoding $q^{(n)}(Z)$ writes:
 \begin{align}
 q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) p(\boldsymbol{x}'|Z,\boldsymbol{u}') ... p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \label{eq:accum}
 \end{align}
- 
 It is noteworthy that the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
 \begin{align} 
-q^{(n)}(Z) \propto p(\boldsymbol{x}|Z,\boldsymbol{u}) q^{(n-1)}(Z) \label{eq:accum-post}
+q^{(n)}(Z) \propto p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1)}(Z) \label{eq:accum-post}
 \end{align}
 
 Finally, from the encoding point of view, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule, i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
 \begin{align}
-F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ...,  \boldsymbol{x}, \boldsymbol{u}) 
+F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}, p, q^{(n)}) 
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{u}^{(n)}, \boldsymbol{z})\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
 \label{eq:FEP-uxun}
 \end{align}
 %The posterior of a prior step has been passed to the next estimation step and now plays the role of the prior.  This shows that a single distribution $q_\text{\sc post}(Z_{t-1})$ needs to be conserved in memory to calculate the next estimate $q_\text{\sc post}(Z_t)$, i.e.:
-with $q^{(n)}(Z)$ the shared (or cumulative) encoding according to the past and current observations, providing a \emph{forward} variational encoding scheme (see also \cite{fraccaro2016sequential} for a backward variational encoding scheme). 
+with $q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and $q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \cite{chung2015recurrent}, and \cite{fraccaro2016sequential} for a backward implementation).  
+
+
 
 
 \subsection{Action selection and scene decoding optimization}
