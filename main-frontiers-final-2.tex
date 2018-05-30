@@ -666,15 +666,16 @@ From the scene decoding perspective, the contribution of $\boldsymbol{u}^{(n)}$ 
 	\begin{align}
 	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) 
 	&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
-	\right] + \text{KL}(q'||p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)};q^{(n-2)})) \\
-	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) + \text{KL} (q'||q^{(n)})
+	\right] + \text{KL}(q'||q^{(n;n-2)})) \\
+	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q'||q^{(n)})
 	\end{align}
 	with :
 	\begin{align}
-	p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}; q^{(n-2)}) &= p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\frac{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{z}, \boldsymbol{u}^{(1:n-2)})}{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{u}^{(1:n-2)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})} 
+	q^{(n; n-2)}(\boldsymbol{z}) &= p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\frac{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{z}, \boldsymbol{u}^{(1:n-2)})}{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{u}^{(1:n-2)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})} 
 	\end{align}
 \end{itemize}
 
+Before update, the reconstruction cost best estimates the description length at $q = q^{(n-1)}$. After update, the best reconstruction cost is attained at $q' =  q^{(n)}$. Supposing the posterior estimate is exact (as it is the case in simple models),  
 
 the CI now writes:
 \begin{align}
