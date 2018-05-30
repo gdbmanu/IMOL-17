@@ -654,8 +654,8 @@ From the scene decoding perspective, the contribution of $\boldsymbol{u}^{(n)}$ 
 	\begin{align}
 	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
 	&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
-	\right] + \text{KL}(q||q^{(n-2)}) \\
-	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})
+	\right] + \text{KL}(q||q^{(n-2)}) \label{eq:F_pre_var}\\
+	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\label{eq:F_pre_KL}
 	\end{align}
 %	\begin{align}
 %F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
@@ -666,29 +666,77 @@ From the scene decoding perspective, the contribution of $\boldsymbol{u}^{(n)}$ 
 	\begin{align}
 	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) 
 	&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
-	\right] + \text{KL}(q'||q^{(n;n-2)})) \\
-	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q'||q^{(n)})
+	\right] + \text{KL}(q'||q^{(n;n-2)}) \label{eq:F_post_var}\\
+	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q'||q^{(n)})\label{eq:F_post_KL}
 	\end{align}
 	with :
 	\begin{align}
-	q^{(n; n-2)}(\boldsymbol{z}) &= p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\frac{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{z}, \boldsymbol{u}^{(1:n-2)})}{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{u}^{(1:n-2)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})} 
+	%q^{(n; n-2)}(\boldsymbol{z}) &= p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\frac{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{z}, \boldsymbol{u}^{(1:n-2)})}{p(\boldsymbol{x}^{(1:n-2)}|\boldsymbol{u}^{(1:n-2)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})} 
+	q^{(n; n-2)}(Z) \propto p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})q^{(n-2)}(Z)
 	\end{align}
 \end{itemize}
 
-Before update, the reconstruction cost best estimates the description length at $q = q^{(n-1)}$. After update, the best reconstruction cost is attained at $q' =  q^{(n)}$. Supposing the posterior estimate is exact (as it is the case in simple models),  
-
-the CI now writes:
+Before update, the best reconstruction cost is attained at at $q = q^{(n-1)}$. After update, the best reconstruction cost is attained at $q' =  q^{(n)}$. 
+%Supposing the posterior estimate is exact (as it is the case in simple models),  
+From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}) the CI writes :
 \begin{align}
-	\text{CI}(\boldsymbol{x}^{(n-1)},\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) =& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
-	=& \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
-	 \text{KL}(q^{(n-1)}||q^{(n-2)}) \nonumber\\
-	%& + \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +  \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[ \log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] \nonumber\\
-	& - \text{KL}(q^{(n)}||p(Z|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}; q^{(n-2)}))\nonumber
+	\text{CI}^{(n)} =& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
+	=& \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
+	 \text{KL}(q||q^{(n-2)}) \nonumber\\
+	& + \mathbb{E}_{\boldsymbol{z} \sim q'} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
+	%+  \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[ \log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] \nonumber\\
+	 - \text{KL}(q'|| q^{(n;n-2)})\label{eq:CI}
 	%=& -\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{u}^{(n-1)}; q^{(n-2)})
 	%+ \text{KL}(q||q^{(n-1)}) \nonumber\\
 	%& + \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}, \boldsymbol{u}; q^{(n-2)}) 
 	%- \text{KL}(q'||q^{(n)})
 \end{align}	
+
+Knowing that $q$ and $q'$ are free parameters, it is then tempting to take $q=q'$ to provide a rough CI estimate, that is :
+\begin{align}
+\tilde{\text{CI}}^{(n)} 
+&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
+&= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}\right] + c\label{eq:PCI}
+\end{align}
+with $c$ a constant. The information gain is here approached with the opposite of the cross-entropy cost $\tilde{\text{CI}}^{(n)} = -H(q(Z),p(Z|\boldsymbol{x}', \boldsymbol{u}')) + c$.
+% $H(q(Z), p(Z|\boldsymbol{x}', \boldsymbol{u}'))$ = H(q(Z)) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}', \boldsymbol{u}')$, 
+This estimate is maximal at $q(Z) = p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$. 
+Taking instead $q(Z)= q^{(n-1)}(Z)$ (the pre-sample code), the 
+approximate information gain is maximized when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\simeq q^{(n-1)}(Z)$, i.e. when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and $q^{(n-1)}$ are highly consistent. If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, it is sensible to maximize the predicted CI to maximize the code consistency, i.e.:
+\begin{align}
+\hat{\boldsymbol{u}} 
+%&= \underset{\upsilon \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z}\sim q;\boldsymbol{x}'\sim p(X|\boldsymbol{z},\upsilon))} \tilde{\text{CI}}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}',\upsilon;p, q)\nonumber\\
+&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
+\left[\log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]
+\end{align}
+thus providing a general predictive setup to optimize action.
+In detail, instantiating $q$ with $q^{(n-1)}$ in the sequential setup provides:
+\begin{align}A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) \equiv \log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\label{eq:LC}
+\end{align}
+a dramatically simple objective, that will be referred as the \emph{Local Consistency} (LC) objective.
+Instantiating $q$ with $q^{(n)}$ gives:
+\begin{align}A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) \equiv 
+\mathbb{E}_{z\sim q^{(n)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]\label{eq:PC}
+\end{align}
+further on referred as the \emph{Posterior Consistency} (PC) objective.
+
+Generalizing now eqs (\ref{eq:CI-post}) and (\ref{eq:FEP-posterior-u}) to the sequential case (\ref{eq:FEP-uxun}), 
+and instantiating $q$ with $q^{(n)}$ in  (\ref{eq:FEP-posterior-u}) $-$ (\ref{eq:CI-post}) gives
+\begin{small}
+	$
+	\tilde{\text{CI}}(\boldsymbol{x},\boldsymbol{u}; q^{(n-1)}) \simeq
+	-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{u}^{(n-1)}; q^{(n-1)}) 
+	+ \text{KL}(q^{(n)}||q^{(n-1)})
+	+ \log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{u}^{(n-1)}, \boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) 
+	$
+\end{small},
+showing that the Saliency objective (eq.~\ref{eq:saliency}) is the overestimation made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to outliers.
+Symmetrically, 
+instantiating $q$ with $q^{(n-1)}$  allow to interpret the ELBO objective
+--~see eq~(\ref{eq:ELBO})~-- as  the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to outliers.
+Using (\ref{eq:saliency}) or (\ref{eq:ELBO}) as an objective (instead of (\ref{eq:PCI})) is thus expected to \emph{dramatize} the interpretative flaws made by utilizing  (\ref{eq:PCI}) instead of (\ref{eq:CI}), either in an optimistic (\ref{eq:saliency}) or in a conservative (\ref{eq:ELBO}) way. 
+
+
 
 {\color{magenta}
 
