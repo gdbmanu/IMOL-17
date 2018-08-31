@@ -69,17 +69,17 @@
 \maketitle
 	
 \begin{abstract}
-An original variational scene decoding setup is developed here, that, accordingly with previous models, optimizes the decoding through selecting relevant sensory samples under model-based prediction. 
-Our approach rests on a generative model implementing a dual encoding of the sensory data through a mixture of a controlled and an uncontrolled emitter. This allows to unify many concurrent setups, including the Salience, the Infomax, the Information Gain and the minimal Free Energy models. Two novel objectives are then proposed that, through showing either a conservative or an optimistic bias regarding the Information Gain, strongly simplify its calculation. 
+An original variational scene decoding setup is developed here, that, accordingly with previous setups, optimizes the decoding through selecting relevant sensory samples under model-based prediction. 
+Our approach rests on a generative model implementing a dual encoding of the sensory data through a mixture of a controlled and an uncontrolled emitter. This allows to unify many concurrent setups, including the Salience, the Infomax, the Information Gain and the minimal Free Energy objectives. Two novel objectives are then proposed that, through showing either a conservative or an optimistic bias regarding the Information Gain, strongly simplify its calculation. 
 The presented numerical experiments thus highlight different aspects of the setup. 
-A first and principal result is that state-of-the-art recognition rate can be obtained with sequential fovea-based computation using less than 10\% of the original signal. The general good results obtained here illustrate the advantage of mixing predictive control with accurate state-of-the-art predictors, here a deep neural network. 
-A second result is the sub-optimality of many classical objective function widely used in literature, that is not manifest with finely-tuned generative models, but becomes patent when coarse of faulty models are used.
-Last a computationally-effective predictive model is developed using the Local Consistency (LC) objective, with pre-processed  trajectories read-out from memory, bypassing computationally-demanding predictive calculations.  This dramatically simplified setup is shown effective in our case, showing both competitive decoding compression rates and a good robustness to model flaws. 
+A first and principal result is that state-of-the-art recognition rates can be obtained with sequential fovea-based computing, using less than 10\% of the original signal. The general good results obtained here illustrate the advantage of mixing predictive control with accurate state-of-the-art predictors, here a deep neural network. 
+A second result is the sub-optimality of many classical objective functions widely used in literature, that is not manifest with finely-tuned generative models, but becomes patent when coarse or faulty models are used.
+Last, a computationally-effective predictive model is developed using a Local Consistency (LC) objective, with pre-processed saccade trajectories read-out from memory, bypassing computationally-demanding predictive calculations.  This dramatically simplified setup is shown effective in our case, showing both competitive decoding compression rates and a good robustness to model flaws. 
 
 \end{abstract}
 \section{Introduction}
 
-In complement with goal-oriented activity, animal motor control also relates to the search for sensory clues in order to better interpret its sensory environment and improve action efficacy. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
+In complement with goal-oriented activity, animal motor control also relates to the search for sensory cues in order to better interpret its sensory environment and improve action efficacy. This resorts to choosing relevant viewpoints, i.e. selecting body placement and/or sensors orientation in order to capture a sensory signal that should help disambiguate the current scene. It corresponds to selecting views (from a large range of possible views) in order to maximize scene understanding under limited resources constraints. This task is the one considered in this paper (further on called the \emph{sensory scene decoding} task). 
 
 Superior vertebrates oculo-motor activity typically underlies such a decoding task. The important redundancy present in the visual data was exploited by natural selection, ending up in a combination of energy-efficient sensors and resource-saving visuo-motor control, exploiting only little portions of the visual environment to decode the total sensory scene. A salient feature of superior vertebrates visual apparatus is indeed their anosotopic visual sensor, that concentrates  photoreceptors over a small central portion of the retina : the fovea \cite{osterberg1935topography}. Then, by moving the gaze with the eyes, the center of sight is constantly and actively moving around during all waking time. 
 This scanning of the visual scene is principally done with high-speed targeted eye movements called saccades \cite{yarbus1967eye}, that sequentially capture local chunks of the visual scene. This makes the oculo-motor activity an essential element of man and animal behavior, underlying most of daily displacements, movements, instrumental and social interactions. 
@@ -118,7 +118,7 @@ More generally, the idea of having many (i.e. a mixture of) models to identify a
 A second research track insists on the formal contribution of action in the \emph{encoding} of the (future) sensory field. This resorts to consider action as a \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \cite{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the code expressiveness, allowing to improve both the policy and the data model in the course of learning \cite{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}.
 
 
-This interestingly conducts to develop different objective functions that do not appear mutually compatible in a first place.
+This interestingly conducts to develop different objective functions that do not appear mutually compatible at first place.
 The sampling efficacy objective encourages actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that provide a sensory input that is consistent with the initial guess \cite{friston2010free}. This  approach may be referred as the ``conservation-based'' approach to action selection.  
 In contrast, the encoding efficacy objective encourages actions that provide informationally-rich content, which is formally defined as the information gain provided by improving the prediction after taking action, also known as the ``surprise'' \cite{itti2005bayesian}. This second approach may be referred as the ``innovation-based'' approach to action selection. 
 
@@ -128,7 +128,7 @@ Then a fovea-based implementation is proposed in section \ref{sec:results}, allo
 
 \section{Material and methods} \label{sec:material}
 
-We consider here a \emph{scene decoding task} where an agent has to estimate its environment state, here called the ``sensory scene'' from sensory samples. The visual scene is organized in objects (or objects parts), whose presence and position is continuously checked by visual inspection. 
+We consider here a \emph{scene decoding task} where an agent has to estimate its environment state, here called the ``sensory scene'', from sensory samples. The visual scene is organized in objects (or objects parts), whose presence and position is continuously checked by visual inspection. 
 Then, decoding a visual scene through saccades consists in identifying the ensemble through the sequential foveation of parts of the scene only. 
 
 \subsection{A ``Three-Party'' generative model}\label{sec:three-party}
@@ -143,11 +143,11 @@ The actor can act on the environment through its effectors, and sense the state 
 The state of the environment as well as the state of the agent can change over time. The state of the environment is described by a state vector $\boldsymbol{s} \in \mathcal{S}$.
 The signal $\boldsymbol{x}$ that is measured on the sensors is called the \emph{sensory field}. It is interpreted as a measure made by the sensors, that is causally related to the current state $\boldsymbol{s}$. 
 The dependence between $\boldsymbol{s}$ and $\boldsymbol{x}$ is reflected in a conditional probability distribution:
-$p(\boldsymbol{x}|\boldsymbol{s})$, that is said the \emph{generative model}, i.e. the cause of the sensory field..
-We considers here an organization a the visual scene in objects (or object parts), whose presence and position is continuously checked by motor inspection. 
+$p(\boldsymbol{x}|\boldsymbol{s})$, that is said the \emph{generative model}, i.e. the cause of the sensory field.
+We consider here an organization of the visual scene in objects (or object parts), whose presence and position is continuously checked by motor inspection. 
 We moreover suppose that a generative model $p$ is given to the agent.
 
-Put mathematically, the cause $\boldsymbol{s}$ of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim P(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called here the ``\emph{Three-Party}'' model.
+Put mathematically, the cause $\boldsymbol{s}$ of the current visual field $\boldsymbol{x}$ is both the object identity $\boldsymbol{o}$, its position in the peripersonal space $\boldsymbol{y}$, and the current visual orientation $\boldsymbol{u}$, i.e. $\boldsymbol{s} = (\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$ and $\boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{y},\boldsymbol{o},\boldsymbol{u})$, each variable counting for a distinct degree of freedom. This description of the sensory emitter as a three degrees of freedom construct is called here the ``\emph{Three-Party}'' model.
 
 We propose here to split the generative process in two parts, namely the controlled generative process and the uncontrolled generative process. 
 This separation 
@@ -195,7 +195,7 @@ with $\delta$ the Knonecker symbol.
 The uncontrolled latent emitter $\boldsymbol{z}$ is thus expected to capture all relevant information about the current scene, while remaining invariant throughout the decoding process.
 
 
-At last, the measure $\boldsymbol{x}$ may rely on both emitters $\boldsymbol{z}$ and $\boldsymbol{u}$, i.e. 
+Last, the measure $\boldsymbol{x}$ may rely on both emitters $\boldsymbol{z}$ and $\boldsymbol{u}$, i.e. 
 \begin{align}
 \boldsymbol{x} \sim \text{Pr}(X|\boldsymbol{z}, \boldsymbol{u})
 \label{eq:gen}
@@ -213,7 +213,7 @@ Finally, both $\boldsymbol{x}$ (the view) and $\boldsymbol{z}$ (the \emph{latent
 \begin{align}
 \boldsymbol{x}, \boldsymbol{z} | \boldsymbol{u} \sim \text{Pr}(X|Z, \boldsymbol{u}), \text{Pr}(Z) \label{eq:generative}
 \end{align}  
-with $p(Z)$ the \emph{prior}, and each different motor command $\boldsymbol{u}$ providing a different sample over the same underlying distribution. Under that prospect, the action $\boldsymbol{u}$ is interpreted as a \emph{sampling} operation.
+with $\text{Pr}(Z)$ the \emph{prior}, and each different motor command $\boldsymbol{u}$ providing a different sample over the same underlying distribution. Under that prospect, the action $\boldsymbol{u}$ is interpreted as a \emph{sampling} operation.
 
 \subsubsection{Sequential Bayesian inference}\label{sec:seq-bayes}
 
@@ -241,7 +241,7 @@ q^{(n)}(Z) \propto p(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1
 \subsection{Perception-driven control}\label{sec:perception-driven-control}
 
 In our ``three-party'' framework, 
-saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $\hat{p}(\boldsymbol{z})$ with a single cause $\hat{\boldsymbol{z}}$ dominating the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task we analyze next.
+saccadic exploration finally means to define a sequence of visuo-motor commands $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence should ultimately provide a final estimate $\hat{q}(\boldsymbol{z})$ with a single cause $\hat{\boldsymbol{z}}$ dominating the other ones, allowing the system to reach a final decision. This is the \emph{scene decoding} task we analyze next.
 
 
 \subsubsection{Active sampling}
@@ -275,7 +275,7 @@ If the agent has to choose an action $\boldsymbol{u} \in \mathcal{U}$, knowing o
 \begin{align*}
 \bar{A}(\boldsymbol{u}; q^{(n-1)})
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[A(X, \boldsymbol{u}; q^{(n-1)})\right]  \\
-&= \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) p(\boldsymbol{x}) d\boldsymbol{x}  
+&= \sum_{z\in\mathcal{Z}} q^{(n-1)}(\boldsymbol{z}) \int_{\mathcal{X}}  A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) d\boldsymbol{x}  
 \end{align*}
 and the optimal action to choose is:
 \begin{align}
@@ -298,7 +298,7 @@ taking
 \label{eq:infomax}
 \end{align}
 with  $H(Z|q^{(n-1)}) \equiv H(q^{(n-1)})$ and $H(Z|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) \equiv H(q^{(n)})$.
-The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no comparison between $q^{(n-1)}$ and $q^{(n)}$.
+The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no formal comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$.
 
 \subsubsection{Innovation-based control}\label{sec:saliency}
@@ -400,7 +400,7 @@ sensory fields.
 \subsubsection{Information Gain approximations}
 
 \paragraph{Information gain}
-The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  can be quantified by their \emph{mutual information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one (three samples should provide even more, etc.). Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  This multiple sample-based reduction of uncertainty is measured by:
+The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  can be quantified by their \emph{mutual information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one (three samples should provide even more, etc.). Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  This multiple samples-based reduction of uncertainty is measured by:
 \begin{align}
 I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:info-gain}\\
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
@@ -486,14 +486,14 @@ Knowing that $q$ and $q'$ are free parameters, it is tempting to take $q=q'$ to 
 \begin{align}
 \tilde{\text{CI}}^{(n)} 
 &= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
-&= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}\right] + c\label{eq:PCI}
+&= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI}
 \end{align}
 with $c$ a constant. 
 The information gain is here approached with the opposite of the cross-entropy cost $\tilde{\text{CI}}^{(n)} = -H(q(Z),p(Z|\boldsymbol{x}', \boldsymbol{u}')) + c$.
 
 \paragraph{Consistency objectives}
 The CI approximation (eq.~\ref{eq:PCI}) is maximal at $q(Z) = p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$. 
-Taking instead $q(Z)= q^{(n-1)}(Z)$ (the pre-sample code), the 
+Taking instead $q(Z)= q^{(n-1)}(Z)$ (the pre-sample posterior), the 
 approximate information gain is maximized when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\simeq q^{(n-1)}(Z)$, i.e. when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and $q^{(n-1)}$ are highly consistent. 
 If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, it is sensible to maximize the predicted CI to maximize the code consistency, i.e.:
 \begin{align}
@@ -528,14 +528,14 @@ The approximate CI is now expressed by subtracting (\ref{eq:F_post_KL}) from (\r
 &+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q||q^{(n)})
 \end{align}
 
-Taking $q = q^{(n)}$ gives:
+Taking now $q = q^{(n)}$ gives:
 \begin{align}
 \tilde{\text{CI}}^{(n)}_{q = q^{(n)}} = 
 -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
 + \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q^{(n)}||q^{(n-1)})
 \end{align}
 showing that the approximate CI objective (eq.~\ref{eq:PCI}) \emph{overestimates} the information gain at $q = q^{(n)}$ by an amount equal to $\text{KL} (q^{(n)}||q^{(n-1)})$.
-This overestimation fits the Saliency objective (see eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the \emph{maximal overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions.
+This overestimation fits the Saliency objective (see eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the \emph{overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions.
 
 Symmetrically, 
 instantiating $q$ with $q^{(n-1)}$ gives:
@@ -546,7 +546,7 @@ instantiating $q$ with $q^{(n-1)}$ gives:
 \end{align}
 showing that the approximate CI objective (eq.~\ref{eq:PCI}) \emph{underestimates} the information gain at $q = q^{(n-1)}$ by an amount equal to $\text{KL} (q^{(n-1)}||q^{(n)})$.
 This underestimation is also the second term of the Free Energy objective, that should be minimized through action
---~see eq~(\ref{eq:ELBO})~--. Minimizing this term means minimizing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
+--~see eq~(\ref{eq:ELBO})~--. Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
 
 
 \section{Results} \label{sec:results}
@@ -573,7 +573,7 @@ In superior vertebrates, two principal tricks are used to minimize sensory resou
 	
 	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image.
 		\textbf{d}. Image reconstruction from 60 central coefficients, issuing a 92 \% compression rate.  
-		\textbf{e}. Wavelet-based hierarchical CNN encoder.}\label{fig:foveated}
+		}\label{fig:foveated}
 \end{figure}
 
 The baseline vision model we propose relies first on learning local foveated views on images.
@@ -607,7 +607,7 @@ The generic sequential scene decoding setup is provided in algorithms \ref{algo:
 		\WHILE {$H(\rho) > H_\text{ref}$}
 		\STATE choose: $\tilde{\boldsymbol{u}} \leftarrow \text{Prediction-Based Policy}(p, q, \rho, A, \mathcal{U})$
 		\STATE read: $\boldsymbol{x}_{\tilde{u}}$
-		\STATE update: $\forall z, \text{odd}[z] \leftarrow \log q(z|\boldsymbol{x}_{\tilde{u}},\tilde{u};\rho)$ 
+		\STATE update: $\text{odd} \leftarrow \log p(\boldsymbol{x}_{\tilde{u}}|:, \tilde{\boldsymbol{u}}) + \log \rho$ 
 		\STATE $\rho \leftarrow \text{softmax} (\text{odd})$ \COMMENT{\emph{the posterior becomes the prior of the next turn}}
 		\STATE $\mathcal{U} \leftarrow \mathcal{U} \setminus \{\tilde{u}\}$ 
 		\ENDWHILE
@@ -636,7 +636,7 @@ The original image is presented in fig~\ref{fig:foveated-saccades}\textbf{a} wit
 Note that several coefficient triplets are read at each end-effector position ($i,j$) (see fig. \ref{fig:foveated}c). There is for instance a total of 5 triplets read out at the initial gaze orientation (\textbf{b}), and then 4 triplets read-out for each continuing saccade. 
 Last, the \emph{decoding compression rate} is defined as the proportion of wavelet coefficients that are bypassed for reaching decision. In the considered example, a total of 18 coefficient triplets is  actually read-out, representing about 7\% of the total 256 coefficient triplets, issuing a 93\% decoding compression rate. 
 
-Fig.~\ref{fig:foveated-saccades}\textbf{g} shows the classification rate and the decoding compression rate  obtained in the test set for different objective functions and $H_\text{ref} \in \{10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$. The objectives are also compared with a random baseline policy. The classification rates monotonically increase with an \emph{decreasing} recognition threshold. Considering 92\% as the upper bound here, a near optimal recognition rate is obtained  at $H_\text{ref}=1O^{-5}$ for the CI objective. Though all objectives functions show a consistent increase of the classification rate with decreasing $H_\text{ref}$, the compression improvement objective clearly overtakes the others ones. The Infomax and the ELBO behave in a close-by fashion, and then the Salience objective seems unfitted to the task. 
+Fig.~\ref{fig:foveated-saccades}\textbf{g} shows the classification rate and the decoding compression rate  obtained in the test set for different objective functions and $H_\text{ref} \in \{10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}\}$. The objectives are also compared with a random baseline policy. The classification rates monotonically increase with an \emph{decreasing} recognition threshold. Considering 92\% as the upper bound here, a near optimal recognition rate is obtained  at $H_\text{ref}=10^{-5}$ for the CI objective. Though all objectives functions show a consistent increase of the classification rate with decreasing $H_\text{ref}$, the compression improvement objective clearly overtakes the others ones. The Infomax and the ELBO behave in a close-by fashion, and then the Salience objective seems unfitted to the task. 
 The compression rates are generally good, with a close to optimal classification obtained at 85\% compression. It needs to be noticed that still a correct 90\% classification rate can be obtained with random exploration at around 70\% compression rate, reflecting a strong redundancy in the original dataset.  
 
 \begin{figure}
@@ -650,7 +650,7 @@ The compression rates are generally good, with a close to optimal classification
 \paragraph{Posterior update in Convolutional Neural Networks}
 A convolutional neural network was designed in order to provide a more effective encoding and facilitate comparison with state-of-the-art classifiers (see fig.~\ref{fig:CNN}). 
 It is made of five convolution layers having each a distinct input corresponding to the five hierarchical levels of the wavelet decomposition. 
-The CNN is biasless, uses a (2,2) stride for the convolutions \emph{without max-pooling}, maximizing \emph{neighbour independence} in the convolutional computational track.
+The CNN is biasless, uses a (2,2) stride for the convolutions \emph{without max-pooling}, maximizing \emph{neighbour independence} in the convolutional computation track.
 The training data was compressed at random by discarding wavelet coefficient triplets, with a varying compression rate. Rectified Linear Units are used in all layers, except for the final layer owning linear units. The network was trained during about $10^6$ epochs with Tensorflow on a laptop. Without specific parameter tuning, the network attained a 99\% recognition rate on the test set with non-compressed wavelet transformed inputs. 
 
 The cross-entropy loss used in training makes the network output is expected to approach the data log-likelihood, and this is how it is exploited further on. For decoding a scene, the input layers are initialized a zero  and progressively filled with new wavelet coefficients, implementing the posterior update \emph{from the data}. There is thus no recurrence, sequential accumulation or memory implemented in the network. The output is driven by adding supplementary data at the input only, complementing the data that was read out at the previous decoding steps. 
@@ -684,12 +684,12 @@ Conversely, the Posterior Consistency objective (PC) is shown to \emph{overestim
 Using the Saliency objective \cite{itti2005bayesian} instead of the PC is moreover expected to \emph{bias} the action selection in an even more optimistic way, subsequently increasing the failed scene interpretation risk.
 
 The presented numerical experiments thus highlight different aspects of the setup. 
-A first and principal result is that state-of-the-art recognition rate can be obtained with sequential fovea-based computation using less than 10\% of the original signal. This strong input compression is made possible for the visual data owns lot of redundancies that are not used at their best in computer vision, doing useless computations over large parts of the visual scene. The general good results obtained in that case reflect the advantage of mixing a predictive controller with accurate state-of-the-art predictors, here a deep neural network. 
+A first and principal result is that state-of-the-art recognition rates can be obtained with sequential fovea-based computation using less than 10\% of the original signal. This strong input compression is made possible for the visual data owns lot of redundancies that are not used at their best in computer vision, doing useless computations over large parts of the visual scene. The general good results obtained in that case reflect the advantage of mixing a predictive controller with accurate state-of-the-art predictors, here a deep neural network. 
 
 A second result is the sub-optimality of many classical objective function widely used in literature, like the ``Infomax'' \cite{butko2010infomax} and the ``Salience'' objectives \cite{itti2005bayesian}, when the scene decoding setup is considered. Their sub-optimality is not manifest with finely-tuned generative models, but becomes patent when a coarse of faulty model is used.
-This may appear counter-intuitive at first sight for the Infomax objective is vastly dominant in predictive control \cite{najemnik2009simple}, while the Salience objective provides among the best predictions for human fixation zones \cite{itti2005bayesian}. The negative performances of the Salience objective in predictive control may however be attenuated when learning is considered. Heading toward inconsistently modeled places is indeed a sensible behaviour when the model is to be updated. This entails maximizing predictions errors, which is a decent principle long considered in sparse reinforcement learning \cite{schmidhuber1991curious,oudeyer2008can,pathak2017curiosity}. The main difference lies in considering model-based predictive rewards, as we do here, versus model-free post-hoc rewards. In the second case, an \emph{observed} inconsistency reflects a model flaw that needs to be adressed, while in the first case, it only reflects a predictive inconsistency, that is part of the model, favoring oblivious rather than memory-consistent scene interpretation. This trade-off between predictive versus post-hoc reward reflects more generally a profound contradiction between exploiting at best the current knowledge and past observations versus challenging the current interpretation to leverage conflicting facts, a variant of the exploration/exploitation trade-off. 
+This may appear counter-intuitive at first sight for the Infomax objective is vastly dominant in predictive control \cite{najemnik2009simple}, while the Salience objective provides among the best predictions for human fixation zones \cite{itti2005bayesian}. The negative performances of the Salience objective in predictive control may however be attenuated when learning is considered. Heading toward inconsistently modeled places is indeed a sensible behaviour when the model is to be updated. This entails maximizing predictions errors, which is a relevant principle long considered in sparse reinforcement learning \cite{schmidhuber1991curious,oudeyer2008can,pathak2017curiosity}. The main difference lies in considering model-based predictive rewards, as we do here, versus model-free post-hoc rewards. In the second case, an \emph{observed} inconsistency reflects a model flaw that needs to be adressed, while in the first case, it only reflects a predictive inconsistency, that is part of the model, favoring oblivious rather than memory-consistent scene interpretation. This trade-off between predictive versus post-hoc reward reflects more generally a profound contradiction between exploiting at best the current knowledge and past observations versus challenging the current interpretation to leverage conflicting facts, a variant of the exploration/exploitation trade-off. 
 
-Last, a notorious default of the predictive setup is its computational cost scaling with the size of the actions sets, that may grow combinatorially fast with increasing degrees of freedom. Real-world predictive control is thus in need for computationally-effective predictive models, here attainable with the Local Consistency (LC) objective, that, though maximizing the Information Gain in approximation, is independent from the current state of interpretation. In discrete interpretation spaces, it is thus possible to pre-process prototypic trajectories following a guess-confirmation sequence of actions, that can be read-out from memory without computationally-demanding predictions. This dramatically simplified setup is shown efficient in our case, showing both competitive decoding compression rates and good robustness to model flaws. 
+Last, a notorious defect of the predictive setup is its computational cost scaling with the size of the actions sets, that may grow combinatorially fast with increasing degrees of freedom. Real-world predictive control is thus in need for computationally-effective predictive models, here attainable with the Local Consistency (LC) objective, that, though maximizing the Information Gain in approximation, is independent from the current state of interpretation. In discrete interpretation spaces, it is thus possible to pre-process prototypic trajectories following a guess-confirmation sequence of actions, that can be read-out from memory without computationally-demanding predictions. This dramatically simplified setup is shown efficient in our case, showing both competitive decoding compression rates and good robustness to model flaws. 
 %and ways toward cheap and scalable predictive policies.  
 
 
