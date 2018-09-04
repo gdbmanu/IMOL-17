@@ -136,7 +136,8 @@ different ``curiosity'' metrics, like the ones proposed in \citet{schmidhuber199
 made of a controlled code (i.e. the actuator state) and an uncontrolled one (i.e. the rest of the environment). 
 
 {\color{Purple} Stemming from a simple action selection setup, that is choosing the next saccade in sequential visual scene decoding task, different (and somehow contradictory) action selection metrics are here analyzed and compared both formally and in simulation.  
-The general ``mixed'' scene decoding framework is first formally unfolded in section \ref{sec:material}}, providing ways to interpret the different metrics at stake under a single master equation, namely the viewpoint-update-based \emph{Information Gain}. 
+A general ``mixed'' scene decoding framework is first formally unfolded in section \ref{sec:material}}, providing ways to interpret the different metrics at stake under a single master equation, namely the viewpoint-update-based \emph{Information Gain}. 
+{\color{magenta} \bf IGLB TODO}
 Then a fovea-based implementation is proposed in section \ref{sec:results}, allowing to quantitatively compare those different metrics, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.
 
 \section{Material and methods} \label{sec:material}
@@ -147,7 +148,7 @@ Then, decoding a visual scene through saccades consists in identifying the ensem
 \subsection{A mixed emission model}\label{sec:three-party}
 
 %A ``viewpoint emitter'' $\boldsymbol{u}$ is here interpreted as both the realization of a \emph{sampling} (of an underlying generative model), and as a \emph{code} that participates in generating the incoming sensory data.
-{\color{Purple} The active inference approach relies on a longstanding history of probabilistic modelling in signal processing and control \citep{Kalman1960,Baum1966}. Put formally, the physical world takes the form of a random generative process that is the cause of the sensory stream. This process is not visible in itself but only sensed through (non reliable) sensors, providing a sequence of observations over time. The inference problem consists in identifying the cause of the observations (i.e. the state of the environment), given the model. The result of the inference is itself a probability density over the hidden states (the posterior probability), that is obtained through  inverting the model (from the observations toward the hidden states).}
+{\color{Purple} The active inference approach relies on a longstanding history of probabilistic modelling in signal processing and control \citep{Kalman1960,Baum1966}. The physical world takes the form of a random generative process that is the cause of the sensory stream. This process is not visible in itself but only sensed through (non reliable) sensors, providing a sequence of observations over time. The inference problem consists in identifying the cause of the observations (i.e. the state of the environment), given the generative model. The result of the inference is itself a probability density over the hidden states (the posterior probability), that is obtained through  inverting the model (from the observations toward the hidden states).}
 
 \subsubsection{One scene, many views}
 
@@ -188,9 +189,9 @@ Moreover, for greater simplicity, $(\boldsymbol{y},\boldsymbol{o})$ is here redu
 so that the generic uncontrolled variable $\boldsymbol{z}$ may report for every possible composition of object identity in space (or more generally every composition of a pose and an identity).
 The controlled emitter $\boldsymbol{u}$ refers to the state of a motor apparatus, e.g. to the spatial distribution of the different mobile segments of an articulated body. The uncontrolled latent emitter $\boldsymbol{z}$  refers to the remaining part of the physical world, i.e. the ``environment''. 
 
-This restricted setup, that separates a body and an environment in the form of two parallel processes,  provides a substantial simplification to the estimation problem at stake: 
+This restricted setup, that separates a body and an environment in the form of two {\color{Purple}independent} processes,  provides a substantial simplification to the estimation problem at stake: 
 \paragraph{(i) Emitters independence}
-A first assumption is that two emitters are independent, i.e. $\text{Pr}(Z,U) = \text{Pr}(Z)\text{Pr}(U)$ so that {\color{Purple} on the transition side}:
+A first assumption is that two {\color{Purple} transition processes} are independent, i.e. $\text{Pr}(Z,U) = \text{Pr}(Z)\text{Pr}(U)$ so that:
 \begin{align}
 (\boldsymbol{z},\boldsymbol{u}) \sim \text{Pr}(Z,U|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0) = \text{Pr}(Z|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0) \text{Pr}(U|\boldsymbol{a}, \boldsymbol{z}_0, \boldsymbol{u}_0)\nonumber
 \end{align}
@@ -249,17 +250,18 @@ with $\text{Pr}(Z)$ the \emph{prior}, and each different motor command $\boldsym
 \subsubsection{Sequential Bayesian inference}\label{sec:seq-bayes}
 
 
-With a generative model comes the possibility to \emph{infer} the latent state of the physical system 
+With a generative model comes the possibility to \emph{infer} the latent state of the physical system {\color{Purple} from the observation}
 using Bayes rule:
 \begin{align}
 \text{Pr}(Z|\boldsymbol{x},\boldsymbol{u})
 = \frac{\text{Pr}(\boldsymbol{x}|Z, \boldsymbol{u}) \text{Pr}(Z)}
 {\text{Pr}(\boldsymbol{x}|\boldsymbol{u})}\label{eq:post-Pr}
 \end{align}
-with $\text{Pr}(Z|\boldsymbol{x},\boldsymbol{u})$ the \emph{posterior} probability (a distribution over the latent states) whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. 
+with $\text{Pr}(Z|\boldsymbol{x},\boldsymbol{u})$ the \emph{posterior} probability
+(over the latent states), whose order 2 moment informs on the estimation accuracy : the narrower the distribution, the more accurate the latent state prediction. 
 
 {\color{Purple} In a visual scene decoding task, a single environment state $\boldsymbol{z}$ is
-observed through a series of viewpoints $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence of observations should ultimately provide a final estimate $\hat{q}(Z)$ with a single cause $\hat{\boldsymbol{z}}$ dominating the other ones, allowing to reach a final decision. }
+observed through a series of viewpoints $\boldsymbol{u}$, $\boldsymbol{u}'$, $\boldsymbol{u}''$, ... This sequence of observations should ultimately provide a final estimate $\hat{q}(Z)$, with a single cause $\hat{\boldsymbol{z}}$ dominating the other ones, allowing to reach a final decision. }
 %This is the \emph{scene decoding} task we analyze next.
 The chaining of the posterior to the role of the prior in the next inference step is a classical property of sequential Bayesian inference.
 When generalized to many observations: $(\boldsymbol{x}|\boldsymbol{u}), (\boldsymbol{x}'|\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)})$, the final posterior $q^{(n)}(Z)$ writes:
@@ -298,7 +300,7 @@ Many such objective functions are proposed in the literature. They are generally
 \subsubsection{Accuracy-based control}\label{sec:infomax}
 
 The predictive approach to perception-driven control was originally developed by \citep{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
-Given a generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$ to choose action. 
+Given a generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ to choose action. 
 The accuracy tells how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
 knowing $q^{(n-1)}$ (the estimated posterior at step $n-1$).
 
@@ -316,7 +318,7 @@ In order to render the computation tractable, a \emph{sampling} approach is gene
 
 The accuracy measure used in the original paper was an ad-hoc one \citep{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \citep{najemnik2009simple}, i.e.:
 $$A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) = -H(q^{(n)}) = \sum_{z \in \mathcal{Z}} q^{(n)}(\boldsymbol{z}) \log q^{(n)}(\boldsymbol{z})$$
-with: $q^{(n)}(\boldsymbol{z}) \propto p(\boldsymbol{x|\boldsymbol{z}, \boldsymbol{u}})q^{(n-1)}(\boldsymbol{z}) $
+with: $q^{(n)}(\boldsymbol{z}) \propto p(\boldsymbol{x|\boldsymbol{z}, \boldsymbol{u}}) \times q^{(n-1)}(\boldsymbol{z}) $,
 so that:
 $$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[H(q^{(n)})\right] $$ 
 which makes sense for a low entropy of the posterior is expected when the estimated posterior accuracy is high.
@@ -328,123 +330,97 @@ taking:
 = H(q^{(n-1)}) - H(q^{(n)})
 \label{eq:infomax}
 \end{align}
-with  $H(q^{(n-1)}) \equiv H(Z|q^{(n-1)})$ and $H(q^{(n)}) \equiv H(Z|\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})$, {\color{Purple} which also turns out to minimize $H(q^{(n)})$ solely for $H(q^{(n-1)})$ is independent of $\boldsymbol{u}$}.
+with  $H(q^{(n-1)}) \equiv H(Z|q^{(n-1)})$ and $H(q^{(n)}) \equiv H(Z|\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$, {\color{Purple} which also turns out to minimize $H(q^{(n)})$ solely for $H(q^{(n-1)})$ is independent of $\boldsymbol{u}$}.
 The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no formal comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$.
 
 \subsubsection{Innovation-based control}\label{sec:saliency}
 
-Another quantity of interest is the so-called \emph{Bayesian surprise} or \emph{Salience} \citep{itti2005bayesian} defined as the Kullback-Leibler divergence  between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics $q$ are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $p(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the Salience of the actual view $\boldsymbol{x}$ given the model is:
+Another quantity of interest is the so-called \emph{Bayesian surprise} or \emph{Salience} \citep{itti2005bayesian} defined as the Kullback-Leibler divergence  between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $p(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the Salience of the actual view $\boldsymbol{x}$ given the model is:
 $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(p(Z| \boldsymbol{x}, \boldsymbol{u})||p(Z))$$
-which is a measure of the \emph{in}consistency between a (viewpoint independent)  model $p$ and the data. A high salience reflects a strong inconsistency with the model, while a low salience reflects a strong consistency with the model.
+{\color{Purple} with $\text{KL}(p_1||p_2) = \sum_z p_1(\boldsymbol{z}) \log \frac{p_1(\boldsymbol{z})}{p_2(\boldsymbol{z})}$ the Kullback-Leibler divergence between $p_1$ and $p_2$, interpreted here as} a measure of the \emph{in}consistency between a (viewpoint independent)  model $p$ and the data. A high salience reflects a strong inconsistency with the model, while a low salience reflects a strong consistency with the model. According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
+Its scalability moreover provides straightforward applications in image and video compression  \citep{wang2003foveation,guo2010novel}.
 
-Generalized to the sequential setup, the saliency measure becomes:
+Generalized to the sequential setup, the saliency metric becomes:
 \begin{align} A_\text{\sc saliency}(\boldsymbol{x},\boldsymbol{u}; q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})\label{eq:saliency}
 \end{align}
-with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$, {\color{Purple} knowing $q^{(n-1)}$}.
-
-According to Itti and Baldi, the regions that have a high Bayesian surprise are the ones that attract the sight the most. The calculation of $S(\boldsymbol{x}, \boldsymbol{z}| \boldsymbol{u})$ at each location $\boldsymbol{u}$ forms a \emph{saliency map} that is then considered as a prediction of where the sight will most likely be attracted (high values most probably attract the sight, low values less probably do). 
-In a sequential setup, a corresponding predictive policy would be:
+with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$, {\color{Purple} knowing $q^{(n-1)}$}. A corresponding predictive policy would be:
 $$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}, \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\text{KL}(q^{(n)}||q^{(n-1)})\right]$$
 
 
-The saliency model has a strong explanatory power and provides among the best fit with the actual preferred fixation zones observed in humans.
-Its scalability moreover provides straightforward applications in image and video compression  \citep{wang2003foveation,guo2010novel}.
 
-\subsubsection{Conservation-based control}
+
+\subsubsection{Conservation-based control}\label{sec:conservation}
 
 At last, the  active inference setup \citep{friston2010free,friston2012perceptions} 
-considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the Variational Free Energy (VFE) with action. Extending \citep{friston2015active} to the a sequential setup, it is interpreted as~:
+considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the Variational Free Energy (VFE) with action (see appendix \ref{app:VFE}):
 \begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}; q^{(n-1)}) = 
--\log p(\boldsymbol{x}| \boldsymbol{u}; q^{(n-1)}) + \text{KL}(q^{(n-1)}||q^{(n)})
+F(\boldsymbol{x}|\boldsymbol{u}) 
+%&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{z}, \boldsymbol{u}^{(n)} )\right] + \text{KL}(q(Z)||q^{(n-1)}(Z))
+%\label{eq:FEP-prior-uxun}\\
+&= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
+\label{eq:FEP-posterior-u}
+\end{align}
+From the predictive perspective, stemming from $q^{(n-1)}$ as the current scene interpretation, \citet{friston2017active} propose a \emph{predictive VFE} that writes like~:
+\begin{align}
+\bar{F}(\boldsymbol{u}; q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}
+\left[-\log p(\boldsymbol{x}| \boldsymbol{u}; q^{(n-1)}) + \text{KL}(q^{(n-1)}||q^{(n)})\right]
 \label{eq:ELBO}
 \end{align}
-with $\text{KL}(q^{(n-1)}||q^{(n)})$ representing the interpretative effort made by interpreting  $\boldsymbol{x}|\boldsymbol{u}$ with $q^{(n)}$ instead of $q^{(n-1)}$.
-Minimizing the Free-Energy is generally consistent with minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$
+with $q^{(n)}$ the predicted posterior and $\text{KL}(q^{(n-1)}||q^{(n)})$ quantifying the {\color{Purple} interpretation update} made by interpreting  the scene with $q^{(n)}$ instead of $q^{(n-1)}$. {\color{Purple} It is said the ``epistemic cost''}.
+In that setup, minimizing the Free-Energy is consistent with minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$
 estimated as:
 \begin{align*}
 \text{KL}(q^{(n-1)}||q^{(n)})
-&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
+&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z)} \left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
 \end{align*}
 
 Put in a predictive form, the selection of action finally relies on the reduction of the predicted log ratio, i.e.~:
 \begin{align}
 \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
 \end{align}
-which is expected to maximize the \emph{expected code consistency}\footnote{It is to be noticed  that the  Kullback-Leibler divergence is here absorbed in the general expectation over the $\boldsymbol{x}$'s and the $\boldsymbol{z}$'s.}.
+which may {\color{Purple} minimize the \emph{epistemic cost}}\footnote{It is to be noticed  that the  Kullback-Leibler divergence is here absorbed in the general expectation over the $\boldsymbol{x}$'s and the $\boldsymbol{z}$'s.}.
 
 
-On contrary to the Infomax objective (section \ref{sec:infomax}), the code consistency objective selects the local posterior having the highest consistency with the cumulated posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy.
+On contrary to the Infomax objective (section \ref{sec:infomax}), the {\color{Purple} epistemic cost} selects the predicted posterior having the highest consistency with the current posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy (see section~\ref{sec:infomax}).
 Minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$ thus corresponds to a \emph{conservative} approach to the scene interpretation
 that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of a false interpretation. 
 
-The code consistency is moreover at odd with the Saliency objective (section \ref{sec:saliency}) seeking the maximal \emph{in}consistency between the cumulated posterior and the current posterior.
+The {\color{Purple} epistemic cost} is moreover at odd with the Saliency objective (section \ref{sec:saliency}) seeking the maximal \emph{in}consistency between the cumulated posterior and the current posterior.
 It is obvious here that the Free Energy minimization and the Saliency maximization are antithetic objectives, and no consensus is currently observed in the literature about which objective should prevail (though Infomax generally preferred in scene decoding and saliency/surprise preferred in sparse reinforcement learning).
 
-\subsection{Generalization}
-The structure of the problem (many views on the same scene) implies that the different possible measures should share a common information corresponding to the actual (covered) sensory scene.
-We take here benefit of the variational encoding setup, developed in the model-free case, to specify how variational scene encoding may relate to perception-driven control.
+\subsection{The Information Gain and its approximation}
+The structure of the problem (many views on the same scene) implies that {\color{Purple} different observations} should share a common information corresponding to the actual (covered) sensory scene.
+We take here benefit of the variational encoding setup {\color{Purple} (seen in section \ref{sec:conservation}) to propose a new quantification the \emph{shared information} across different sensory fields,} {\color{magenta}\bf later on used in our predictive control setup.}
 
-\subsubsection{Variational scene encoding}
+%{\color{magenta} \bf When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. 
 
-We now make a step back and consider the model-free variational encoding setup for it provides ways to specify in more detail what is meant by a \emph{code}.
+%... ...
+%}
 
-In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
-The \emph{variational encoding} perspective \citep{hinton1994autoencoders} was originally developed 
-to train unsupervised autoencoder neural networks. The general idea is that an efficient code 
-is a code that is both compact and accurate at restoring the data. 
-If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
+\subsubsection{Definitions}
 
-In short, the efficacy of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
-\begin{align}
-F(\boldsymbol{x}) &= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)\nonumber\\
-&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
-\label{eq:FEP-energy}
-\end{align}
-with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
-The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \citep{hinton2006fast,kingma2013auto}.  
-$F$ is also related to the variational Free Energy setup, which shares a mathematic analogy with the Helmhotz Free Energy \citep{friston2010free}.
-It can then be shown, with some reordering, that:
-\begin{align}
-F(\boldsymbol{x}) 
-&= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
-\label{eq:FEP}
-\end{align}
-with $\text{KL}(q||p) = \sum_z q(\boldsymbol{z}) \log \frac{q(\boldsymbol{z})}{p(\boldsymbol{z})}$ the Kullback-Leibler divergence between $q$ and $p$, so that an optimal encoder $q(Z)\simeq p(Z|\boldsymbol{x})$ can be approached through a stochastic gradient descent over $p$ and $q$ according to $-\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \citep{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
-\begin{align*}
-h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})
-\end{align*}
-that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. Minimizing the cost $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing the data $\boldsymbol{x}$ \citep{friston2010free}.
-
-If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
-\begin{align}
-F(\boldsymbol{x}|\boldsymbol{u}) 
-&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})p(\boldsymbol{z}))\right] - H(q)\\
-&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))
-\label{eq:FEP-prior-u}\\
-&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
-\label{eq:FEP-posterior-u}\end{align}
-When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. Each $\boldsymbol{u}$ may thus drive a different posterior and thus a different reconstruction cost. It is thus feasible to change (and optimize) the reconstruction cost through changing $\boldsymbol{u}$, by considering the \emph{shared information} across different
-sensory fields.
-
-\subsubsection{Information Gain approximations}
-
-\paragraph{Information gain}
-The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  can be quantified by their \emph{mutual information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one (three samples should provide even more, etc.). Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  This multiple samples-based reduction of uncertainty is measured by:
+\paragraph{Mutual Information and Information Gain}
+The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  should be quantified by their \emph{Mutual Information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one (three samples should provide even more, etc.). 
+%Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  
+The two samples-based mutual information is:
 \begin{align}
 I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:info-gain}\\
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
 \end{align}
-with 
-($i$) $ p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')$ 
-the \emph{post-sample} likelihood, i.e. the retrospective likelihood of having seen $\boldsymbol{x}$ at $\boldsymbol{u}$ knowing now that $\boldsymbol{x}'$ is observed at $\boldsymbol{u}'$,
-and ($ii$) 
-$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the 
-\emph{information gain} \citep{tishby2011information}, that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$.
+with :
+\begin{itemize}
+	\item[($i$)] $ p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')$ 
+	the \emph{post-sample} likelihood, i.e. the retrospective likelihood of having seen $\boldsymbol{x}$ at $\boldsymbol{u}$ knowing now that $\boldsymbol{x}'$ is observed at $\boldsymbol{u}'$, and
+	\item[($ii$)] 
+	$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the viewpoint update-based
+	\emph{Information Gain} \citep{tishby2011information}, that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$.
+\end{itemize}
+ 
+
 
 \paragraph{Cost Update}
-Consider now the reconstruction cost of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$. It is easy to show that:
+A Consider now the {\color{Purple} log likelihood of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$}. It is easy to show that:
 \begin{align}
 -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
 &\leq - \sum_z q'(z) \log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u}) \frac{p(\boldsymbol{z} |\boldsymbol{x}', \boldsymbol{u}')} {q'(z)}  \nonumber\\
@@ -454,41 +430,34 @@ Consider now the reconstruction cost of $\boldsymbol{x}$ after seeing both $\bol
 \label{eq:FEP-uxu2}\\
 &= F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
 \end{align}
-with $q'(\boldsymbol{z})$ approaching  $p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ after optimization the shared posterior,
+with $F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ the post-sample Free Energy, and $q'(\boldsymbol{z})$ approaching  $p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ after optimization (see appendix \ref{app:VFE}),
 with:
 \begin{align} p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
 = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}
 \end{align} 
 
-From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the change from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. 
+From a variational perspective , the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. 
 
 \paragraph{Compression Improvement}
-An approximation of the information gain, known as the \emph{Compression Improvement} or CI \citep{schmidhuber2007simple,houthooft2016vime}
+An approximation of the information gain, known as the \emph{Compression Improvement} or CI was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
 writes~:
 \begin{align}
 \text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
 \end{align}	
 There comes the possibility to reduce the cost (or ``surprise'') from adequate sampling in a model-based approach \citep{friston2012perceptions}, either by minimizing the cost or, equivalently, maximizing the CI.
 
+\subsubsection{Approximate Information Gain in the sequential setup}
 
-When generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule (see eq.~\ref{eq:accum-post}), i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
-\begin{align}
-F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) 
-&= \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{z}, \boldsymbol{u}^{(n)} )\right] + \text{KL}(q^{(n)}(Z)||q^{(n-1)}(Z))
-\label{eq:FEP-uxun}
-\end{align}
-with $q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and $q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \citep{chung2015recurrent,fraccaro2016sequential}.  
-
-From the scene decoding perspective, the contribution of $\boldsymbol{u}^{(n)}$ in understanding the scene is measured by a change in the reconstruction cost $F$ \emph{before} and \emph{after} reading $\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}$.
+{\color{Purple} In the sequential setup}, the contribution of $\boldsymbol{u}^{(n)}$ in understanding the scene is measured by a change in the reconstruction cost $F$ \emph{before} and \emph{after} reading $\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}$.
 \begin{itemize}
-	\item Before update, the reconstruction cost at $\boldsymbol{x}^{(n-1)}$ writes:
+	\item Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the reconstruction cost at $\boldsymbol{x}^{(n-1)}$ writes:
 	\begin{align}
 	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
 	&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
 	\right] + \text{KL}(q||q^{(n-2)}) \label{eq:F_pre_var}\\
 	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\label{eq:F_pre_KL}
 	\end{align}
-	\item After update, it writes:
+	\item After {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, it writes:
 	\begin{align}
 	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) 
 	&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
@@ -497,11 +466,11 @@ From the scene decoding perspective, the contribution of $\boldsymbol{u}^{(n)}$ 
 	\end{align}
 	with :
 	\begin{align}
-	q^{(n; n-2)}(Z) \propto p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})q^{(n-2)}(Z)
+	q^{(n; n-2)}(Z) \propto p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})q^{(n-2)}(Z)\label{eq:n-n-2}
 	\end{align}
 \end{itemize}
 
-Before update, the best reconstruction cost is attained at at $q = q^{(n-1)}$. After update, the best reconstruction cost is attained at $q' =  q^{(n)}$. 
+Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the best reconstruction cost is attained at at $q = q^{(n-1)}$. After {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the best reconstruction cost is attained at $q' =  q^{(n)}$. 
 From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}) the CI writes :
 \begin{align}
 	\text{CI}^{(n)} =& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
@@ -511,9 +480,7 @@ From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}) the CI writes :
 	 - \text{KL}(q'|| q^{(n;n-2)})\label{eq:CI}
 \end{align}	
 
-\paragraph{Approximate Compression Improvement}
-
-Knowing that $q$ and $q'$ are free parameters, it is tempting to take $q=q'$ to provide a rough CI estimate, that is :
+From (\ref{eq:n-n-2}) and (\ref{eq:CI}), knowing that $q$ and $q'$ are free parameters, it is tempting to take $q=q'$ to provide a rough CI estimate, that is :
 \begin{align}
 \tilde{\text{CI}}^{(n)} 
 &= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
@@ -726,6 +693,64 @@ Last, a notorious defect of the predictive setup is its computational cost scali
 \subsection*{Acknowledgements}
 Thanks to Laurrent Perrinet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...
 
+\appendix
+
+\section{The Variational Encoding setup}\label{app:VFE}
+{\color{Purple} 
+	%In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
+	The \emph{variational encoding} perspective \citep{hinton1994autoencoders} was originally developed 
+	to train unsupervised autoencoder neural networks. 
+	%The general idea is that an efficient code is a code that is both compact and accurate at restoring the data. 
+	If $\boldsymbol{x}$ is the original data, the corresponding code $\boldsymbol{z}$ is generated by a distribution $q$, i.e. $\boldsymbol{z} \sim q(Z)$. This distribution is called the \emph{encoder}. Then, the reconstruction is made possible with a second conditional probability over the codes, i.e. $p(X|\boldsymbol{z})$, that is called the \emph{decoder}. If $\boldsymbol{z}$ is the current code, the reconstructed data is $\tilde{\boldsymbol{x}} \sim p(X|\boldsymbol{z})$. 
+	
+	In short, the efficacy of a code is estimated by an information-theoretic quantity, the ``reconstruction cost'' that is defined for every $\boldsymbol{x}$ knowing $p$ and $q$:
+	\begin{align}
+	F(\boldsymbol{x}) %&= - \sum_{\boldsymbol{z} \in \mathcal{Z}} q(\boldsymbol{z}) \log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z})) - H(q)\nonumber\\
+	%&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z})p(\boldsymbol{z}))\right] - H(q)
+	%\label{eq:FEP-energy}\\
+	&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z}))\right] +\text{KL}(q(Z)||p(Z))
+	\label{eq:FEP-prior}\\
+	&= - \log p(\boldsymbol{x}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}))
+	\label{eq:FEP}
+	\end{align}
+	%with $\mathcal{Z}$ an arbitrary encoding space, $q$ an arbitrary distribution over the codes, $H(q) = -\sum_z q(\boldsymbol{z}) \log q(\boldsymbol{z})$ the entropy of $q$, $p(X|Z)$ the decoder and $p(Z)$ a prior distribution over the codes.
+	%The densities $p$ and $q$ are called ``variational'' for they can be optimized according to the data \citep{hinton2006fast,kingma2013auto}.  
+	with $p(Z)$ the prior over the latent state.
+	$F$ is also said the Variational Free Energy (VFE), for it shares shares a mathematic analogy with the Helmhotz Free Energy \citep{friston2010free}.
+	%It can then be shown, with some reordering, that:
+	%
+	%so that an optimal encoder $q(Z)\simeq p(Z|\boldsymbol{x})$ can be approached through a stochastic gradient descent over $p$ and $q$ according to $-\nabla_{p,q} F(\boldsymbol{x}) $	 --~see \citep{kingma2013auto}~-- so that the reconstruction cost should meet the ``description length'' of the data, i.e. its estimated (natural) Shannon Information under the model $p$:
+	%\begin{align*}
+	%h(\boldsymbol{x}) \simeq -\log p(\boldsymbol{x}) \simeq  F(\boldsymbol{x})
+	%\end{align*}
+	%that is a quantity representing how unlikely $\boldsymbol{x}$ is regarding the data model $p$. 
+	Minimizing the cost $F$ according to $p$ and $q$ thus means minimizing the ``surprise'' caused by observing the data $\boldsymbol{x}$ \citep{friston2010free}.
+	
+	\paragraph{View-dependent VFE}
+	If we now turn back to the viewpoint selection setup, an additional factor $\boldsymbol{u}$ (the viewpoint) comes into the play. The data $\boldsymbol{x}$ that is actually read is now conditioned on  $\boldsymbol{u}$, so that:
+	\begin{align}
+	F(\boldsymbol{x}|\boldsymbol{u}) 
+	%&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})p(\boldsymbol{z}))\right] - H(q)\\
+	&= \mathbb{E}_{z\sim q} \left[-\log (p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u}))\right] +\text{KL}(q(Z)||p(Z))
+	\label{eq:FEP-prior-u-app}\\
+	&= - \log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}, \boldsymbol{u}))
+	\label{eq:FEP-posterior-u-app}\end{align}
+}
+
+When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. Each $\boldsymbol{u}$ may thus drive a different posterior and thus a different reconstruction cost. It is thus feasible to change (and optimize) the reconstruction cost through changing $\boldsymbol{u}$.
+
+\paragraph{Sequential VFE}
+{\color{Purple} 
+	When generalized to many observations: $(\boldsymbol{x},\boldsymbol{u}), (\boldsymbol{x}',\boldsymbol{u}')$, ..., $(\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)})$, the $n^\text{th}$ reconstruction cost $F^{(n)}(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}, ..., \boldsymbol{x}, \boldsymbol{u})$ also obeys to the chain rule (see eq.~\ref{eq:accum-post}), i.e. is estimated from $q^{(n-1)}$, $\boldsymbol{u}^{(n)}$ and $\boldsymbol{x}^{(n)}$ only:
+	\begin{align}
+	F(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) 
+	&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{z}, \boldsymbol{u}^{(n)} )\right] + \text{KL}(q(Z)||q^{(n-1)}(Z))
+	\label{eq:FEP-prior-uxun-app}\\
+	&= -\log p(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)};q^{(n-1)}))
+	\label{eq:FEP-posterior-uxun-app}
+	\end{align}
+	with %$q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and 
+	$q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \citep{chung2015recurrent,fraccaro2016sequential}.  
 \bibliographystyle{apalike}
 \bibliography{biblio}
 
