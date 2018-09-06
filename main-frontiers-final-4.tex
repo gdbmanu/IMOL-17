@@ -268,7 +268,7 @@ When generalized to many observations: $(\boldsymbol{x}|\boldsymbol{u}), (\bolds
 \begin{align}
 q^{(n)}(Z) \propto \text{Pr}(\boldsymbol{x}|Z,\boldsymbol{u}) \times \text{Pr}(\boldsymbol{x}'|Z,\boldsymbol{u}') \times ... \times \text{Pr}(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times \text{Pr}(Z) \label{eq:accum}
 \end{align}
-which allow to approach the latent state $\boldsymbol{z}$ from many samples of (\ref{eq:gen}), each sample providing more evidence. 
+which allows to approach the latent state $\boldsymbol{z}$ from many samples of (\ref{eq:gen}), each sample providing more evidence. 
 {\color{Purple} When the sampling is done incrementally \citep{wald1945sequential},}
 the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the process. At step $n$, only $q^{(n-1)}$ (the current ``belief'') needs to be memorized to estimate $q^{(n)}$, i.e. 
 \begin{align} 
@@ -297,7 +297,7 @@ A general strategy is thus to establish a \emph{objective function} $f$ (resp. a
 \end{align}
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \citep{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \citep{sutton1998reinforcement}. {\color{Purple} Several such intrinsic reward candidates have been developed in recent years in the scene decoding context. Some of them are presented in the next paragraphs. The original formulas have been recast to show their formal correspondences, but also highlight some manifest differences between them.}
 
-\subsubsection{Accuracy-based control}\label{sec:infomax}
+\subsubsection{Accuracy-based objective}\label{sec:infomax}
 
 The predictive approach to perception-driven control was originally developed by \citep{najemnik2005optimal} to the case of visual search (finding a target feature in an image, i.e. the ``find Waldo'' task).
 Given a generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ to choose action. 
@@ -334,7 +334,7 @@ with  $H(q^{(n-1)}) \equiv H(Z|q^{(n-1)})$ and $H(q^{(n)}) \equiv H(Z|\boldsymbo
 The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no formal comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$.
 
-\subsubsection{Innovation-based control}\label{sec:saliency}
+\subsubsection{Innovation-based objective}\label{sec:saliency}
 
 Another quantity of interest is the so-called \emph{Bayesian surprise} or \emph{Salience} \citep{itti2005bayesian} defined as the Kullback-Leibler divergence  between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $p(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the Salience of the actual view $\boldsymbol{x}$ given the model is:
 $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(p(Z| \boldsymbol{x}, \boldsymbol{u})||p(Z))$$
@@ -342,18 +342,15 @@ $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(p(Z| \boldsymbol{x}, \boldsymbol
 Its scalability moreover provides straightforward applications in image and video compression  \citep{wang2003foveation,guo2010novel}.
 
 Generalized to the sequential setup, the saliency metric becomes:
-\begin{align} A_\text{\sc saliency}(\boldsymbol{x},\boldsymbol{u}; q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})\label{eq:saliency}
+\begin{align} S(\boldsymbol{x},\boldsymbol{u}; q^{(n-1)}) = \text{KL}(q^{(n)}||q^{(n-1)})\label{eq:saliency}
 \end{align}
 with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$, {\color{Purple} knowing $q^{(n-1)}$}. A corresponding predictive policy would be:
 $$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}, \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\text{KL}(q^{(n)}||q^{(n-1)})\right]$$
 
+\subsubsection{Conservation-based objective}\label{sec:conservation}
 
-
-
-\subsubsection{Conservation-based control}\label{sec:conservation}
-
-At last, the  active inference setup \citep{friston2010free,friston2012perceptions} 
-considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the Variational Free Energy (VFE) with action (see appendix \ref{app:VFE}):
+At last, the  Variational Free Energy based (VFE) active inference setup \citep{friston2010free,friston2012perceptions} 
+considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the VFE with action (see appendix \ref{app:VFE}). In an active sampling-based setup, it writes:
 \begin{align}
 F(\boldsymbol{x}|\boldsymbol{u}) 
 %&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n)}| \boldsymbol{z}, \boldsymbol{u}^{(n)} )\right] + \text{KL}(q(Z)||q^{(n-1)}(Z))
@@ -361,13 +358,13 @@ F(\boldsymbol{x}|\boldsymbol{u})
 &= -\log p(\boldsymbol{x}|\boldsymbol{u}) + \text{KL}(q(Z)||p(Z|\boldsymbol{x},\boldsymbol{u}))
 \label{eq:FEP-posterior-u}
 \end{align}
-From the predictive perspective, stemming from $q^{(n-1)}$ as the current scene interpretation, \citet{friston2017active} propose a \emph{predictive VFE} that writes like~:
+From the predictive perspective, stemming from $q^{(n-1)}$ as the current scene interpretation, \citet{friston2017active} propose a \emph{predictive VFE} that writes in our sequential setup like~:
 \begin{align}
 \bar{F}(\boldsymbol{u}; q^{(n-1)}) = \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}
 \left[-\log p(\boldsymbol{x}| \boldsymbol{u}; q^{(n-1)}) + \text{KL}(q^{(n-1)}||q^{(n)})\right]
 \label{eq:ELBO}
 \end{align}
-with $q^{(n)}$ the predicted posterior and $\text{KL}(q^{(n-1)}||q^{(n)})$ quantifying the {\color{Purple} interpretation update} made by interpreting  the scene with $q^{(n)}$ instead of $q^{(n-1)}$. {\color{Purple} It is said the ``epistemic cost''}.
+with $q^{(n)}$ the predicted posterior and $\text{KL}(q^{(n-1)}||q^{(n)})$ quantifying the {\color{Purple} scene interpretation update} made by interpreting  the scene with $q^{(n)}$ instead of $q^{(n-1)}$. {\color{Purple} It is said the ``epistemic cost''\footnote{or negative epistemic value.}}.
 In that setup, minimizing the Free-Energy is consistent with minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$
 estimated as:
 \begin{align*}
@@ -375,7 +372,7 @@ estimated as:
 &= \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z)} \left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
 \end{align*}
 
-Put in a predictive form, the selection of action finally relies on the reduction of the predicted log ratio, i.e.~:
+Put in a predictive form, the selection of action finally relies on reducing the predicted log ratio, i.e.~:
 \begin{align}
 \hat{\boldsymbol{u}} &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\log q^{(n-1)}(\boldsymbol{z}) - \log q^{(n)}(\boldsymbol{z})\right]
 \end{align}
@@ -389,9 +386,11 @@ that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of
 The {\color{Purple} epistemic cost} is moreover at odd with the Saliency objective (section \ref{sec:saliency}) seeking the maximal \emph{in}consistency between the cumulated posterior and the current posterior.
 It is obvious here that the Free Energy minimization and the Saliency maximization are antithetic objectives, and no consensus is currently observed in the literature about which objective should prevail (though Infomax generally preferred in scene decoding and saliency/surprise preferred in sparse reinforcement learning).
 
-\subsection{The Information Gain and its approximation}
+\subsection{The Information Gain and its approximations}
 The structure of the problem (many views on the same scene) implies that {\color{Purple} different observations} should share a common information corresponding to the actual (covered) sensory scene.
-We take here benefit of the variational encoding setup {\color{Purple} (seen in section \ref{sec:conservation}) to propose a new quantification the \emph{shared information} across different sensory fields,} {\color{magenta}\bf later on used in our predictive control setup.}
+We take here benefit of the {\color{Purple} view-based} variational encoding setup
+{\color{Purple} (seen in section \ref{sec:conservation} and appendix \ref{app:VFE}) to propose a new quantification the \emph{mutual information} shared across different sensory fields, locally estimated with a view-based Information Gain metric. It is shown here that a rather straightforward approximation of the information gain,
+known as the Compression Improvement, provide both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions.}
 
 %{\color{magenta} \bf When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. 
 
@@ -401,11 +400,12 @@ We take here benefit of the variational encoding setup {\color{Purple} (seen in 
 \subsubsection{Definitions}
 
 \paragraph{Mutual Information and Information Gain}
-The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  should be quantified by their \emph{Mutual Information}. The general idea is that two samples may provide more insight about a hidden sensory scene than a single one (three samples should provide even more, etc.). 
+The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  should be quantified by their \emph{Mutual Information}. The general idea is that two samples may provide more insight about the hidden sensory scene than a single one (three samples should provide even more, etc.). 
 %Reading two co-dependent samples should also provide more guarantee about the scene interpretation than reading two independent variables.  
-The two samples-based mutual information is:
+{\color{Purple} Consider $\boldsymbol{x}|\boldsymbol{u}$ as the initial sensory sample and $\boldsymbol{x}'|\boldsymbol{u}'$ as an additional sample providing new evidence about how interpret the initial view $\boldsymbol{x}$}.
+The mutual information writes:
 \begin{align}
-I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:info-gain}\\
+I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:mutual-info}\\
 &\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
 \end{align}
 with :
@@ -413,14 +413,18 @@ with :
 	\item[($i$)] $ p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \triangleq \sum_{\boldsymbol{z}} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u}) p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')$ 
 	the \emph{post-sample} likelihood, i.e. the retrospective likelihood of having seen $\boldsymbol{x}$ at $\boldsymbol{u}$ knowing now that $\boldsymbol{x}'$ is observed at $\boldsymbol{u}'$, and
 	\item[($ii$)] 
-	$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the viewpoint update-based
-	\emph{Information Gain} \citep{tishby2011information}, that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$.
+	$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the post-sample
+	\emph{Information Gain} (see also \citet{tishby2011information}), that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$:
+	\begin{align}
+	\text{IG}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
+	&= -\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \label{eq:info-gain}
+	\end{align}
 \end{itemize}
  
 
 
-\paragraph{Cost Update}
-A Consider now the {\color{Purple} log likelihood of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$}. It is easy to show that:
+\paragraph{Reconstruction Cost Update}
+Considering now the {\color{Purple} log likelihood of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$}, it is easy to show that:
 \begin{align}
 -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
 &\leq - \sum_z q'(z) \log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u}) \frac{p(\boldsymbol{z} |\boldsymbol{x}', \boldsymbol{u}')} {q'(z)}  \nonumber\\
@@ -428,27 +432,29 @@ A Consider now the {\color{Purple} log likelihood of $\boldsymbol{x}$ after seei
 \label{eq:FEP-uxu}\\
 &=  -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}',\boldsymbol{u}') + \text{KL}(q'(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
 \label{eq:FEP-uxu2}\\
-&= F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
+&\triangleq F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
 \end{align}
-with $F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ the post-sample Free Energy, and $q'(\boldsymbol{z})$ approaching  $p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ after optimization (see appendix \ref{app:VFE}),
+which establishes $F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ as the post-sample \emph{reconstruction cost} {\color{Purple} (or \emph{post-sample Free Energy} -- the two are synonyms)}, with $q'(\boldsymbol{z})$ expectedly approaching  $p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ after optimization,
 with:
 \begin{align} p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
 = \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}
 \end{align} 
 
-From a variational perspective , the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{cost update}. 
+From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{reconstruction cost update}. 
 
 \paragraph{Compression Improvement}
-An approximation of the information gain, known as the \emph{Compression Improvement} or CI was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
+An approximation of the Information Gain (or IG), known as the \emph{Compression Improvement} (or CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
 writes~:
 \begin{align}
-\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
+\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') \label{eq:CI-base}
 \end{align}	
-There comes the possibility to reduce the cost (or ``surprise'') from adequate sampling in a model-based approach \citep{friston2012perceptions}, either by minimizing the cost or, equivalently, maximizing the CI.
+There comes the possibility to  {\color{Purple}optimize the \emph{next} sampling $\boldsymbol{u}'$ through maximizing the CI as a proxy for the IG. It happens 
+	%from (\ref{eq:CI-base}) 
+to be equivalent with minimizing the post-sample Free Energy, consistently with \citet{friston2012perceptions}'s intuition.}
 
 \subsubsection{Approximate Information Gain in the sequential setup}
 
-{\color{Purple} In the sequential setup}, the contribution of $\boldsymbol{u}^{(n)}$ in understanding the scene is measured by a change in the reconstruction cost $F$ \emph{before} and \emph{after} reading $\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}$.
+{\color{Purple} Extending now to the sequential setup}, the contribution of $\boldsymbol{u}^{(n)}$ in understanding the scene is measured by a change in the reconstruction cost $F$ \emph{before} and \emph{after} reading $\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}$.
 \begin{itemize}
 	\item Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the reconstruction cost at $\boldsymbol{x}^{(n-1)}$ writes:
 	\begin{align}
@@ -470,41 +476,74 @@ There comes the possibility to reduce the cost (or ``surprise'') from adequate s
 	\end{align}
 \end{itemize}
 
-Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the best reconstruction cost is attained at at $q = q^{(n-1)}$. After {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the best reconstruction cost is attained at $q' =  q^{(n)}$. 
-From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}) the CI writes :
+Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the optimal reconstruction cost is attained at at $q = q^{(n-1)}$. After {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the optimal reconstruction cost is attained at $q' =  q^{(n)}$. 
+From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}), the CI writes :
 \begin{align}
-	\text{CI}^{(n)} =& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
+	\text{CI}^{(n)} %=& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
 	=& \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
 	 \text{KL}(q||q^{(n-2)}) \nonumber\\
 	& + \mathbb{E}_{\boldsymbol{z} \sim q'} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
 	 - \text{KL}(q'|| q^{(n;n-2)})\label{eq:CI}
 \end{align}	
 
-From (\ref{eq:n-n-2}) and (\ref{eq:CI}), knowing that $q$ and $q'$ are free parameters, it is tempting to take $q=q'$ to provide a rough CI estimate, that is :
+%From (\ref{eq:n-n-2}) and (\ref{eq:CI}), k
+Knowing that $q$ and $q'$ are free parameters, taking $q=q'$ provides a dramatic simplification of the above formula, further on referred as the \emph{approximate CI}:
 \begin{align}
 \tilde{\text{CI}}^{(n)} 
 &= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
 &= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI}
 \end{align}
 with $c$ a constant. 
-The information gain is here approached with the opposite of the cross-entropy cost $\tilde{\text{CI}}^{(n)} = -H(q(Z),p(Z|\boldsymbol{x}', \boldsymbol{u}')) + c$.
+The information gain is here approached with the opposite of the cross-entropy cost $\tilde{\text{CI}}^{(n)} = -H(q(Z),p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$.
 
-\paragraph{Consistency objectives}
-The CI approximation (eq.~\ref{eq:PCI}) is maximal at $q(Z) = p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$. 
-Taking instead $q(Z)= q^{(n-1)}(Z)$ (the pre-sample posterior), the 
-approximate information gain is maximized when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\simeq q^{(n-1)}(Z)$, i.e. when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and $q^{(n-1)}$ are highly consistent. 
-If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, it is sensible to maximize the predicted CI to maximize the code consistency, i.e.:
+\paragraph{Information Gain Lower Bound (IGLB)}
+%The CI approximation (eq.~\ref{eq:PCI}) is maximal at $q(Z) = p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$. 
+{\color{Purple} Maximizing the CI however provides no formal guarantee the IG will be maximized. The reconstruction cost is indeed an upper bound of the negative log evidence, but the difference of two reconstruction costs is neither an upper bound or a lower bound of the IG (so  that it may either underestimate or overestimate the IG). It happens that, contrarily to the original CI formula (eq.~\ref{eq:CI}), the approximate CI (eq.~\ref{eq:PCI}) provides ways to establish firm bounds regarding the Information Gain estimate.}
+{\color{Purple}Taking for instance $q= q^{(n-1)}$ (the pre-sample posterior), and subtracting (\ref{eq:F_post_KL}) from (\ref{eq:F_pre_KL}), the approximate CI writes:}
+\begin{align}
+\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} = 
+-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
++ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q^{(n-1)}||q^{(n)})
+\end{align}
+making the approximate CI objective {\color{Purple}a \emph{lower bound} of the IG (eq.~\ref{eq:info-gain}), for it} \emph{underestimates} the IG by an amount equal to $\text{KL} (q^{(n-1)}||q^{(n)})$, thus providing a {\color{Purple} principled objective} to optimize action, with  a simple objective function defined here as the {\color{Purple}\emph{Information Gain Lower Bound} (IGLB)}:
+\begin{align}
+\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} 
+%&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
+\triangleq \text{IGLB}(\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}, q^{(n-1)})
+= \mathbb{E}_{z\sim q^{(n-1)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI-n-1}
+\end{align}
+It is maximal when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\simeq q^{(n-1)}(Z)$, i.e. when {\color{Purple} the current observation} $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and {\color{Purple} the cumulated past observations} $q^{(n-1)}$ are highly consistent.
+
+If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, it is sensible to maximize the predicted {\color{Purple} IGLB} to maximize the code consistency, i.e.:
 \begin{align}
 \hat{\boldsymbol{u}} 
 &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
 \left[\log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]\label{eq:LC-pred}
 \end{align}
-thus providing a general predictive setup to optimize action, with  a simple objective referred as the \emph{Local Consistency} (LC):
-\begin{align}\text{LC}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)}) \equiv \log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\label{eq:LC}
-\end{align}
 
-Instantiating $q$ with $q^{(n)}$ gives a different objective  that is maximal when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \simeq q^{(n)}(Z)$, i.e. when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and  $q^{(n)}(Z)$ are highly consistent.
-Put in a predictive form, it gives :
+
+
+{\color{Purple} The amount of the} underestimation, {\color{Purple} i.e. $\text{KL} (q^{(n-1)}||q^{(n)})$} is {\color{Purple} here defined as the \emph{IGLB bias}. It is} also the second term of the Free Energy cost, that should be minimized through action (see eq.~\ref{eq:ELBO}). Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
+
+
+
+\paragraph{Information Gain Upper Bound (IGUB)}
+{\color{Purple}For completeness, } instantiating $q$ with $q^{(n)}$ gives a different objective  that writes:
+\begin{align}
+\tilde{\text{CI}}^{(n)}_{q = q^{(n)}} = 
+-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
++ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q^{(n)}||q^{(n-1)})
+\end{align}
+making it {\color{Purple} an upper bound of the IG that} \emph{overestimates} the information gain by an amount equal to $\text{KL} (q^{(n)}||q^{(n-1)})$. 
+%The initial formula:
+%\begin{align}
+%\tilde{\text{CI}}^{(n)}_{q = q^{(n)}} 
+%&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
+%= \mathbb{E}_{z\sim q^{(n)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI-n}
+%\end{align}
+%{\color{Purple}shows the approximate CI} is here maximal when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \simeq q^{(n)}(Z)$, i.e. when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and  $q^{(n)}(Z)$ are highly consistent.
+
+{\color{Purple}If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, maximizing the approximate CI} gives :
 \begin{align}
 \hat{\boldsymbol{u}} 
 &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
@@ -512,44 +551,77 @@ Put in a predictive form, it gives :
 &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\\
 &= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}) - \text{KL}(q^{(n)}(Z)|| p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\label{eq:PC-pred}
 \end{align}
-that combines the Infomax objective with a consistency objective. This objective is further on referred as the \emph{Posterior Consistency} (PC):
-\begin{align}\text{PC}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})= -H(q^{(n)}) - \text{KL}(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\label{eq:PC}
+that {\color{Purple} interestingly} combines the Infomax objective (eq.~\ref{eq:infomax}) with a consistency objective. This mixed objective is further on referred as the \emph{Information Gain Upper Bound} (IGUB):
+\begin{align}\text{IGUB}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\triangleq -H(q^{(n)}) - \text{KL}(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\label{eq:PC}
 \end{align}
 
-\paragraph{New interpretations}
-Besides defining new variants of the Information Gain objective, the  compression improvement setup also provides ways to re-interpret most of the classic objectives (or intrinsic rewards) found in literature, such as the Saliency (eq.~\ref{eq:saliency}) or the Free Energy (eq.~\ref{eq:ELBO}).
- 
-The approximate CI is now expressed by subtracting (\ref{eq:F_post_KL}) from (\ref{eq:F_pre_KL}) and taking $q=q'$ as:
-\begin{align}
-\tilde{\text{CI}}^{(n)} = 
-&-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\nonumber\\
-&+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q||q^{(n)})
-\end{align}
+%The approximate CI is now expressed by subtracting (\ref{eq:F_post_KL}) from (\ref{eq:F_pre_KL}) and taking $q=q'$ as:
+%\begin{align}
+%\tilde{\text{CI}}^{(n)} = 
+%&-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\nonumber\\
+%&+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q||q^{(n)})
+%\end{align}
 
-Taking now $q = q^{(n)}$ gives:
-\begin{align}
-\tilde{\text{CI}}^{(n)}_{q = q^{(n)}} = 
--\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
-+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q^{(n)}||q^{(n-1)})
-\end{align}
-showing that the approximate CI objective (eq.~\ref{eq:PCI}) \emph{overestimates} the information gain at $q = q^{(n)}$ by an amount equal to $\text{KL} (q^{(n)}||q^{(n-1)})$.
-This overestimation fits the Saliency objective (see eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the \emph{overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions.
+%Taking now $q = q^{(n)}$ gives:
 
-Symmetrically, 
-instantiating $q$ with $q^{(n-1)}$ gives:
-\begin{align}
-\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} = 
--\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
-+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q^{(n-1)}||q^{(n)})
-\end{align}
-showing that the approximate CI objective (eq.~\ref{eq:PCI}) \emph{underestimates} the information gain at $q = q^{(n-1)}$ by an amount equal to $\text{KL} (q^{(n-1)}||q^{(n)})$.
-This underestimation is also the second term of the Free Energy objective, that should be minimized through action
---~see eq~(\ref{eq:ELBO})~--. Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
+{\color{Purple}The IGUB bias, i.e. $\text{KL} (q^{(n)}||q^{(n-1)})$, interestingly} fits the Saliency objective (eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the amount of the \emph{overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions.
 
+
+
+To conclude, remarkable here is the fact that both the Saliency objective, the Infomax  objective and the Free Energy epistemic cost show a consistent inclusion in a more general approximate Information Gain maximization principle. 
+The final set of metrics to be compared in next section are finally displayed in table~\ref{tab:metrics}.
+
+\begin{table}[h]
+
+%\begin{center}
+	\hspace{-1cm}
+	\begin{tabular}{|l|l|c|l|}
+		\hline
+		{\bf Name} & {\bf Value} & {\bf eq. \#} & {\bf Interpretation}\\
+		\hline
+		Infomax & $H(q^{(n-1)}) - H(q^{(n)})$ & (\ref{eq:infomax})
+		 & {\footnotesize Posterior mutual information maximization}\\
+		\hline
+		Saliency & $\text{KL}(q^{(n)}||q^{(n-1)})$ & 
+		(\ref{eq:saliency})
+		& {\footnotesize Posterior \emph{in}consistency maximization}\\
+		\hline
+		VFE & $-\log p(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) +\text{KL}(q^{(n-1)}||q^{(n)})$ & (\ref{eq:FEP-posterior-u})
+		& {\footnotesize Prior \emph{in}consistency minimization}\\
+		\hline
+		Compression & {\tiny $\mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
+		\text{KL}(q^{(n-1)}||q^{(n-2)})$} &&\\ % 
+		Improvement & {\tiny $+ \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
+		- \text{KL}(q^{(n)}|| q^{(n;n-2)})$} &(\ref{eq:CI})&{\footnotesize (approximate) Information Gain maximization}\\
+		\hline
+		IGLB & $-H(q^{(n-1)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PCI-n-1}) & {\footnotesize (pessimistic) Information Gain maximization} \\
+		\hline
+		IGUB & $-H(q^{(n)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
+	\hline	\end{tabular}
+%\end{center}
+\caption{Action selection metrics summary}\label{tab:metrics}
+\end{table} 
+
+% {\color{magenta}\bf TODO : ca ne resout pas le confilt mais permet de mieux l'interpreter}
+
+%\paragraph{New interpretations}
+%Besides defining new variants of the Information Gain objective, the  compression improvement setup also provides ways to re-interpret most of the classic objectives (or intrinsic rewards) found in literature, such as the Saliency (eq.~\ref{eq:saliency}) or the Free Energy (eq.~\ref{eq:ELBO}).
+% 
+%
+%Symmetrically, 
+%instantiating $q$ with $q^{(n-1)}$ gives:
+%
 
 \section{Results} \label{sec:results}
 
-
+{\color{Purple} We now turn to an effective implementation of a sequential saccadic visual scene decoding setup. The saccade control model relies on a sequence of local \emph{foveated} patches of a total image (i.e. the visual scene). The decoding means identifying to which category the image belongs to (here the label of the MNIST digits dataset). 
+In that setup, 
+\begin{itemize}
+	\item The viewpoint $\boldsymbol{u}$ is defined as the current eye orientation on the image (i.e. the central fixation point in pixel coordinates),
+	\item The view $\boldsymbol{x}|\boldsymbol{u}$ is a retinocentric visual sample measured at position $\boldsymbol{u}$, with central magnification and peripheral blurring,
+	\item The latent state $\boldsymbol{z}$ (visual scene interpretation) is the category of the image (here a digit label), to be guessed from several visual samples.
+\end{itemize} 
+}
 \paragraph{Fovea-based computation} 
 In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
 
@@ -695,7 +767,7 @@ Thanks to Laurrent Perrinet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...
 
 \appendix
 
-\section{The Variational Encoding setup}\label{app:VFE}
+\section{View-dependent variational encoding setup}\label{app:VFE}
 {\color{Purple} 
 	%In a model-based approach, the latent variable $\boldsymbol{z}$ is expected to specify the state of the physical environment. In the model-free case, only weak assumptions need to be made about the latent space.  The latent space $\mathcal{Z}$ just needs to be expressive enough to capture and restore all necessary information about the environment.  
 	The \emph{variational encoding} perspective \citep{hinton1994autoencoders} was originally developed 
