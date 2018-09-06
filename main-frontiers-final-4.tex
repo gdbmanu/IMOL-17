@@ -381,7 +381,7 @@ which may {\color{Purple} minimize the \emph{epistemic cost}}\footnote{It is to 
 
 On contrary to the Infomax objective (section \ref{sec:infomax}), the {\color{Purple} epistemic cost} selects the predicted posterior having the highest consistency with the current posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy (see section~\ref{sec:infomax}).
 Minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$ thus corresponds to a \emph{conservative} approach to the scene interpretation
-that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of a false interpretation. 
+that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of a {\color{Purple} conflicting} interpretation. 
 
 The {\color{Purple} epistemic cost} is moreover at odd with the Saliency objective (section \ref{sec:saliency}) seeking the maximal \emph{in}consistency between the cumulated posterior and the current posterior.
 It is obvious here that the Free Energy minimization and the Saliency maximization are antithetic objectives, and no consensus is currently observed in the literature about which objective should prevail (though Infomax generally preferred in scene decoding and saliency/surprise preferred in sparse reinforcement learning).
@@ -443,7 +443,7 @@ with:
 From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{reconstruction cost update}. 
 
 \paragraph{Compression Improvement}
-An approximation of the Information Gain (or IG), known as the \emph{Compression Improvement} (or CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
+An approximation of the Information Gain (IG), known as the \emph{Compression Improvement} (CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
 writes~:
 \begin{align}
 \text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') \label{eq:CI-base}
@@ -575,6 +575,7 @@ The final set of metrics to be compared in next section are finally displayed in
 
 %\begin{center}
 	\hspace{-1cm}
+	{\color{Purple}
 	\begin{tabular}{|l|l|c|l|}
 		\hline
 		{\bf Name} & {\bf Value} & {\bf eq. \#} & {\bf Interpretation}\\
@@ -598,6 +599,7 @@ The final set of metrics to be compared in next section are finally displayed in
 		\hline
 		IGUB & $-H(q^{(n)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
 	\hline	\end{tabular}
+}
 %\end{center}
 \caption{Action selection metrics summary}\label{tab:metrics}
 \end{table} 
@@ -614,7 +616,7 @@ The final set of metrics to be compared in next section are finally displayed in
 
 \section{Results} \label{sec:results}
 
-{\color{Purple} We now turn to an effective implementation of a sequential saccadic visual scene decoding setup. The saccade control model relies on a sequence of local \emph{foveated} patches of a total image (i.e. the visual scene). The decoding means identifying to which category the image belongs to (here the label of the MNIST digits dataset). 
+{\color{Purple} We now turn to an actual implementation of a saccadic visual scene decoding setup. The   image (i.e. the visual scene to decode) is analyzed through a finite sequence of local \emph{foveated} visual samples.  The control problem consists in choosing the next saccade, given the past observations and the current scene interpretation. The final decoding means identifying to which category the image belongs to (here the label of the MNIST digits dataset). 
 In that setup, 
 \begin{itemize}
 	\item The viewpoint $\boldsymbol{u}$ is defined as the current eye orientation on the image (i.e. the central fixation point in pixel coordinates),
@@ -622,6 +624,7 @@ In that setup,
 	\item The latent state $\boldsymbol{z}$ (visual scene interpretation) is the category of the image (here a digit label), to be guessed from several visual samples.
 \end{itemize} 
 }
+
 \paragraph{Fovea-based computation} 
 In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
 
