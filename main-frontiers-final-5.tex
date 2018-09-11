@@ -111,7 +111,7 @@ Work on central vision control is quite scarce until the late 2000's.
 On the machine learning side, an example of fovea-based visuo-motor control was  addressed in \citet{schmidhuber1991learning}, with a direct policy learning from gradient descent by using BPTT through a pre-processed forward model. 
 On the biological  side, early models from the late nineties  consider the case of fovea-based image encoding, ending up in the simplified ``pyramidal'' focal image encoding model \citep{kortum1996implementation}. Active vision models were however largely dominated by the \emph{salience} models \citep{itti2000saliency, itti2001computational, itti2005bayesian}, that were shown consistent with the preferred fixation zones observed in humans. 
 Motor control were however generally bypassed in that case, putting the focus on characterizing the attractiveness of fixation zones rather that explaining 
-the image decoding process when changing fixation point.
+the image decoding process when changing gaze orientation.
 Combined with a focal pyramidal image encoding, the salience approach still provides effective outcome in image and video compression  \citep{wang2003foveation,guo2010novel}.
 
 
@@ -386,11 +386,16 @@ that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of
 The {\color{Purple} epistemic cost} is moreover at odd with the Saliency objective (section \ref{sec:saliency}) seeking the maximal \emph{in}consistency between the cumulated posterior and the current posterior.
 It is obvious here that the Free Energy minimization and the Saliency maximization are antithetic objectives, and no consensus is currently observed in the literature about which objective should prevail (though Infomax generally preferred in scene decoding and saliency/surprise preferred in sparse reinforcement learning).
 
-\subsection{The Information Gain and its approximations}
+
+\section{Results} \label{sec:results}
+
+
+
+\subsection{Information Gain based metrics}
 The structure of the problem (many views on the same scene) implies that {\color{Purple} different observations} should share a common information corresponding to the actual (covered) sensory scene.
 We take here benefit of the {\color{Purple} view-based} variational encoding setup
 {\color{Purple} (seen in section \ref{sec:conservation} and appendix \ref{app:VFE}) to propose a new quantification the \emph{mutual information} shared across different sensory fields, locally estimated with a view-based Information Gain metric. It is shown here that a rather straightforward approximation of the information gain,
-known as the Compression Improvement, provide both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions.}
+	known as the Compression Improvement, provide both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions.}
 
 %{\color{magenta} \bf When only the variations of $p$ and $q$ are considered in the optimization, each viewpoint $\boldsymbol{u}$ provides a distinct optimization problem that is resolved by finding $q(Z)\simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$. 
 
@@ -405,8 +410,8 @@ The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbo
 {\color{Purple} Consider $\boldsymbol{x}|\boldsymbol{u}$ as the initial sensory sample and $\boldsymbol{x}'|\boldsymbol{u}'$ as an additional sample providing new evidence about how interpret the initial view $\boldsymbol{x}$}.
 The mutual information writes:
 \begin{align}
-I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:mutual-info}\\
-&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
+	I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:mutual-info}\\
+	&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
 \end{align}
 with :
 \begin{itemize}
@@ -416,28 +421,28 @@ with :
 	$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the post-sample
 	\emph{Information Gain} (see also \citet{tishby2011information}), that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$, {\color{Purple} given the model $p$}:
 	\begin{align}
-	\text{IG}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
-	&= -\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \label{eq:info-gain}
+		\text{IG}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
+		&= -\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \label{eq:info-gain}
 	\end{align}
 \end{itemize}
- 
+
 
 
 \paragraph{Reconstruction Cost Update}
 {\color{Purple} Stemming from the sequential Bayes posterior update formula:
-\begin{align} p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
-%= \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}
-\end{align} 
+	\begin{align} p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = \frac{p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})p(\boldsymbol{z}|\boldsymbol{x}', \boldsymbol{u}')}{p(\boldsymbol{x}|\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}')}
+		%= \frac{p(\boldsymbol{x}'|\boldsymbol{z}, \boldsymbol{u}')p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})}{p(\boldsymbol{x}'|\boldsymbol{u}',\boldsymbol{x},\boldsymbol{u})}
+	\end{align} 
 }
 {\color{Purple} It can be shown that the negative log likelihood of $\boldsymbol{x}$ after seeing both $\boldsymbol{x}$ and $\boldsymbol{x}'$ is  bounded from above by}:
 \begin{align}
--\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
-&\leq - \sum_z q'(z) \log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u}) \frac{p(\boldsymbol{z} |\boldsymbol{x}', \boldsymbol{u}')} {q'(z)}  \nonumber\\
-&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u})\right] + \text{KL}(q'(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
-\label{eq:FEP-uxu}\\
-&=  -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}',\boldsymbol{u}') + \text{KL}(q'(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
-\label{eq:FEP-uxu2}\\
-&\triangleq F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
+	-\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
+	&\leq - \sum_z q'(z) \log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u}) \frac{p(\boldsymbol{z} |\boldsymbol{x}', \boldsymbol{u}')} {q'(z)}  \nonumber\\
+	&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}| \boldsymbol{z}, \boldsymbol{u})\right] + \text{KL}(q'(Z)||p(Z|\boldsymbol{x}',\boldsymbol{u}'))
+	\label{eq:FEP-uxu}\\
+	&=  -\log p(\boldsymbol{x}| \boldsymbol{u}, \boldsymbol{x}',\boldsymbol{u}') + \text{KL}(q'(Z)||p(Z|\boldsymbol{x},\boldsymbol{u},\boldsymbol{x}',\boldsymbol{u}'))
+	\label{eq:FEP-uxu2}\\
+	&\triangleq F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')\nonumber
 \end{align}
 which establishes $F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ as the post-sample \emph{reconstruction cost} {\color{Purple} (or \emph{post-sample Free Energy} -- the two are synonyms)}, with $q'(\boldsymbol{z})$ expectedly approaching  $p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ after optimization.
 From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{variational posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{reconstruction cost update}. 
@@ -446,11 +451,11 @@ From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}
 An approximation of the Information Gain (IG), known as the \emph{Compression Improvement} (CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
 writes~:
 \begin{align}
-\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') \label{eq:CI-base}
+	\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') \label{eq:CI-base}
 \end{align}	
 There comes the possibility to  {\color{Purple}optimize the \emph{next} sampling $\boldsymbol{u}'$ through maximizing the CI as a proxy for the IG. It happens 
 	%from (\ref{eq:CI-base}) 
-to be equivalent with minimizing the post-sample Free Energy, consistently with \citet{friston2012perceptions}'s intuition.}
+	to be equivalent with minimizing the post-sample Free Energy, consistently with \citet{friston2012perceptions}'s intuition.}
 
 \subsubsection{Approximate Information Gain in the sequential setup}
 
@@ -458,21 +463,21 @@ to be equivalent with minimizing the post-sample Free Energy, consistently with 
 \begin{itemize}
 	\item Before {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, the reconstruction cost at $\boldsymbol{x}^{(n-1)}$ writes:
 	\begin{align}
-	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
-	&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
-	\right] + \text{KL}(q||q^{(n-2)}) \label{eq:F_pre_var}\\
-	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\label{eq:F_pre_KL}
+		F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
+		&= \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
+		\right] + \text{KL}(q||q^{(n-2)}) \label{eq:F_pre_var}\\
+		&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) + \text{KL} (q||q^{(n-1)})\label{eq:F_pre_KL}
 	\end{align}
 	\item After {\color{Purple} reading $\boldsymbol{x}^{(n)}$}, it writes:
 	\begin{align}
-	F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) 
-	&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
-	\right] + \text{KL}(q'||q^{(n;n-2)}) \label{eq:F_post_var}\\
-	&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q'||q^{(n)})\label{eq:F_post_KL}
+		F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)},\boldsymbol{x}^{(n)},\boldsymbol{u}^{(n)}; q^{(n-2)}) 
+		&= \mathbb{E}_{\boldsymbol{z} \sim q'} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)} )
+		\right] + \text{KL}(q'||q^{(n;n-2)}) \label{eq:F_post_var}\\
+		&= -\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q'||q^{(n)})\label{eq:F_post_KL}
 	\end{align}
 	with :
 	\begin{align}
-	q^{(n; n-2)}(Z) \propto p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})q^{(n-2)}(Z)\label{eq:n-n-2}
+		q^{(n; n-2)}(Z) \propto p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})q^{(n-2)}(Z)\label{eq:n-n-2}
 	\end{align}
 \end{itemize}
 
@@ -481,17 +486,17 @@ From subtracting (\ref{eq:F_post_var}) from (\ref{eq:F_pre_var}), the CI writes 
 \begin{align}
 	\text{CI}^{(n)} %=& F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}) - F(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}, \boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}) \nonumber\\
 	=& \mathbb{E}_{\boldsymbol{z} \sim q} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
-	 \text{KL}(q||q^{(n-2)}) \nonumber\\
+	\text{KL}(q||q^{(n-2)}) \nonumber\\
 	& + \mathbb{E}_{\boldsymbol{z} \sim q'} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
-	 - \text{KL}(q'|| q^{(n;n-2)})\label{eq:CI}
+	- \text{KL}(q'|| q^{(n;n-2)})\label{eq:CI}
 \end{align}	
 
 %From (\ref{eq:n-n-2}) and (\ref{eq:CI}), k
 Knowing that $q$ and $q'$ are free parameters, taking $q=q'$ provides a dramatic simplification of the above formula, further on referred as the \emph{approximate CI}:
 \begin{align}
-\tilde{\text{CI}}^{(n)} 
-&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
-&= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI}
+	\tilde{\text{CI}}^{(n)} 
+	&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
+	&= \mathbb{E}_{z\sim q} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI}
 \end{align}
 with $c$ a constant. 
 The information gain is here approached with the opposite of the cross-entropy cost $\tilde{\text{CI}}^{(n)} = -H(q(Z),p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$.
@@ -501,24 +506,24 @@ The information gain is here approached with the opposite of the cross-entropy c
 {\color{Purple} Maximizing the CI however provides no formal guarantee the IG will be maximized. The reconstruction cost is indeed an upper bound of the negative log evidence, but the difference of two reconstruction costs is neither an upper bound or a lower bound of the IG (so  that it may either underestimate or overestimate the IG). It happens that, contrarily to the original CI formula (eq.~\ref{eq:CI}), the approximate CI (eq.~\ref{eq:PCI}) provides ways to establish firm bounds regarding the Information Gain estimate.}
 {\color{Purple}Taking for instance $q= q^{(n-1)}$ (the pre-sample posterior), and subtracting (\ref{eq:F_post_KL}) from (\ref{eq:F_pre_KL}), the approximate CI writes:}
 \begin{align}
-\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} = 
--\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
-+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q^{(n-1)}||q^{(n)})
+	\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} = 
+	-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
+	+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) - \text{KL} (q^{(n-1)}||q^{(n)})
 \end{align}
 making the approximate CI objective {\color{Purple}a \emph{lower bound} of the IG (eq.~\ref{eq:info-gain}), for it} \emph{underestimates} the IG by an amount equal to $\text{KL} (q^{(n-1)}||q^{(n)})$, thus providing a {\color{Purple} principled objective} to optimize action, with  a simple objective function defined here as the {\color{Purple}\emph{Information Gain Lower Bound} (IGLB)}:
 \begin{align}
-\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} 
-%&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
-\triangleq \text{IGLB}(\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}, q^{(n-1)})
-= \mathbb{E}_{z\sim q^{(n-1)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI-n-1}
+	\tilde{\text{CI}}^{(n)}_{q = q^{(n-1)}} 
+	%&= \text{KL} (q||q^{(n-2)}) -  \text{KL}(q|| q^{(n;n-2)})\\
+	\triangleq \text{IGLB}(\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)}, q^{(n-1)})
+	= \mathbb{E}_{z\sim q^{(n-1)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c\label{eq:PCI-n-1}
 \end{align}
 It is maximal when $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\simeq q^{(n-1)}(Z)$, i.e. when {\color{Purple} the current observation} $p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})$ and {\color{Purple} the cumulated past observations} $q^{(n-1)}$ are highly consistent.
 
 If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, it is sensible to maximize the predicted {\color{Purple} IGLB} to maximize the code consistency, i.e.:
 \begin{align}
-\hat{\boldsymbol{u}} 
-&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
-\left[\log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]\label{eq:LC-pred}
+	\hat{\boldsymbol{u}} 
+	&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
+	\left[\log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]\label{eq:LC-pred}
 \end{align}
 
 
@@ -530,9 +535,9 @@ If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, i
 \paragraph{Information Gain Upper Bound (IGUB)}
 {\color{Purple}For completeness, } instantiating $q$ with $q^{(n)}$ gives a different objective  that writes:
 \begin{align}
-\tilde{\text{CI}}^{(n)}_{q = q^{(n)}} = 
--\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
-+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q^{(n)}||q^{(n-1)})
+	\tilde{\text{CI}}^{(n)}_{q = q^{(n)}} = 
+	-\log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n-2)}) 
+	+ \log p(\boldsymbol{x}^{(n-1)}|\boldsymbol{u}^{(n-1)}; q^{(n;n-2)}) + \text{KL} (q^{(n)}||q^{(n-1)})
 \end{align}
 making it {\color{Purple} an upper bound of the IG that} \emph{overestimates} the information gain by an amount equal to $\text{KL} (q^{(n)}||q^{(n-1)})$. 
 %The initial formula:
@@ -545,11 +550,11 @@ making it {\color{Purple} an upper bound of the IG that} \emph{overestimates} th
 
 {\color{Purple}If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, maximizing the approximate CI} gives :
 \begin{align}
-\hat{\boldsymbol{u}} 
-&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
-\left[\mathbb{E}_{z'\sim q^{(n)} }\log p(\boldsymbol{z}'|\boldsymbol{x}, \boldsymbol{u})\right]\nonumber\\
-&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\\
-&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}) - \text{KL}(q^{(n)}(Z)|| p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\label{eq:PC-pred}
+	\hat{\boldsymbol{u}} 
+	&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} 
+	\left[\mathbb{E}_{z'\sim q^{(n)} }\log p(\boldsymbol{z}'|\boldsymbol{x}, \boldsymbol{u})\right]\nonumber\\
+	&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\\
+	&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}) - \text{KL}(q^{(n)}(Z)|| p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\label{eq:PC-pred}
 \end{align}
 that {\color{Purple} interestingly} combines the Infomax objective (eq.~\ref{eq:infomax}) with a consistency objective. This mixed objective is further on referred as the \emph{Information Gain Upper Bound} (IGUB):
 \begin{align}\text{IGUB}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\triangleq -H(q^{(n)}) - \text{KL}(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\label{eq:PC}
@@ -572,36 +577,36 @@ To conclude, remarkable here is the fact that both the Saliency objective, the I
 The final set of metrics to be compared in next section are finally displayed in table~\ref{tab:metrics}.
 
 \begin{table}[h]
-
-%\begin{center}
+	
+	%\begin{center}
 	\hspace{-1cm}
 	{\color{Purple}
-	\begin{tabular}{|l|l|c|l|}
-		\hline
-		{\bf Name} & {\bf Value} & {\bf eq. \#} & {\bf Interpretation}\\
-		\hline
-		Infomax & $H(q^{(n-1)}) - H(q^{(n)})$ & (\ref{eq:infomax})
-		 & {\footnotesize Posterior mutual information maximization}\\
-		\hline
-		Saliency & $\text{KL}(q^{(n)}||q^{(n-1)})$ & 
-		(\ref{eq:saliency})
-		& {\footnotesize Posterior \emph{in}consistency maximization}\\
-		\hline
-		VFE & $-\log p(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) +\text{KL}(q^{(n-1)}||q^{(n)})$ & (\ref{eq:FEP-posterior-u})
-		& {\footnotesize Prior \emph{in}consistency minimization}\\
-		\hline
-		Compression & {\tiny $\mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
-		\text{KL}(q^{(n-1)}||q^{(n-2)})$} &&\\ % 
-		Improvement & {\tiny $+ \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
-		- \text{KL}(q^{(n)}|| q^{(n;n-2)})$} &(\ref{eq:CI})&{\footnotesize (approximate) Information Gain maximization}\\
-		\hline
-		IGLB & $-H(q^{(n-1)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PCI-n-1}) & {\footnotesize (pessimistic) Information Gain maximization} \\
-		\hline
-		IGUB & $-H(q^{(n)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
-	\hline	\end{tabular}
-}
-%\end{center}
-\caption{Action selection metrics summary}\label{tab:metrics}
+		\begin{tabular}{|l|l|c|l|}
+			\hline
+			{\bf Name} & {\bf Value} & {\bf eq. \#} & {\bf Interpretation}\\
+			\hline
+			Infomax & $H(q^{(n-1)}) - H(q^{(n)})$ & (\ref{eq:infomax})
+			& {\footnotesize Posterior mutual information maximization}\\
+			\hline
+			Saliency & $\text{KL}(q^{(n)}||q^{(n-1)})$ & 
+			(\ref{eq:saliency})
+			& {\footnotesize Posterior \emph{in}consistency maximization}\\
+			\hline
+			VFE & $-\log p(\boldsymbol{x}^{(n)}|\boldsymbol{u}^{(n)}; q^{(n-1)}) +\text{KL}(q^{(n-1)}||q^{(n)})$ & (\ref{eq:FEP-posterior-u})
+			& {\footnotesize Prior \emph{in}consistency minimization}\\
+			\hline
+			Compression & {\tiny $\mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}} \left[-\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] +
+				\text{KL}(q^{(n-1)}||q^{(n-2)})$} &&\\ % 
+			Improvement & {\tiny $+ \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
+				- \text{KL}(q^{(n)}|| q^{(n;n-2)})$} &(\ref{eq:CI})&{\footnotesize (approximate) Information Gain maximization}\\
+			\hline
+			IGLB & $-H(q^{(n-1)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PCI-n-1}) & {\footnotesize (pessimistic) Information Gain maximization} \\
+			\hline
+			IGUB & $-H(q^{(n)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
+			\hline	\end{tabular}
+	}
+	%\end{center}
+	\caption{Action selection metrics summary}\label{tab:metrics}
 \end{table} 
 
 % {\color{magenta}\bf TODO : ca ne resout pas le confilt mais permet de mieux l'interpreter}
@@ -613,16 +618,15 @@ The final set of metrics to be compared in next section are finally displayed in
 %Symmetrically, 
 %instantiating $q$ with $q^{(n-1)}$ gives:
 %
-
-\section{Results} \label{sec:results}
+\subsection{Metrics comparison}
 
 {\color{Purple} We now turn to an actual implementation of a saccadic visual scene decoding setup. The   image (i.e. the visual scene to decode) is analyzed through a finite sequence of local \emph{foveated} visual samples.  The control problem consists in choosing the next saccade, given the past observations and the current scene interpretation. The final decoding means identifying to which category the image belongs to (here the label of the MNIST digits dataset). 
-In that setup, 
-\begin{itemize}
-	\item The viewpoint $\boldsymbol{u}$ is defined as the current eye orientation on the image (i.e. the central fixation point in pixel coordinates),
-	\item The view $\boldsymbol{x}|\boldsymbol{u}$ is a retinocentric visual sample measured at position $\boldsymbol{u}$, with central magnification and peripheral blurring,
-	\item The latent state $\boldsymbol{z}$ (visual scene interpretation) is the category of the image (here a digit label), to be guessed from several visual samples.
-\end{itemize} 
+	In that setup, 
+	\begin{itemize}
+		\item The viewpoint $\boldsymbol{u}$ is defined as the current gaze orientation on the image (i.e. the central fixation setpoint in pixel coordinates),
+		\item The view $\boldsymbol{x}|\boldsymbol{u}$ is a retinocentric visual sample measured at position $\boldsymbol{u}$, with central magnification and peripheral blurring,
+		\item The latent state $\boldsymbol{z}$ (visual scene interpretation) is the category of the image (here a digit label), to be guessed from several visual samples.
+	\end{itemize} 
 }
 
 \paragraph{Fovea-based computation} 
@@ -650,23 +654,23 @@ In superior vertebrates, two principal tricks are used to minimize sensory resou
 \end{figure}
 
 The baseline vision model we propose relies first on learning local foveated views on images.
-Consistently with \citep{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u}$ as a set of 3 coordinates $(i,j,h)$, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j} \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (which is a radical compression when the 784 pixels of the original image are considered).
+Consistently with \citep{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u} = (i,j,h)$ as a set of 3 coordinates, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \triangleq\boldsymbol{x}|(i,j,h) \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j}\triangleq\boldsymbol{x}|(i,j) \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (which is a radical compression when the 784 pixels of the original image are considered).
 Fig. \ref{fig:foveated}d displays a reconstructed image from the 4 central viewpoints at coordinates (7, 7), (7, 8) (8, 7) and (8, 8).
 
 \paragraph{Algorithms}
 
 The generic sequential scene decoding setup is provided in algorithms \ref{algo:saccade-policy} and \ref{algo:saccade}. A significant algorithmic add-on when compared with formula
-(\ref{eq:predictive-policy}) is the use of a \emph{dynamic actions set} : $\mathcal{U}$. At each turn, the new selected action $\tilde{u}$ is drawn off from $\mathcal{U}$, so that the next choice is made over fresh directions that have not yet been explored. This implements the inhibition of return principle stated in \citep{itti2001computational}. A second algorithmic aspect is the use of a threshold $H_\text{ref}$ to stop the evidence accumulation process when enough evidence has been gathered. This threshold is a free parameter of the algorithm that sets whether we privilege a conservative (tight) or optimistic (loose) threshold. The stopping criterion needs to be optimized to arbitrate between resource saving and coding accuracy. 
+(\ref{eq:predictive-policy}) is the use of a \emph{dynamic actions set} : $\mathcal{U}$. At each turn, the new selected action $\tilde{u}$ is drawn off from $\mathcal{U}$, so that the next choice is made over fresh directions that have not yet been explored. This implements the inhibition of return principle stated in \citep{itti2001computational}. A second algorithmic add-on is the use of a threshold $H_\text{ref}$ to stop the evidence accumulation process when enough evidence has been gathered. This threshold is a free parameter of the algorithm that sets whether we privilege a conservative (tight) or optimistic (loose) threshold. The stopping criterion needs to be optimized to arbitrate between resource saving and decoding accuracy. 
 
 
 \begin{algorithm}[t]
 	\caption{Prediction-Based Policy}\label{algo:saccade-policy}
 	\begin{algorithmic}
-		\REQUIRE  $p$ (decoder), $q$ (encoder), $\rho$ (prior), $A$ (objective), $\mathcal{U}$ (actions set)
+		\REQUIRE  $p$ (emission density),  $\rho$ (prior), $A$ (objective function), $\mathcal{U}$ (actions set)
 		%\STATE predict $z \sim \rho$
 		\FOR{$\boldsymbol{z},\boldsymbol{u} \in \mathcal{Z,U}$}
-		\STATE sample: $\tilde{\boldsymbol{x}}_{z,u} \sim p(\boldsymbol{x}|\boldsymbol{z},\boldsymbol{u})$
-		\STATE $r(\boldsymbol{z},\boldsymbol{u}) \leftarrow A(\boldsymbol{z},\boldsymbol{u},\tilde{\boldsymbol{x}}_{z,u},q,\rho)$ 
+		\STATE predict: $\tilde{\boldsymbol{x}}_{z,u} \sim p(X|\boldsymbol{z},\boldsymbol{u})$
+		\STATE $r(\boldsymbol{z},\boldsymbol{u}) \leftarrow A(\boldsymbol{z},\boldsymbol{u},\tilde{\boldsymbol{x}}_{z,u},p,\rho)$ 
 		\ENDFOR
 		\RETURN $\tilde{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{argmax }} \langle\rho, r(:,\boldsymbol{u})\rangle$
 	\end{algorithmic}
@@ -675,12 +679,12 @@ The generic sequential scene decoding setup is provided in algorithms \ref{algo:
 \begin{algorithm}[t]
 	\caption{Scene Exploration}\label{algo:saccade}
 	\begin{algorithmic}
-		\REQUIRE  $p$ (decoder), $q$ (encoder), $\rho_0$ (initial prior), $A$ (objective), $\mathcal{U}$ (actions set)
+		\REQUIRE  $p$ (emission density), $\rho_0$ (initial prior), $A$ (objective), $\mathcal{U}$ (actions set)
 		\STATE $\rho \leftarrow \rho_0$ 
 		\WHILE {$H(\rho) > H_\text{ref}$}
-		\STATE choose: $\tilde{\boldsymbol{u}} \leftarrow \text{Prediction-Based Policy}(p, q, \rho, A, \mathcal{U})$
+		\STATE choose: $\tilde{\boldsymbol{u}} \leftarrow \text{Prediction-Based Policy}(p, \rho, A, \mathcal{U})$
 		\STATE read: $\boldsymbol{x}_{\tilde{u}}$
-		\STATE update: $\text{odd} \leftarrow \log p(\boldsymbol{x}_{\tilde{u}}|:, \tilde{\boldsymbol{u}}) + \log \rho$ 
+		\STATE update: $\text{odd} \leftarrow \log p(\boldsymbol{x}_{\tilde{u}}|Z, \tilde{\boldsymbol{u}}) + \log \rho$ 
 		\STATE $\rho \leftarrow \text{softmax} (\text{odd})$ \COMMENT{\emph{the posterior becomes the prior of the next turn}}
 		\STATE $\mathcal{U} \leftarrow \mathcal{U} \setminus \{\tilde{u}\}$ 
 		\ENDWHILE
@@ -688,7 +692,7 @@ The generic sequential scene decoding setup is provided in algorithms \ref{algo:
 	\end{algorithmic}
 \end{algorithm}
 
-The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:saccade} the following way. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is calculated on the basis of the final coordinates $(i,j) \in [0,..,15]^2$, so that the posterior calculation is based on several coefficient triplets. After selecting $(i,j)$, all the corresponding coordinates $(h,i,j)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
+The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:saccade} the following way. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is {\color{Purple} defined as the end gaze orientation} $(i,j) \in [0,..,15]^2$. {\color{Purple}In the pyramidal decoding case}, the posterior calculation rests on several coefficient triplets. After selecting $(i,j)$, all the corresponding coordinates $(i,j,h)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
 
 \begin{figure}[b!]
 	\centerline{
@@ -700,11 +704,12 @@ The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:sac
 \paragraph{Baseline generative model and decoding compression}
 A generative model is learned for each $\boldsymbol{u} = (i,j,h)$ (making a total of 266 data models) over the 55,000 examples of the MNIST training set. For each category $\boldsymbol{z}$ and each gaze orientation $\boldsymbol{u}$, a generative model is built over parameter set $\Theta_{\boldsymbol{z},\boldsymbol{u}} = (\rho_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})$, so that 
 \begin{align}
-\forall \boldsymbol{z},\boldsymbol{u}, \tilde{\boldsymbol{x}}_{\boldsymbol{z},\boldsymbol{u}} \sim \mathcal{B}(\rho_{\boldsymbol{z},\boldsymbol{u}}) \times \mathcal{N}(\boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})\label{eq:bernouilli-gated}
+\forall \boldsymbol{z},\boldsymbol{u}, \tilde{\boldsymbol{x}}_{\boldsymbol{z},\boldsymbol{u}} \sim
+p(X|\boldsymbol{z},\boldsymbol{u}) =  \mathcal{B}(\rho_{\boldsymbol{z},\boldsymbol{u}}) \times \mathcal{N}(\boldsymbol{\mu}_{\boldsymbol{z},\boldsymbol{u}}, \boldsymbol{\Sigma}_{\boldsymbol{z},\boldsymbol{u}})\label{eq:bernouilli-gated}
 \end{align} 
-with $\mathcal{B}$ a Bernouilli distribution and $\mathcal{N}$ a multivariate Gaussian. The role of the Bernouilli is to ``gate'' the multivariate Gaussian model in the high frequencies, where digit deformations is reflected in an alternating presence or absence of pixels for high level coefficients and at the periphery, allowing to discard the ``white'' triplets from the Gaussian moments calculation. Each resulting generative model $p(X|Z,\boldsymbol{u})$ is a mixture of Bernouilli-gated Gaussians over the 10 MNIST labels. On the encoding side, the posterior is explicitly calculated using Bayes rule, i.e. $q(Z|\boldsymbol{x},\boldsymbol{u}) = \text{softmax} \log p(\boldsymbol{x}|Z,\boldsymbol{u})$, issuing about 92\% recognition rate on the MNIST test set when combining the 266 log likelihoods of each wavelet triplet of the full images with (\ref{eq:accum}), a typical recognition rate for shallow models.
+with $\mathcal{B}$ a Bernouilli distribution and $\mathcal{N}$ a multivariate Gaussian. The role of the Bernouilli is to ``gate'' the multivariate Gaussian model in the high frequencies, where digit deformations is reflected in an alternating presence or absence of pixels for high level coefficients and at the periphery, allowing to discard the ``white'' triplets from the Gaussian moments calculation. Each resulting emission density $p(X|Z,\boldsymbol{u})$ is a mixture of Bernouilli-gated Gaussians over the 10 MNIST labels. On the {\color{Purple}inference} side, the posterior is explicitly calculated using Bayes rule, i.e. $q(Z|\boldsymbol{x},\boldsymbol{u}) = \text{softmax} \log p(\boldsymbol{x}|Z,\boldsymbol{u})$, issuing about 92\% recognition rate on the MNIST test set when combining the 266 log likelihoods of each wavelet triplet of the full images with (\ref{eq:accum}), a typical recognition rate for shallow models.
 
-The example of an ``Infomax''-based sequential scene decoding is presented in figure \ref{fig:foveated-saccades}\textbf{a}--\textbf{f} for one MNIST sample using algorithm \ref{algo:saccade}.
+The example of an ``Infomax''-based (eq.~\ref{eq:infomax}) sequential scene decoding is presented in figure \ref{fig:foveated-saccades}\textbf{a}--\textbf{f} for one MNIST sample using algorithm \ref{algo:saccade}.
 The original image is presented in fig~\ref{fig:foveated-saccades}\textbf{a} with on overlay a four ``saccades'' trajectory over the image. The corresponding decoding process is illustrated in figs~\ref{fig:foveated-saccades}\textbf{b}--\textbf{e}, giving the reconstructed pixels from  coefficients read-out at successive steps of the decoding process.
 Note that several coefficient triplets are read at each end-effector position ($i,j$) (see fig. \ref{fig:foveated}c). There is for instance a total of 5 triplets read out at the initial gaze orientation (\textbf{b}), and then 4 triplets read-out for each continuing saccade. 
 Last, the \emph{decoding compression rate} is defined as the proportion of wavelet coefficients that are bypassed for reaching decision. In the considered example, a total of 18 coefficient triplets is  actually read-out, representing about 7\% of the total 256 coefficient triplets, issuing a 93\% decoding compression rate. 
@@ -749,6 +754,7 @@ It is referred a the \emph{generic trajectory} in figs~\ref{fig:failed}\textbf{b
 
 The different simplification strategies are compared in figs~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c} over the baseline and the faulty model. Both the sharp Local Consistency and the pre-processed trajectories are shown consistent with the CI objective on fig.~\ref{fig:failed}\textbf{b}, despite their considerably lower computational cost, while the generic trajectory strategy appears less relevant. Interestingly, those computational simplifications also remain effective when robustness to model flaws is considered (fig.~\ref{fig:failed}\textbf{c}). 
 Both the sharp Local Consistency and the pre-processed trajectories allow to reach both robustness and effective classification rates at lower cost.
+
 
 \section{Conclusion}
 A generic fovea-based scene decoding setup was presented which, accordingly with \citep{najemnik2005optimal}, rests on a predictive decoding accuracy to choose action. A variational approach to scene encoding is adopted, which, accordingly with \citep{friston2012perceptions}, optimizes the data reconstruction cost by picking new sensory samples through action. In our case, the visual field is interpreted under a \emph{mixed encoding} setup for the visual data is both generated by the viewpoint and the scene constituents. 
