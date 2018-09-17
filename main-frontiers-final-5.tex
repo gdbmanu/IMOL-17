@@ -34,7 +34,7 @@
 \usepackage{makeidx}
 
 %\usepackage{biblatex}
-\usepackage{mslapa}
+%\usepackage{mslapa}
 
 \usepackage[normalem]{ulem}
 
@@ -696,10 +696,17 @@ The generic sequential scene decoding setup is provided in algorithms \ref{algo:
 The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:saccade} the following way. The process starts from a loose assumption based on reading the root wavelet coefficient of the image, from which an initial guess $\rho_0$ is formed. Then, each follow-up saccade is {\color{Purple} defined as the gaze end-orientation} $(i,j) \in [0,..,15]^2$. {\color{Purple}In the pyramidal scene decoding case}, the posterior calculation rests on several coefficient triplets. After selecting gaze orientation $(i,j)$, all the corresponding coordinates $(i,j,h)$ are discarded from $\mathcal{U}$ and can not be reused for upcoming posterior estimation (for the final posterior estimate may be consistent with a uniform scan over the wavelet coefficients). 
 
 \begin{figure}[b!]
-	\centerline{
-		\includegraphics[width=\linewidth]{img/frontiers-saccade.pdf}}
-	\vspace{-.2cm}
-	\caption{\textbf{Scene exploration through saccades in the foveated vision model}. \textbf{a}. Saccades trajectory over the original image (initial gaze orientation indicated with a red '+'), using the ``Infomax'' objective function (see eq.~\ref{eq:infomax}). \textbf{b--e}. Progressive image reconstruction over the course of saccades, with \textbf{b}: 5 coefficients triplets plus root coefficient (initial gaze orientation), \textbf{c}: 9 coefficients triplets plus root coefficient (first saccade), \textbf{d}: 13 coefficients triplets plus root coefficient (second saccade), \textbf{e}: 17 coefficients triplets plus root coefficient (third saccade) \textbf{f}. Posterior update in function of the number of read-out steps (noting that step 1 stems for the root coefficient and the next steps stem for 3 Haar wavelet coefficients read-out), with one color per category (the numbers over the lines provide the competing labels) \textbf{g}. Objective functions comparison. The classification rates and average compression rates are processed after 10,000 sequential scene decoding sessions on the MNIST test set, with different objective (or loss) functions and different values of $H_\text{ref}$.  The classification rate is shown in function of the decoding compression rate, with $H_\text{ref}$ varying from $10^{-5}$ up to  $H_\text{ref}=10^{-1}$ (from left to right).}\label{fig:foveated-saccades}
+	%\centerline{
+	\includegraphics[width=\linewidth]{img/frontiers_trajectories_0.pdf}
+	%}
+
+	\caption{\textbf{Scene exploration through saccades in the foveated vision model}.\textbf{ Top left} : original MNIST sample to be decoded, with corresponding label. \textbf{Left panel} : Course of saccades for different objective functions. Leftmost is the policy name. For each row, the number of thumbnails reflects the number of saccades.  The scene decoding reads from left to right: more wavelet coefficients are grabbed at each step, visually reflected in an increased reconstruction neatness. On overlay is the corresponding sequence of visual fixations (with rainbow time unfolding color code). The number of saccades can vary for the different policies. Over the final thumbnail is the number of saccades and the final response. All reconstructions steps are shown except when $>10$. \textbf{Right panel}: posterior update in function of the number of read-out steps, for $0 \leq n \leq 15$ (logarithmic scale, one color per competing label). Baseline model (eq.~\ref{eq:bernouilli-gated}); $H_\text{ref} = 10^{-4}$. }\label{fig:foveated-saccades}
+\end{figure}
+
+\begin{figure}[b!]
+	%\centerline{
+	%	\includegraphics[width=.5\linewidth]{img/}}
+\caption{\textbf{g}. Objective functions comparison. The classification rates and average compression rates are processed after 10,000 sequential scene decoding sessions on the MNIST test set, with different objective (or loss) functions and different values of $H_\text{ref}$.  The classification rate is shown in function of the decoding compression rate, with $H_\text{ref}$ varying from $10^{-5}$ up to  $H_\text{ref}=10^{-1}$ (from left to right).}
 \end{figure}
 
 \paragraph{Baseline generative model and decoding compression}
@@ -854,6 +861,7 @@ When only the variations of $p$ and $q$ are considered in the optimization, each
 	\end{align}
 	with %$q^{(n)}$ the shared (or cumulative) encoding according to the past and current observations, and 
 	$q^{(n-1)}$ having the role of the prior, providing a \emph{forward} variational encoding scheme (see also \citep{chung2015recurrent,fraccaro2016sequential}.  
+	
 \bibliographystyle{apalike}
 \bibliography{biblio}
 
