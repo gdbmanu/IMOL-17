@@ -127,18 +127,22 @@ More generally, the idea of having many (i.e. a mixture of) models to identify a
 A second research track insists on the formal contribution of action in the \emph{encoding} of the (future) sensory field. This resorts to consider action as a \emph{code} that is later on revealed (decoded) by sensing the effect of action at the visual field \citep{klyubin2005empowerment,tishby2011information}. As such it may be optimized so as to maximize the action read-out capability, allowing to improve both the policy and the data model in the course of learning \citep{schmidhuber2007simple,mohamed2015variational,houthooft2016vime}.
 
 
-Those different approaches interestingly conducts to develop different objective functions that do not appear mutually compatible at first place.
+Those different approaches interestingly conduct to develop different objective functions that do not appear mutually compatible in a first place.
 The sampling efficacy objective encourages actions that provide a consistent belief update, measured at the log likelihood of the data after sampling. This implies to avoid surprising data and prefer actions that bring out a sensory input that is consistent with the initial guess \citep{friston2010free}. This  approach may be referred as the ``conservative'' approach to action selection.  
 Conversely,{ \color{Purple} the action decoding efficacy objective encourages actions that are well discriminated, i.e. that have a visible effect on the sensors. This is formally quantified by the ``empowerment'' information gain objective \citep{klyubin2005empowerment,tishby2011information}, maximizing the ``effect-of-action'' at the sensors, or by the more informal measures of surprise, like the ``Salience'' metric \citep{itti2005bayesian}, or the
 different ``curiosity'' metrics, like the ones proposed in \citet{schmidhuber1991curious,oudeyer2008can, pathak2017curiosity}}. This second approach may be referred as the ``progressive'' approach to action selection. 
 
-{\color{Purple} Each approach being equally founded and tenable, we try here} to reconcile them by considering action as both a sampling and a code, making a bijection between the motor command and the actuator state. This approach to control is also known as the ``end-effector control'' principle \citep{mussa2004neural}. The current observation becomes the decoding of a \emph{mixed code}  
-made of a controlled code (i.e. the actuator state) and an uncontrolled one (i.e. the rest of the environment). 
+{\color{Purple} Perception-driven action selection is thus in need for clarification in order to develop effective action-selection controllers in open environments. This article is an attempt to develop an unifying framework, allowing both formal and quantitative comparisons between the different action selection metrics at stake under a single setup, that is choosing the next saccade in a sequential visual scene decoding task.
+	
+A general scene decoding setup is first developed in section \ref{sec:three-party}, under predictive control assumptions, 
+with a generative probabilistic model explaining how the observed data is generated from action. 
+Stemming from a partially observed framework, the current observation is interpreted as the realization of a \emph{mixed emission density} made of a controlled emitter (i.e. the actuator state) and an uncontrolled one (i.e. the latent state of the environment). Then, when combined with a chain rule-based sequential update, it is shown how the (unobserved) latent state shall be inferred from both the current observation and past inferences memory. Given that ``mixed'' generative model, a generic active inference framework is developed in section \ref{sec:perception-driven-control}, with classical action selection metrics recast, showing a clear formal separation between the ``Accuracy-based'', ``Innovation-based'' and ``Conservation-based'' action-selection metric families. 
 
-{\color{Purple} Stemming from a simple action selection setup, that is choosing the next saccade in sequential visual scene decoding task, different (and somehow contradictory) action selection metrics are here analyzed and compared both formally and in simulation.  
-A general ``mixed'' scene decoding framework is first formally unfolded in section \ref{sec:material}}, providing ways to interpret the different metrics at stake under a single master equation, namely the viewpoint-update-based \emph{Information Gain}. 
-{\color{magenta} \bf IGLB TODO}
-Then a fovea-based implementation is proposed in section \ref{sec:results}, allowing to quantitatively compare those different metrics, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.
+Section \ref{sec:results} gathers  both formal and simulation results, providing a comprehensive and consistent interpretation of most existing metrics as maximizing the viewpoint update-based Information Gain, either in an ``optimistic'' or in a ``pessimistic'' fashion. The connection between action-selection metrics and the Information Gain is first formally unfolded in section \ref{sec:info-gain}.  It is shown that a rather straightforward approximation of the Information Gain,
+known as the Compression Improvement, provides both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions, namely the Information Gain Lower Bound (IGLB) and the Information Gain Upper Bound (IGUB).
+Then an actual implementation of a saccadic fovea-based scene decoding setup
+is developed in section \ref{sec:visual-scene-dec}, allowing to quantitatively compare those different metrics, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.}
+
 
 \section{Material and methods} \label{sec:material}
 
@@ -390,7 +394,7 @@ It is obvious here that the Free Energy minimization and the Saliency maximizati
 
 
 
-\subsection{Information Gain based metrics}
+\subsection{Information Gain based metrics}\label{sec:info-gain}
 The structure of the problem (many views on the same scene) implies that {\color{Purple} different observations} should share a common information corresponding to the actual (covered) sensory scene.
 We take here benefit of the {\color{Purple} view-based} variational encoding setup
 {\color{Purple} (seen in section \ref{sec:conservation} and appendix \ref{app:VFE}) to propose a new quantification the \emph{mutual information} shared across different sensory fields, locally estimated with a view-based Information Gain metric. It is shown here that a rather straightforward approximation of the information gain,
@@ -617,7 +621,7 @@ The final set of metrics to be compared in next section are finally displayed in
 %Symmetrically, 
 %instantiating $q$ with $q^{(n-1)}$ gives:
 %
-\subsection{Metrics comparison}
+\subsection{Metrics comparison in visual scene decoding}\label{sec:visual-scene-dec}
 
 {\color{Purple} We now turn to an actual implementation of a saccadic visual scene decoding setup. The   image (i.e. the visual scene to decode) is analyzed through a finite sequence of local \emph{foveated} visual samples.  The control problem consists in choosing the next saccade, given the past observations and the current scene interpretation. The final decoding means identifying to which category the image belongs to (here the label of the MNIST digits dataset). 
 	In that setup, 
@@ -628,7 +632,7 @@ The final set of metrics to be compared in next section are finally displayed in
 	\end{itemize} 
 }
 
-\subsubsection{Fovea-based scene decoding setup }
+\subsubsection{Fovea-based scene decoding setup }\label{sec:fovea-based}
 
 \paragraph{Fovea-based computation} 
 In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
@@ -700,7 +704,7 @@ The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:sac
 	\includegraphics[width=\linewidth]{img/frontiers_trajectories_0.pdf}
 	%}
 
-	\caption{\textbf{Scene exploration through saccades in the foveated vision model}.\textbf{ Top left} : original MNIST sample to be decoded, with corresponding label. \textbf{Left panel} : Course of saccades for different objective functions. Leftmost is the policy name. For each row, the number of thumbnails reflects the number of saccades.  The scene decoding reads from left to right: more wavelet coefficients are grabbed at each step, visually reflected in an increased reconstruction neatness. On overlay is the corresponding sequence of visual fixations (with rainbow time unfolding color code). The number of saccades can vary for the different policies. Over the final thumbnail is the number of saccades and the final response. All reconstructions steps are shown except when $n>10$. \textbf{Right panel}: posterior update in function of the number of read-out steps, for $0 \leq n \leq 15$ (logarithmic scale, one color per competing label). Baseline model (eq.~\ref{eq:bernouilli-gated}); $H_\text{ref} = 10^{-4}$. }\label{fig:foveated-saccades}
+	\caption{\textbf{Scene exploration through saccades in the foveated vision model}.\textbf{ Top left} : original MNIST sample to be decoded, with corresponding label. \textbf{Left panel} : Course of saccades for different action selection metrics. Leftmost is the policy name. For each row, the number of thumbnails reflects the number of saccades.  The scene decoding reads from left to right: more wavelet coefficients are grabbed at each step, visually reflected in an increased reconstruction neatness. On overlay is the corresponding sequence of visual fixations (with rainbow time color code). The number of saccades can vary for the different policies. Over the final thumbnail is the number of saccades and the final response. All decoding steps are shown except when $n>10$. \textbf{Right panel}: posterior update in function of the number of decoding steps, for $0 \leq n \leq 15$ (logarithmic scale, one color per competing label). Baseline model (eq.~\ref{eq:bernouilli-gated}); $H_\text{ref} = 10^{-4}$. }\label{fig:foveated-saccades}
 \end{figure}
 
 \begin{figure}[t!]
@@ -771,11 +775,15 @@ The faulty model allows here to nicely separate the different objectives with re
 	\caption{\textbf{Method comparisons}. \textbf{a}. Objective functions  comparison in a faulty model (see  fig.~\ref{fig:policy-comp-base}).  \textbf{b}. Information Gain-based computational schemes compared on the baseline model. \textbf{c}. Information Gain-based computational schemes compared on the faulty model. The recognition threshold varies from $H_\text{ref}=10^{-5}$ up to  $H_\text{ref}=10^{-1}$ (from left to right).}\label{fig:failed}
 \end{figure}
 
+\begin{figure}
+	\includegraphics[width=\linewidth]{img/frontiers_sal_maps.pdf}
+	\caption{\textbf{Pre-processed trajectories}}\label{fig:pre-processed}
+\end{figure}
 
 \subsubsection{Scaling up IG computation}
 The scaling of the model needs to be addressed when large control spaces are considered. All predictive policies rely on a mixed encoding setup that implies to consider all $\boldsymbol{u}$'s and all $\boldsymbol{z}$'s in the prediction, which scales like $O(|\mathcal{U}|\times|\mathcal{Z}|^2)$ when the predicted posterior is needed in the objective calculation, which is the case for the Infomax, the Saliency, the CI and the IGUB (algorithm \ref{algo:saccade-policy}), and $O(|\mathcal{U}|\times|\mathcal{Z}|)$ in the {\color{Purple}IGLB} and the VFE case for they can bypass the posterior calculation. A quadratic cost may still be considered too heavy in real-case applications, implying to consider cheaper setups. 
 
-A first simplification, referred as the ``sharp'' IGLB in  fig.~\ref{fig:failed}\textbf{b}, only samples a single $\boldsymbol{z}$ from $q^{(n-1)}$, which makes the predictive policy scale like $O(|\mathcal{U}|)$. An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:LC}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model, all the predictive log posteriors $\log p(\boldsymbol{z}|\hat{\boldsymbol{x}}_{z,u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{z,u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})$ as a sample, allowing, for each assumption $\boldsymbol{z}$, to \emph{pre-process} a class-specific visual exploration strategy that, given an assumption $\hat{z} = \underset{\boldsymbol{\boldsymbol{z}}}{\text{ argmax }} q^{(n)}(\boldsymbol{z})$, defines a log-posterior descending order over the $\boldsymbol{u}'s$. It is then possible to pre-process and store $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ in a database, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
+A first simplification, referred as the ``sharp'' IGLB in  fig.~\ref{fig:failed}\textbf{b}, only samples a single $\boldsymbol{z}$ from $q^{(n-1)}$, which makes the predictive policy scale like $O(|\mathcal{U}|)$. An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:PCI-n-1}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model, all the predictive log posteriors $\log p(\boldsymbol{z}|\hat{\boldsymbol{x}}_{z,u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{z,u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})$ as a sample, allowing, for each assumption $\boldsymbol{z}$, to \emph{pre-process} a class-specific visual exploration strategy that, given an assumption $\hat{z} = \underset{\boldsymbol{\boldsymbol{z}}}{\text{ argmax }} q^{(n)}(\boldsymbol{z})$, defines a log-posterior descending order over the $\boldsymbol{u}'s$. It is then possible to pre-process and store $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ in a database, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
 
 In practice, the viewpoint selected at step $n$ depends on the current guess $\hat{z}$, with on-the-fly trajectory switch if the guess is revised across the course of saccades. This strategy is referred a the \emph{pre-processed trajectories} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}.
 For comparison, a \emph{generic} trajectory was also computed using $\bar{\text{CI}}(\boldsymbol{u})
