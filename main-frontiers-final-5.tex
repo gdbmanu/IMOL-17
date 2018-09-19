@@ -75,9 +75,10 @@
 {\color{Purple} What motivates action in the absence of a definite reward function? Considering the case of saccadic visuomotor control, we address the question of how to quantify the value of a saccade, in a sequence of discrete eye movements, when the final objective is to properly interpret the current visual scene.
 %An original scene decoding setup is developed here, that, accordingly with previous setups, optimizes the decoding through selecting relevant sensory samples under model-based prediction. 
 The visual scene is considered here as a partially-observed environment,
-with the current view interpreted as a mixture of two conjugate emitters, namely the ``controlled'' emitter (i.e. the actuator state), and the ``uncontrolled'' one (i.e. the latent state). 
-This allows to interpret different objective functions proposed in literature, 
-including the Salience, the Infomax and the Variational Free Energy metrics, under a single information theoretic construct, namely the viewpoint-update-based Information Gain.
+%with the current view interpreted as a mixture of two conjugate emitters, namely the ``controlled'' emitter (i.e. the actuator state), and the ``uncontrolled'' one (i.e. the latent state). 
+under a generative probabilistic model explaining how the visual data is shaped by action.
+This allows to interpret different action selection metrics proposed in literature, 
+including the Salience, the Infomax and the Variational Free Energy, under a single information theoretic construct, namely the viewpoint-update-based Information Gain.
 Pursuing this analytic track, two original metrics are then proposed that, through showing either a conservative or an optimistic bias regarding the Information Gain, strongly simplify its calculation.
 A generic action-selection setup is then developed, allowing to compare each metric,}
 with numerical experiments highlighting different aspects of the setup. 
@@ -295,13 +296,13 @@ The knowledge about past observations being here absorbed in single posterior di
 
 The design of such a controller is not straightforward. On contrary to classical control, there is not definite setpoint $\boldsymbol{z}^*$ to which the controller is supposed to drive the external process (through model inversion for instance). By design, the actual latent state $\boldsymbol{z}$ is not visible as such and can not be compared to the inferred posterior. In order to estimate how good a motor command is, one needs to provide an estimate of the value-of-action (regarding scene understanding). There is currently no consensus about what a good value is regarding the scene decoding task. 
 
-A general strategy is thus to establish a \emph{objective function} $f$ (resp. a loss $\ell$) that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
+A general strategy is thus to establish an {\color{Purple} \emph{action selection metric}, taking either the form of an \emph{objective function} $f$ or a loss $\ell$}, that conveys a quantitative estimation of the action's contribution to the inference accuracy (resp. imprecision). Once the objective function established, a simple control strategy is to choose the action that maximizes the objective (resp. minimizes the loss), i.e.:
 \begin{align}
 \hat{\boldsymbol{u}} = \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmin }}  \ell(\boldsymbol{u})\left/ \underset{\boldsymbol{u}\in\mathcal{U}}{\text{ argmax }}  f(\boldsymbol{u})\right.
 \end{align}
 Many such objective functions are proposed in the literature. They are generally referred as an \emph{intrinsic} motivation \citep{oudeyer2008can} by contrast with the \emph{extrinsic} motivation that relates to the classical rewards in reinforcement learning \citep{sutton1998reinforcement}. {\color{Purple} Several such intrinsic reward candidates have been developed in recent years in the scene decoding context. Some of them are presented in the next paragraphs. The original formulas have been recast to show their formal correspondences, but also highlight some manifest differences between them.}
 
-\subsubsection{Accuracy-based objective}\label{sec:infomax}
+\subsubsection{Accuracy-based metrics}\label{sec:infomax}
 
 Given a generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach to perception-driven control \citep{najemnik2005optimal} relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ to choose action. 
 The accuracy tells how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
@@ -319,7 +320,7 @@ and the optimal action to choose is:
 \end{align} 
 In order to render the computation tractable, a \emph{sampling} approach is generally used to estimate the predicted accuracy, i.e. $\mathbb{E}_p[f(\boldsymbol{x})] \simeq f(\tilde{\boldsymbol{x}})$, with $\tilde{\boldsymbol{x}}\sim p(\boldsymbol{x})$.
 
-The accuracy measure used in the original paper was an ad-hoc one \citep{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \citep{najemnik2009simple}, i.e.:
+The accuracy metric used in the original paper was an ad-hoc one \citep{najemnik2005optimal}, but turned out to be consistent with minimizing the \emph{posterior entropy} \citep{najemnik2009simple}, i.e.:
 $$A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) = -H(q^{(n)}) = \sum_{z \in \mathcal{Z}} q^{(n)}(\boldsymbol{z}) \log q^{(n)}(\boldsymbol{z})$$
 with: $q^{(n)}(\boldsymbol{z}) \propto p(\boldsymbol{x|\boldsymbol{z}, \boldsymbol{u}}) \times q^{(n-1)}(\boldsymbol{z}) $,
 so that:
@@ -337,7 +338,7 @@ with  $H(q^{(n-1)}) \equiv H(Z|q^{(n-1)})$ and $H(q^{(n)}) \equiv H(Z|\boldsymbo
 The Infomax (or posterior entropy minimization) approach generally makes sense for it implicitly relies on the chaining from $q^{(n-1)}$ to $q^{(n)}$, that considers that if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is consistent with $q^{(n-1)}(Z)$, then the issued posterior entropy should be lower than if $p(\boldsymbol{x}|Z, \boldsymbol{u})$ is at odd with $q^{(n-1)}(Z)$. The model is expected to choose the action that may confirm the initial assumption, though there is no formal comparison between $q^{(n-1)}$ and $q^{(n)}$.
 It is thus potentially vulnerable to model outliers with $q^{(n)}$ having both a low entropy and being inconsistent with $q^{(n-1)}$.
 
-\subsubsection{Innovation-based objective}\label{sec:saliency}
+\subsubsection{Innovation-based metrics}\label{sec:saliency}
 
 Another quantity of interest is the so-called \emph{Bayesian surprise} or \emph{Salience} \citep{itti2005bayesian} defined as the Kullback-Leibler divergence  between an actual view $\boldsymbol{x}$ and a model $\boldsymbol{z}$. In the original ``bottom-up'' setup, only local statistics are formed over small image patches of a given image, with $\boldsymbol{u}$ the index of a patch and $p(\boldsymbol{z}|\boldsymbol{x},\boldsymbol{u})$ the features inferred from the data actually observed at $\boldsymbol{u}$. For each patch $\boldsymbol{u}$, the Salience of the actual view $\boldsymbol{x}$ given the model is:
 $$ S(\boldsymbol{x},\boldsymbol{u}) = \text{KL}(p(Z| \boldsymbol{x}, \boldsymbol{u})||p(Z))$$
@@ -350,7 +351,7 @@ Generalized to the sequential setup, the saliency metric becomes:
 with $q^{(n-1)}$ considered as the data model and $q^{(n)}$ the posterior estimated at $(\boldsymbol{x},\boldsymbol{u})$, {\color{Purple} knowing $q^{(n-1)}$}. A corresponding predictive policy would be:
 $$ \hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{\boldsymbol{z} \sim q^{(n-1)}, \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[\text{KL}(q^{(n)}||q^{(n-1)})\right]$$
 
-\subsubsection{Conservation-based objective}\label{sec:conservation}
+\subsubsection{Conservation-based metrics}\label{sec:conservation}
 
 At last, the  Variational Free Energy based (VFE) active inference setup \citep{friston2010free,friston2012perceptions} 
 considers the general tendency of the brain to counteract surprising and unpredictable sensory events through minimizing the VFE with action (see appendix \ref{app:VFE}). In an active sampling-based setup, it writes:
@@ -382,7 +383,7 @@ Put in a predictive form, the selection of action finally relies on reducing the
 which may {\color{Purple} minimize the \emph{epistemic cost}}\footnote{It is to be noticed  that the  Kullback-Leibler divergence is here absorbed in the general expectation over the $\boldsymbol{x}$'s and the $\boldsymbol{z}$'s.}.
 
 
-On contrary to the Infomax objective (section \ref{sec:infomax}), the {\color{Purple} epistemic cost} selects the predicted posterior having the highest consistency with the current posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy (see section~\ref{sec:infomax}).
+On contrary to the Infomax objective (section \ref{sec:infomax}), {\color{Purple}minimizing the  epistemic cost} selects the predicted posterior having the highest consistency with the current posterior, which may prevent from model outliers that may incidently ``hack'' the posterior entropy (see section~\ref{sec:infomax}).
 Minimizing $\text{KL}(q^{(n-1)}||q^{(n)})$ thus corresponds to a \emph{conservative} approach to the scene interpretation
 that is \emph{minimally} vulnerable to outliers, i.e. that minimizes the risk of a {\color{Purple} conflicting} interpretation. 
 
@@ -534,7 +535,6 @@ If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, i
 {\color{Purple} The amount of the} underestimation, {\color{Purple} i.e. $\text{KL} (q^{(n-1)}||q^{(n)})$} {\color{Purple} defines the epistemic cost (see section \ref{sec:conservation}) as the \emph{IGLB bias},}, that should be minimized through action (see eq.~\ref{eq:ELBO}). Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
 
 
-
 \paragraph{Information Gain Upper Bound (IGUB)}
 {\color{Purple}For completeness, } instantiating $q$ with $q^{(n)}$ gives a different objective  that writes:
 \begin{align}
@@ -560,7 +560,7 @@ making it {\color{Purple} an upper bound of the IG that} \emph{overestimates} th
 	&= \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmax }} \mathbb{E}_{z\sim q^{(n-1)}; \boldsymbol{x}\sim p(X|\boldsymbol{z},\boldsymbol{u}))} \left[-H(q^{(n)}) - \text{KL}(q^{(n)}(Z)|| p(Z|\boldsymbol{x}, \boldsymbol{u}))\right]\label{eq:PC-pred}
 \end{align}
 that {\color{Purple} interestingly} combines the Infomax objective (eq.~\ref{eq:infomax}) with a consistency objective. This mixed objective is further on referred as the \emph{Information Gain Upper Bound} (IGUB):
-\begin{align}\text{IGUB}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\triangleq -H(q^{(n)}) - \text{KL}(q^{(n)}(Z), p(Z|\boldsymbol{x}, \boldsymbol{u}))\label{eq:PC}
+\begin{align}\text{IGUB}(\boldsymbol{x}, \boldsymbol{u}, q^{(n-1)})\triangleq -H(q^{(n)}) - \text{KL}(q^{(n)}(Z)|| p(Z|\boldsymbol{x}, \boldsymbol{u})) + c \label{eq:PC}
 \end{align}
 
 %The approximate CI is now expressed by subtracting (\ref{eq:F_post_KL}) from (\ref{eq:F_pre_KL}) and taking $q=q'$ as:
@@ -603,9 +603,9 @@ The final set of metrics to be compared in next section are finally displayed in
 			Improvement & {\tiny $+ \mathbb{E}_{\boldsymbol{z} \sim q^{(n)}} \left[\log p(\boldsymbol{x}^{(n-1)}| \boldsymbol{z}, \boldsymbol{u}^{(n-1)})\right] 
 				- \text{KL}(q^{(n)}|| q^{(n;n-2)})$} &(\ref{eq:CI})&{\footnotesize (approximate) Information Gain maximization}\\
 			\hline
-			IGLB & $-H(q^{(n-1)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PCI-n-1}) & {\footnotesize (pessimistic) Information Gain maximization} \\
+			IGLB & $\mathbb{E}_{z\sim q^{(n-1)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c$ & (\ref{eq:PCI-n-1}) & {\footnotesize (pessimistic) Information Gain maximization} \\
 			\hline
-			IGUB & $-H(q^{(n)},p(Z|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})) + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
+			IGUB & $\mathbb{E}_{z\sim q^{(n)}} \left[\log p(\boldsymbol{z}|\boldsymbol{x}^{(n)}, \boldsymbol{u}^{(n)})\right] + c$ & (\ref{eq:PC}) & {\footnotesize (optimistic) Information Gain maximization}\\
 			\hline	\end{tabular}
 	}
 	%\end{center}
@@ -653,8 +653,11 @@ In superior vertebrates, two principal tricks are used to minimize sensory resou
 		\includegraphics[width = \linewidth]{img/ICLR-foveated-model.pdf} 
 	}
 	
-	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image (see text).
-		\textbf{d}. Image reconstruction from 60 central coefficients, issuing a 92 \% compression rate.  
+	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image. An original MNIST sample (\textbf{a}) is recast on a $32\times32$ grid, and then decomposed in a five levels Haar wavelets decomposition (\textbf{b}) issuing a total of 1024 wavelet coefficient. Then, for each gaze orientation $(i,j) \in \{0,...,15\}^2$, $3 \times 5$ wavelet coefficients are read out  at coordinates $(i,j)$, $(\lfloor\frac{i}{2}\rfloor,\lfloor\frac{j}{2}\rfloor)$,
+	$(\lfloor\frac{i}{4}\rfloor,\lfloor\frac{j}{4}\rfloor)$,
+	$(\lfloor\frac{i}{8}\rfloor,\lfloor\frac{j}{8}\rfloor)$	and
+	$(\lfloor\frac{i}{16}\rfloor,\lfloor\frac{j}{16}\rfloor)$ in level descending order (\textbf{c}).		
+		\textbf{d}. Example image reconstruction from reading 60 central coefficients at coordinates (7,7), (7,8), (8,7) and (8,8), issuing a 92 \% compression rate.  
 		}\label{fig:foveated}
 \end{figure}
 
@@ -757,7 +760,7 @@ The cross-entropy loss used in training {\color{Purple} allows to interpret} the
 The output is driven by adding supplementary data at the input only, complementing the data that was previously read out, {\color{Purple} with $\exp \left[\text{CNN}(\boldsymbol{x}^{(1:n)}|\boldsymbol{u}^{(1:n)})\right] \propto p(\boldsymbol{x}^{(1:n)}|Z,\boldsymbol{u}^{(1:n)}) \propto p(Z|\boldsymbol{x}^{(1:n)},\boldsymbol{u}^{(1:n)}) = q^{(n)}$.} The posterior update is thus implemented \emph{from the data}. There is no recurrence, sequential accumulation or memory implemented in the network (like in eq.~\ref{eq:accum-post}). %{\color{magenta} like e.g. Bengio + nips review ref.}. 
 
 
-Following algorithm \ref{algo:saccade} with the CNN as the {\color{Purple} approximate cumulated posterior estimator}, the decoding efficacy is shown for different objective functions on the right-hand side of  fig.~\ref{fig:policy-comp-base}. {\color{Purple} It is to be noted the CNN is only used for estimating the $q^{(n)}$'s distributions, with the baseline Bernouilli-gated multivariate Gaussian model (eq.~\ref{eq:bernouilli-gated}) used on the predictive/generative side}. A clear decoding improvement is obtained {\color{Purple} when compared with the right-hand side of fig.~\ref{fig:policy-comp-base}}, with higher classification rates with less signal, attaining about 98,8\% correct classification with less than 8\% of the original image. Still, the general good performances of the decoder blurs the differences between the different policies. All objectives appear here equally good at effectively decoding the scene {\color{Purple} (except for the random action policy)}. 
+Following algorithm \ref{algo:saccade} with the CNN as the {\color{Purple} approximate cumulated posterior estimator}, the decoding efficacy is shown for different objective functions on the right-hand side of  fig.~\ref{fig:policy-comp-base}. {\color{Purple} It is to be noted the CNN is only used for estimating the $q^{(n)}$'s posterior distributions, with the baseline Bernouilli-gated multivariate Gaussian model (eq.~\ref{eq:bernouilli-gated}) used on the predictive/generative side}. A clear decoding improvement is obtained {\color{Purple} when compared with the left-hand side of fig.~\ref{fig:policy-comp-base}}, with higher classification rates with less signal, attaining about 98,8\% correct classification with less than 8\% of the original image. Still, the general good performances of the decoder blurs the differences between the different policies. All objectives appear here equally good at effectively decoding the scene {\color{Purple} (except for the random action selection policy)}. 
 
 \paragraph{Faulty model and failure robustness}
 Predictive policies {\color{Purple}are known to heavily rest} on the generative models, that makes them sensible to model flaws. Resistance to model flaws is thus a property that should be prioritized when acting in unknown or coarsely modeled environments, or in the course of learning. In contrast with CNN-based optimal decoding, a failed probabilistic model was designed by simply setting $\rho_{u,z} = 1$ in eq.~(\ref{eq:bernouilli-gated}).  This tends to overestimate the signal strength at high frequencies, predicting a dense signal in effectively sparse regions. The classification accuracies are presented on fig.~\ref{fig:failed}\textbf{a} for the different objective functions considered here. In complement to the Compression Improvement (eq.~\ref{eq:CI}), the two variants referred as the IG Lower Bound (eq.~\ref{eq:PCI-n-1}) and the IG Upper Bound (eq.~\ref{eq:PC}) are also considered. 
@@ -777,21 +780,30 @@ The faulty model allows here to nicely separate the different objectives with re
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{img/frontiers_sal_maps.pdf}
-	\caption{\textbf{Pre-processed trajectories}}\label{fig:pre-processed}
+	\caption{\textbf{Pre-processed trajectories}. \textbf{Upper row (except rightmost map)}: color-coded pre-processed class-consistent log-posterior maps for $\boldsymbol{z} \in \{0,..,9\}$, for $\boldsymbol{u}$, on the baseline generative model, with low (whitish) to high (brownish) color-code. \textbf{Upper row, rightmost map:} Class-independent expected IGLB map.
+	\textbf{Lower row:} Corresponding visual scan-path (the red ``+'' provides the initial gaze orientation). 5 first saccades shown, with average class prototype in the background. The rightmost background image is the average over all classes.}\label{fig:pre-processed}
 \end{figure}
 
 \subsubsection{Scaling up IG computation}
-The scaling of the model needs to be addressed when large control spaces are considered. All predictive policies rely on a mixed encoding setup that implies to consider all $\boldsymbol{u}$'s and all $\boldsymbol{z}$'s in the prediction, which scales like $O(|\mathcal{U}|\times|\mathcal{Z}|^2)$ when the predicted posterior is needed in the objective calculation, which is the case for the Infomax, the Saliency, the CI and the IGUB (algorithm \ref{algo:saccade-policy}), and $O(|\mathcal{U}|\times|\mathcal{Z}|)$ in the {\color{Purple}IGLB} and the VFE case for they can bypass the posterior calculation. A quadratic cost may still be considered too heavy in real-case applications, implying to consider cheaper setups. 
+The scaling of the model needs to be addressed when large control spaces are considered. All predictive policies rely on a mixed encoding setup that implies to consider all $\boldsymbol{u}$'s and all $\boldsymbol{z}$'s in the prediction, which scales like $O(|\mathcal{U}|\times|\mathcal{Z}|^2)$ when the predicted posterior is needed in the objective/loss calculation, which is the case for the Infomax, the Saliency, the VFE the CI and the IGUB (algorithm \ref{algo:saccade-policy}), and $O(|\mathcal{U}|\times|\mathcal{Z}|)$ in the {\color{Purple}IGLB} case for it can bypass the posterior calculation. A quadratic cost may still be considered too heavy in real-case applications, implying to consider cheaper setups. 
 
-A first simplification, referred as the ``sharp'' IGLB in  fig.~\ref{fig:failed}\textbf{b}, only samples a single $\boldsymbol{z}$ from $q^{(n-1)}$, which makes the predictive policy scale like $O(|\mathcal{U}|)$. An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:PCI-n-1}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model, all the predictive log posteriors $\log p(\boldsymbol{z}|\hat{\boldsymbol{x}}_{z,u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{z,u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})$ as a sample, allowing, for each assumption $\boldsymbol{z}$, to \emph{pre-process} a class-specific visual exploration strategy that, given an assumption $\hat{z} = \underset{\boldsymbol{\boldsymbol{z}}}{\text{ argmax }} q^{(n)}(\boldsymbol{z})$, defines a log-posterior descending order over the $\boldsymbol{u}'s$. It is then possible to pre-process and store $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ in a database, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
+\begin{itemize}
+	\item A first simplification, referred as the ``sharp'' IGLB in  figs.~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}, only samples a single $\boldsymbol{z}$ from $q^{(n-1)}$, which makes the predictive policy scale like $O(|\mathcal{U}|)$. 
+	\item An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:PCI-n-1}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model $p$, and for all $\boldsymbol{z} \in \mathcal{Z}$, all the predictive log posteriors $\log p(\boldsymbol{z}|\hat{\boldsymbol{x}}_{z,u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{z,u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\boldsymbol{z}, \boldsymbol{u})$ as a sample. {\color{Purple} This results in a set of class-consistent log posterior maps providing, for each $\boldsymbol{u} \in \mathcal{U}$, the expected log posterior value $\log p(\hat{\boldsymbol{z}}|\hat{\boldsymbol{x}}_{\hat{z},u}, \boldsymbol{u})$, given prior assumption $\hat{\boldsymbol{z}} = \underset{\boldsymbol{\boldsymbol{z}}}{\text{ argmax }} q^{(n-1)}(\boldsymbol{z})$ (fig.~\ref{fig:pre-processed}, first row)}. Then, for each assumption $\boldsymbol{z}$,  a class-specific visual exploration strategy can be \emph{pre-processed}. Given an assumption $\boldsymbol{z}$, a pre-processed trajectory can be defined, following a log-posterior descending order over the $\boldsymbol{u}'s$, {\color{Purple} from higher IGLB values of toward lower IGLB values (brownish toward whitish in fig.~\ref{fig:pre-processed})}.  $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ are then stored  in a set of $\boldsymbol{z}$-indexed ordered lists, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
+	In practice, the viewpoint selected at step $n$ depends on the current guess $\hat{\boldsymbol{z}}$, with on-the-fly pre-processed trajectory switch if the guess is revised across the course of saccades. This strategy is referred a the \emph{pre-processed trajectories} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}. 
+	\item For comparison, a \emph{generic} trajectory was also computed using \begin{align}
+	\overline{\text{IGLB}}(\boldsymbol{u})
+	= \mathbb{E}_{\boldsymbol{z} \sim p(Z)}\left[ \log p(\boldsymbol{z}|\hat{\boldsymbol{x}}_{z,u}, \boldsymbol{u})\right]
+	\end{align} with a uniform prior over the $\boldsymbol{z}'s$, i.e. $p(\boldsymbol{z}) = \frac{1}{|\mathcal{Z}|}$.
+	It is referred a the \emph{generic trajectory} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}.
+\end{itemize}
 
-In practice, the viewpoint selected at step $n$ depends on the current guess $\hat{z}$, with on-the-fly trajectory switch if the guess is revised across the course of saccades. This strategy is referred a the \emph{pre-processed trajectories} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}.
-For comparison, a \emph{generic} trajectory was also computed using $\bar{\text{CI}}(\boldsymbol{u})
-= \mathbb{E}_{\boldsymbol{z} \sim p(Z), \boldsymbol{x} \sim p(X|\boldsymbol{z}, \boldsymbol{u})}\left[ \log p(\boldsymbol{z}|\boldsymbol{x}, \boldsymbol{u})\right]$ with a uniform prior over the $\boldsymbol{z}'s$.  
-It is referred a the \emph{generic trajectory} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}.
+{\color{Purple} The log-posterior maps allow to analyze in detail the class-consistent orientations (that appear brownish) as opposed to the class-inconsistent orientations (pale orange to white). First to be noticed is the relative scarceness of the class-consistent orientations. 
+	%Those "evidence providing" locations appear, as expected, mutually exclusive from class to class. 
+A small set of saccades is expected to provide most of the classification information while the rest of the image is putatively uninformative (or even counter informative if whitish). A second aspect is that the class-relevant locations are all located in the central part of the images, so there is very few chance for the saccades to explore the periphery of the image where little information is expected to be found. This indicates that the model has captured the essential concentration of class-relevant information in the central part of the images for that particular training set.}
 
-The different simplification strategies are compared in figs~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c} over the baseline and the faulty model. Both the sharp IGLB and the pre-processed trajectories are shown consistent with the CI objective on fig.~\ref{fig:failed}\textbf{b}, despite their considerably lower computational cost, while the generic trajectory strategy appears less effective. Interestingly, those computational simplifications also remain valid when robustness to model flaws is considered (fig.~\ref{fig:failed}\textbf{c}). 
-Both the sharp IGLB and the pre-processed trajectories allow to reach both robustness and effective classification rates at lower cost.
+The different simplification strategies are compared in figs~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c} over the baseline and the faulty models. Both the sharp IGLB and the pre-processed trajectories are shown consistent with the CI objective on fig.~\ref{fig:failed}\textbf{b}, despite their considerably lower computational cost, while the generic trajectory strategy appears less effective. Interestingly, those computational simplifications also remain valid when robustness to model flaws is considered (fig.~\ref{fig:failed}\textbf{c}). 
+Both the sharp IGLB and the pre-processed trajectories allow to reach both robustness and effective classification rates at considerably lower cost than the ``smooth'' IGLB.
 
 
 \section{Conclusion}
@@ -804,13 +816,13 @@ The presented numerical experiments thus highlight different aspects of the setu
 A first and principal result is that state-of-the-art recognition rates can be obtained with sequential fovea-based computation using less than 10\% of the original signal. This strong input compression is made possible for the visual data owns lot of redundancies that are not used at their best in computer vision, doing useless computations over large parts of the visual scene. The general good results obtained in that case reflect the advantage of mixing a predictive controller with accurate state-of-the-art predictors, here a deep neural network. 
 
 A second result is the sub-optimality of many classical objective function widely used in literature, like the ``Infomax'' \citep{butko2010infomax} and the ``Salience'' objectives \citep{itti2005bayesian}, when the scene decoding setup is considered. Their sub-optimality is not manifest with finely-tuned generative models, but becomes patent when a coarse of faulty model is used.
-This may appear counter-intuitive at first sight for the Infomax objective is vastly dominant in predictive control \citep{najemnik2009simple}, while the Salience objective provides among the best predictions for human fixation zones \citep{itti2005bayesian}. The negative performances of the Salience objective in predictive control may however be attenuated when learning is considered. Heading toward inconsistently modeled places is indeed a sensible behaviour when the model is to be updated. This entails maximizing predictions errors, which is a relevant principle long considered in sparse reinforcement learning \citep{schmidhuber1991curious,oudeyer2008can,pathak2017curiosity}. The main difference lies in considering model-based predictive rewards, as we do here, versus model-free post-hoc rewards. In the second case, an \emph{observed} inconsistency reflects a model flaw that needs to be adressed, while in the first case, it only reflects a predictive inconsistency, that is part of the model, favoring oblivious rather than memory-consistent scene interpretation. This trade-off between predictive versus post-hoc reward reflects more generally a profound contradiction between exploiting at best the current knowledge and past observations versus challenging the current interpretation to leverage conflicting facts, a variant of the exploration/exploitation trade-off. 
+This may appear counter-intuitive at first sight for the Infomax objective is vastly dominant in predictive control \citep{najemnik2009simple}, while the Salience objective provides among the best predictions for human fixation zones \citep{itti2005bayesian}. The mixed performances of the Salience objective in predictive control may however be attenuated when learning is considered. Heading toward inconsistently modeled places is indeed a sensible behaviour when the model is to be updated. This entails maximizing predictions errors, which is a relevant principle long considered in sparse reinforcement learning \citep{schmidhuber1991curious,oudeyer2008can,pathak2017curiosity}. The main difference lies in considering model-based predictive rewards, as we do here, versus model-free post-hoc rewards. In the second case, an \emph{observed} inconsistency reflects a model flaw that needs to be adressed, while in the first case, it only reflects a predictive inconsistency, that is part of the model, favoring oblivious rather than memory-consistent scene interpretation. This trade-off between predictive versus post-hoc reward reflects more generally a profound contradiction between exploiting at best the current knowledge and past observations versus challenging the current interpretation to leverage conflicting facts, a variant of the exploration/exploitation trade-off. 
 
-Last, a notorious defect of the predictive setup is its computational cost scaling with the size of the actions sets, that may grow combinatorially fast with increasing degrees of freedom. Real-world predictive control is thus in need for computationally-effective predictive models, here attainable with the Local Consistency (LC) objective, that, though maximizing the Information Gain in approximation, is independent from the current state of interpretation. In discrete interpretation spaces, it is thus possible to pre-process prototypic trajectories following a guess-confirmation sequence of actions, that can be read-out from memory without computationally-demanding predictions. This dramatically simplified setup is shown efficient in our case, showing both competitive decoding compression rates and good robustness to model flaws. 
+Last, a notorious defect of the predictive setup is its computational cost scaling with the size of the actions sets, that may grow combinatorially fast with increasing degrees of freedom. Real-world predictive control is thus in need for computationally-effective predictive models, here attainable with the Information Gain Lower Bound (IGLB) objective, that, though maximizing the Information Gain in approximation, is independent from the current state of interpretation. In discrete interpretation spaces, it is thus possible to pre-process prototypic trajectories following a guess-confirmation sequence of actions, that can be read-out from memory without computationally-demanding predictions. This dramatically simplified setup is shown efficient in our case, showing both competitive decoding compression rates and good robustness to model flaws. 
 %and ways toward cheap and scalable predictive policies.  
 
 \subsection*{Acknowledgements}
-{\color{magenta}\bf Thanks to Laurrent Perrinet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...}
+{\color{magenta}\bf Thanks to Laurent Perrinet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...}
 
 \appendix
 
