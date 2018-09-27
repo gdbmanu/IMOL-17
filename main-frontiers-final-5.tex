@@ -72,19 +72,19 @@
 \maketitle
 	
 \begin{abstract}
-{\color{Purple} What motivates action in the absence of a definite reward function? Considering the case of saccadic visuomotor control, we address the question of how to quantify the value of a saccade, in a sequence of discrete eye movements, when the final objective is to properly interpret the current visual scene.
+{\color{Purple} What motivates action in the absence of a definite reward function? Considering the case of saccadic visuomotor control, we consider an apparently simple control problem that is how select the next saccade, in a sequence of discrete eye movements, when the final objective is to better interpret the current visual scene.
 %An original scene decoding setup is developed here, that, accordingly with previous setups, optimizes the decoding through selecting relevant sensory samples under model-based prediction. 
-The visual scene is considered here as a partially-observed environment,
+The visual scene is modeled here as a partially-observed environment,
 %with the current view interpreted as a mixture of two conjugate emitters, namely the ``controlled'' emitter (i.e. the actuator state), and the ``uncontrolled'' one (i.e. the latent state). 
 under a generative probabilistic model explaining how the visual data is shaped by action.
 This allows to interpret different action selection metrics proposed in literature, 
 including the Salience, the Infomax and the Variational Free Energy, under a single information theoretic construct, namely the viewpoint-update-based Information Gain.
-Pursuing this analytic track, two original metrics are then proposed that, through showing either a conservative or an optimistic bias regarding the Information Gain, strongly simplify its calculation.
-A generic action-selection setup is then developed, allowing to compare each metric,}
+Pursuing this analytic track, two original metrics named the Information Gain Lower Bound (IGLB) and the Information Gain Upper Bound (IGUB) are then proposed. Showing either a conservative or an optimistic bias regarding the Information Gain, they strongly simplify its calculation.
+An artificial fovea-based visual scene decoding setup is then developed, }
 with numerical experiments highlighting different aspects of the setup. 
 A first and principal result is that state-of-the-art recognition rates can be obtained with sequential fovea-based computing, using less than 10\% of the original signal. Those satisfactory results illustrate the advantage of mixing predictive control with accurate state-of-the-art predictors, namely a deep neural network. 
 A second result is the sub-optimality of some classical metrics widely used in literature, that is not manifest with finely-tuned generative models, but becomes patent when coarse or faulty models are used.
-Last, a computationally-effective predictive model is developed using the {\color{Purple} Information Gain Lower Bound (IGLB)} objective, with pre-processed saccade trajectories read-out from memory, bypassing computationally-demanding predictive calculations.  This dramatically simplified setup is shown effective in our case, showing both competitive decoding compression rates and a good robustness to model flaws. 
+Last, a computationally-effective predictive model is developed using the {\color{Purple}IGLB} objective, with pre-processed saccade trajectories read-out from memory, bypassing computationally-demanding predictive calculations.  This dramatically simplified setup is shown effective in our case, showing both competitive decoding compression rates and a good robustness to model flaws. 
 
 \end{abstract}
 \section{Introduction}
@@ -150,10 +150,10 @@ is developed in section \ref{sec:visual-scene-dec}, allowing to quantitatively c
 We consider here a \emph{scene decoding task} where an agent has to estimate its environment state, here called the ``sensory scene'', from sensory samples. The visual scene is organized in objects (or objects parts), whose presence and position is continuously checked by visual inspection. 
 Then, decoding a visual scene through saccades consists in identifying the ensemble through the sequential foveation of parts of the scene only. 
 
-\subsection{A mixed emission model}\label{sec:three-party}
+\subsection{A mixed emission generative model}\label{sec:three-party}
 
 %A ``viewpoint emitter'' $\boldsymbol{u}$ is here interpreted as both the realization of a \emph{sampling} (of an underlying generative model), and as a \emph{code} that participates in generating the incoming sensory data.
-{\color{Purple} The active inference approach relies on a longstanding history of probabilistic modelling in signal processing and control \citep{Kalman1960,Baum1966}. The physical world takes the form of a random generative process that is the cause of the sensory stream. This process is not visible in itself but only sensed through (non reliable) sensors, providing a sequence of observations over time. The inference problem consists in identifying the cause of the observations (i.e. the state of the environment), given the generative model. The result of the inference is itself a probability density over the hidden states (the posterior probability), that is obtained through  inverting the model (from the observations toward the hidden states).}
+{\color{Purple} The active inference approach relies on a longstanding history of probabilistic modelling in signal processing and control \citep{Kalman1960,Baum1966}. The physical world takes the form of a random  process that is the cause of the sensory stream. This process is not visible in itself but only sensed through (non reliable) sensors, providing a sequence of observations over time. The inference problem consists in identifying the cause of the observations (i.e. the state of the environment), given the generative model. The result of the inference is itself a probability density over the hidden states (the posterior probability), that is obtained through  inverting the model (from the observations toward the hidden states).}
 
 \subsubsection{One scene, many views}
 
@@ -280,7 +280,7 @@ the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the pr
 q^{(n)}(Z) \propto \text{Pr}(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1)}(Z) \label{eq:accum-post}
 \end{align}
 
-\subsection{Predictive control and objective functions}\label{sec:perception-driven-control}
+\subsection{Predictive control and action selection metrics}\label{sec:perception-driven-control}
 
 %\subsubsection
 
@@ -304,7 +304,7 @@ Many such objective functions are proposed in the literature. They are generally
 
 \subsubsection{Accuracy-based metrics}\label{sec:infomax}
 
-Given a generative model $p(X,Z,U)$, like the one described in section \ref{sec:three-party}, the predictive approach to perception-driven control \citep{najemnik2005optimal} relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ to choose action. 
+Given a generative model $p(X,U,Z)$, like the one described in section \ref{sec:three-party}, the predictive approach to perception-driven control \citep{najemnik2005optimal} relies on predicting an \emph{accuracy} measure $A(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)})$ to choose action. 
 The accuracy tells how good the model is at predicting $\boldsymbol{z}$ (here the target position) when viewing $\boldsymbol{x}$ at position $\boldsymbol{u}$,
 knowing $q^{(n-1)}$ (the estimated posterior at step $n-1$).
 
@@ -532,7 +532,9 @@ If now $\boldsymbol{u}$ is at choice \emph{before} sampling  $\boldsymbol{x}$, i
 
 
 
-{\color{Purple} The amount of the} underestimation, {\color{Purple} i.e. $\text{KL} (q^{(n-1)}||q^{(n)})$} {\color{Purple} defines the epistemic cost (see section \ref{sec:conservation}) as the \emph{IGLB bias},}, that should be minimized through action (see eq.~\ref{eq:ELBO}). Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions.
+{\color{Purple} The amount of the} underestimation, {\color{Purple} i.e. $\text{KL} (q^{(n-1)}||q^{(n)})$} {\color{Purple} defines the epistemic cost (see section \ref{sec:conservation}) as the \emph{IGLB bias},}, that should be minimized through action (see eq.~\ref{eq:ELBO}).  Minimizing this term means reducing the underestimation made about the future information gain \emph{before posterior update}. {\color{Purple} This means searching for ``accurate'' Information Gains approximations, rather than maximizing the Information Gain itself, that links with ``safe'' or ``conservative'' action selection policies. }
+	% that accurately estimate the Informatio Gain.   rather than maximizing the Information Gain \emph{per se}.}
+	%, making it the \emph{watchful} or \emph{memory-consistent} bias, that is \emph{minimally} vulnerable to failed conflicting predictions???}
 
 
 \paragraph{Information Gain Upper Bound (IGUB)}
@@ -572,7 +574,10 @@ that {\color{Purple} interestingly} combines the Infomax objective (eq.~\ref{eq:
 
 %Taking now $q = q^{(n)}$ gives:
 
-{\color{Purple}The IGUB bias, i.e. $\text{KL} (q^{(n)}||q^{(n-1)})$, interestingly} fits the Saliency objective (eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the amount of the \emph{overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}), making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions.
+{\color{Purple}The IGUB bias, i.e. $\text{KL} (q^{(n)}||q^{(n-1)})$, interestingly} fits the Saliency objective (eq.~\ref{eq:saliency}), allowing to interpret the Saliency as the amount of the \emph{overestimation} made \emph{after posterior update} by considering (\ref{eq:PCI}) instead of (\ref{eq:CI}).
+{\color{Purple}Maximizing the Saliency is here interpreted as choosing the most optimistic (and ``risky'') information gain approximation, that links with exploratory behavior.}
+
+% \textbf{\color{magenta} making it an \emph{oblivious bias} or \emph{optimistic bias} to the scene interpretation that is \emph{maximally} vulnerable to failed conflicting predictions???}
 
 
 
@@ -653,16 +658,16 @@ In superior vertebrates, two principal tricks are used to minimize sensory resou
 		\includegraphics[width = \linewidth]{img/ICLR-foveated-model.pdf} 
 	}
 	
-	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image. An original MNIST sample (\textbf{a}) is recast on a $32\times32$ grid, and then decomposed in a five levels Haar wavelets decomposition (\textbf{b}) issuing a total of 1024 wavelet coefficient. Then, for each gaze orientation $(i,j) \in \{0,...,15\}^2$, $3 \times 5$ wavelet coefficients are read out  at coordinates $(i,j)$, $(\lfloor\frac{i}{2}\rfloor,\lfloor\frac{j}{2}\rfloor)$,
+	\caption{\textbf{a}--\textbf{c}. Foveal ``pyramidal'' encoding from image. \textbf{a}. An original MNIST sample is recast on a $32\times32$ grid. \textbf{b}. It is then decomposed in a five levels Haar wavelets decomposition  issuing a total of 1024 wavelet coefficient. \textbf{c}. Then, for each gaze orientation $(i,j) \in \{0,...,15\}^2$, $3 \times 5$ wavelet coefficients are read out  at coordinates $(i,j)$, $(\lfloor\frac{i}{2}\rfloor,\lfloor\frac{j}{2}\rfloor)$,
 	$(\lfloor\frac{i}{4}\rfloor,\lfloor\frac{j}{4}\rfloor)$,
 	$(\lfloor\frac{i}{8}\rfloor,\lfloor\frac{j}{8}\rfloor)$	and
-	$(\lfloor\frac{i}{16}\rfloor,\lfloor\frac{j}{16}\rfloor)$ in level descending order (\textbf{c}).		
+	$(\lfloor\frac{i}{16}\rfloor,\lfloor\frac{j}{16}\rfloor)$ in level descending order ).		
 		\textbf{d}. Example image reconstruction from reading 60 central coefficients at coordinates (7,7), (7,8), (8,7) and (8,8), issuing a 92 \% compression rate.  
 		}\label{fig:foveated}
 \end{figure}
 
 The baseline vision model we propose relies first on learning local foveated views on images.
-Consistently with \citep{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a "pyramid" of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u} = (i,j,h)$ as a set of 3 coordinates, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \triangleq\boldsymbol{x}|(i,j,h) \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j}\triangleq\boldsymbol{x}|(i,j) \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (which is a radical compression when the 784 pixels of the original image are considered).
+Consistently with \citep{kortum1996implementation,wang2003foveation}, we restrain here the foveal transformation to its core algorithmic elements, i.e. the local compression of an image according to a particular focus. Our foveal image compression thus rests on a ``pyramid'' of 2D Haar wavelet coefficients placed at the center of sight. Taking the example of the MNIST database, we first transform the original images according to a 5-levels wavelet decomposition (see figure \ref{fig:foveated}b). We then define a viewpoint $\boldsymbol{u} = (i,j,h)$ as a set of 3 coordinates, with $i$ the row index, $j$ the column index and $h$ the spatial scale. Each $\boldsymbol{u}$ generates a visual field made of three wavelet coefficients $\boldsymbol{x}_{i,j,h} \triangleq\boldsymbol{x}|(i,j,h) \in \mathbb{R}^3$, obtained from an horizontal, a vertical and an oblique filter at location $(i,j)$ and scale $h$.  The multiscale visual information $\boldsymbol{x}_{i,j}\triangleq\boldsymbol{x}|(i,j) \in \mathbb{R}^{15}$ available at coordinates $(i,j)$ corresponds to a set of 5 coefficient triplets, namely $\boldsymbol{x}_{i,j}=\{\boldsymbol{x}_{i,j,5}, \boldsymbol{x}_{\lfloor i/2\rfloor,\lfloor j/2\rfloor,4}, \boldsymbol{x}_{\lfloor i/4\rfloor,\lfloor j/4\rfloor,3}, \boldsymbol{x}_{\lfloor i/8\rfloor,\lfloor j/8\rfloor, 2}, \boldsymbol{x}_{\lfloor i/16\rfloor,\lfloor j/16\rfloor, 1}\}$ (see figure \ref{fig:foveated}c), so that each multiscale visual field owns 15 coefficients (which is a radical compression when the 784 pixels of the original image are considered).
 Fig. \ref{fig:foveated}d displays a reconstructed image from the 4 central viewpoints at coordinates (7, 7), (7, 8) (8, 7) and (8, 8).
 
 \paragraph{Algorithms}
@@ -757,7 +762,7 @@ The network was trained during about $10^6$ epochs with Tensorflow on a laptop.
 
 
 The cross-entropy loss used in training {\color{Purple} allows to interpret} the network output as {\color{Purple} approaching} the data log-likelihood {\color{Purple}(up to a constant), i.e. $\text{CNN}(\boldsymbol{x}_{i,j}) \simeq \log p(\boldsymbol{x}_{i,j}|Z,(i,j)) + c$}. For decoding a scene, the input layers are initialized at zero  and progressively filled with new wavelet coefficients {\color{Purple} obtained during the scene exploration}.
-The output is driven by adding supplementary data at the input only, complementing the data that was previously read out, {\color{Purple} with $\exp \left[\text{CNN}(\boldsymbol{x}^{(1:n)}|\boldsymbol{u}^{(1:n)})\right] \propto p(\boldsymbol{x}^{(1:n)}|Z,\boldsymbol{u}^{(1:n)}) \propto p(Z|\boldsymbol{x}^{(1:n)},\boldsymbol{u}^{(1:n)}) = q^{(n)}$.} The posterior update is thus implemented \emph{from the data}. There is no recurrence, sequential accumulation or memory implemented in the network (like in eq.~\ref{eq:accum-post}). %{\color{magenta} like e.g. Bengio + nips review ref.}. 
+The output is updated by adding supplementary data at the input only, complementing the data that was previously read, {\color{Purple} with $\exp \left[\text{CNN}(\boldsymbol{x}^{(1:n)}|\boldsymbol{u}^{(1:n)})\right] \propto p(\boldsymbol{x}^{(1:n)}|Z,\boldsymbol{u}^{(1:n)}) \propto p(Z|\boldsymbol{x}^{(1:n)},\boldsymbol{u}^{(1:n)}) = q^{(n)}$.} The posterior update is thus implemented \emph{from the data}. There is no recurrence, sequential accumulation or memory implemented in the network (like in eq.~\ref{eq:accum-post}). %{\color{magenta} like e.g. Bengio + nips review ref.}. 
 
 
 Following algorithm \ref{algo:saccade} with the CNN as the {\color{Purple} approximate cumulated posterior estimator}, the decoding efficacy is shown for different objective functions on the right-hand side of  fig.~\ref{fig:policy-comp-base}. {\color{Purple} It is to be noted the CNN is only used for estimating the $q^{(n)}$'s posterior distributions, with the baseline Bernouilli-gated multivariate Gaussian model (eq.~\ref{eq:bernouilli-gated}) used on the predictive/generative side}. A clear decoding improvement is obtained {\color{Purple} when compared with the left-hand side of fig.~\ref{fig:policy-comp-base}}, with higher classification rates with less signal, attaining about 98,8\% correct classification with less than 8\% of the original image. Still, the general good performances of the decoder blurs the differences between the different policies. All objectives appear here equally good at effectively decoding the scene {\color{Purple} (except for the random action selection policy)}. 
