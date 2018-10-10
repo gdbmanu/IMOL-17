@@ -55,7 +55,8 @@
 
 % Book's title and subtitle
 %\title{\textbf{Fovea-based Scene Decoding under Variational Predictive Control}}
-\title{\textbf{Fovea-based Scene Decoding through Computationally-effective Model-based Prediction}}
+%\title{\textbf{Fovea-based Scene Decoding through Computationally-effective Model-based Prediction}}
+\title{\textbf{Active Fovea-based Vision through Computationally-effective Model-based Prediction}}
 % Author
 \author{\textsc{Emmanuel Daucé}\\
 	Ecole Centrale de Marseille,\\ 
@@ -72,11 +73,11 @@
 \maketitle
 	
 \begin{abstract}
-{\color{Purple} What motivates action in the absence of a definite reward? Taking the case of saccadic visuomotor control, we consider a minimal control problem that is how select the next saccade, in a sequence of discrete eye movements, when the final objective is to better interpret the current visual scene.
+{\color{Purple} What motivates action in the absence of a definite reward? Taking the case of visuomotor control, we consider a minimal control problem that is how select the next saccade, in a sequence of discrete eye movements, when the final objective is to better interpret the current visual scene.
 The visual scene is modeled here as a partially-observed environment,
 with a generative model explaining how the visual data is shaped by action.
 This allows to interpret different action selection metrics proposed in the literature, 
-including the Salience, the Infomax and the Variational Free Energy, under a single information theoretic construct, namely the viewpoint-update-based Information Gain.
+including the Salience, the Infomax and the Variational Free Energy, under a single information theoretic construct, namely the view-based Information Gain.
 Pursuing this analytic track, two original metrics named the Information Gain Lower Bound (IGLB) and the Information Gain Upper Bound (IGUB) are then proposed. Showing either a conservative or an optimistic bias regarding the Information Gain, they strongly simplify its calculation.
 An original fovea-based visual scene decoding setup is then developed, }
 with numerical experiments highlighting different aspects of the setup. 
@@ -136,12 +137,12 @@ different ``curiosity'' metrics, like the ones proposed in \citet{schmidhuber199
 
 {\color{Purple} Perception-driven action selection is thus in need for clarification in order to develop effective action-selection controllers in open environments. This article is an attempt to develop an unifying framework, allowing both formal and quantitative comparisons between the different action selection metrics at stake on a minimal control setup, that is choosing the next saccade in a sequential visual scene decoding task.
 	
-A general scene decoding setup is first developed in section \ref{sec:three-party}, under predictive control assumptions, 
+A general scene decoding framework is first developed in section \ref{sec:three-party}, under predictive control assumptions, 
 with a generative model explaining how the observed data is shaped by action. 
-Stemming from a partially observed framework, the current observation is interpreted as the realization of a \emph{mixed emission density} made of a controlled emitter (i.e. the actuator state) and an uncontrolled one (i.e. the latent state of the environment). Then, when combined with a chain rule-based sequential update, it is shown how the (unobserved) latent state shall be inferred from both the current observation and past inferences memory. Given that ``mixed'' generative model, a generic active inference framework is developed in section \ref{sec:perception-driven-control}, with classical action selection metrics recast, showing a clear formal separation between the ``Accuracy-based'', ``Innovation-based'' and ``Conservation-based'' action-selection metric families. 
+Stemming from a partially observed probabilistic framework, the current observation is interpreted as the realization of a \emph{mixed emission density} made of a controlled emitter (i.e. the actuator state) and an uncontrolled one (i.e. the latent state of the environment). Then, when combined with a chain rule-based sequential update, it is shown how the (unobserved) latent state shall be inferred from both the current observation and past inferences memory. Given that ``mixed'' generative model, a generic active inference framework is developed in section \ref{sec:perception-driven-control}, with classical action selection metrics recast, showing a clear formal separation between the ``Accuracy-based'', ``Innovation-based'' and ``Conservation-based'' action-selection metric families. 
 
-Section \ref{sec:results} gathers  both formal and simulation results, providing a comprehensive and consistent interpretation of most existing metrics as maximizing the viewpoint update-based Information Gain, either in an ``optimistic'' or in a ``pessimistic'' fashion. The connection between action-selection metrics and the Information Gain is first formally unfolded in section \ref{sec:info-gain}.  It is shown that a rather straightforward approximation of the Information Gain,
-known as the Compression Improvement, provides both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions, namely the Information Gain Lower Bound (IGLB) and the Information Gain Upper Bound (IGUB).
+Section \ref{sec:results} gathers  both formal and simulation results, providing a comprehensive and consistent interpretation of most existing metrics as maximizing the view-based Information Gain, either in an ``optimistic'' or in a ``pessimistic'' fashion. The connection between action-selection metrics and the Information Gain is first formally unfolded in section \ref{sec:info-gain}.  It is shown that a rather straightforward approximation of the Information Gain,
+known as the Compression Improvement, provides both a general setup to interpret most classic objective functions, and a baseline to provide new effective and  principle-grounded objective functions, namely the Information Gain Lower Bound (IGLB) and the Information Gain Upper Bound (IGUB).
 Then an actual implementation of a sequential fovea-based scene decoding setup
 is developed in section \ref{sec:visual-scene-dec}, allowing to quantitatively compare those different metrics, and propose new avenues toward more parsimonious scene decoding through computationally-effective model-based prediction.}
 
@@ -272,7 +273,7 @@ the $\boldsymbol{u}$'s and $\boldsymbol{x}$'s do not need to be stored in the pr
 q^{(n)}(Z) \propto \text{Pr}(\boldsymbol{x}^{(n)}|Z,\boldsymbol{u}^{(n)}) \times q^{(n-1)}(Z) \label{eq:accum-post}
 \end{align}
 
-\subsection{Action selection metrics and predictive control}\label{sec:perception-driven-control}
+\subsection{Active vision and predictive control}\label{sec:perception-driven-control}
 
 
 Consider an agent having to estimate its environment state $\boldsymbol{z}$ from sampling it from different viewpoints. We here suppose that a generative model $p$ is given to the agent. 
@@ -319,7 +320,7 @@ $$\hat{\boldsymbol{u}} = \underset{\boldsymbol{u} \in \mathcal{U}}{\text{ argmin
 which makes sense for a low entropy of the posterior is expected when the estimated posterior accuracy is high.
 
 
-This approach to optimal visual sampling was further on linked to an ``Infomax'' principle {\color{Purple} (posterior mutual Information Maximization)} in \citet{butko2010infomax}, 
+This approach to optimal visual sampling was further on linked to an ``Infomax'' principle {\color{Purple} (posterior Mutual Information maximization)} in \citet{butko2010infomax}, 
 taking:
 \begin{align}A_\text{\sc infomax}(\boldsymbol{x}, \boldsymbol{u}; q^{(n-1)}) \equiv I(Z; \boldsymbol{x}|\boldsymbol{u}; q^{(n-1)})
 = H(q^{(n-1)}) - H(q^{(n)})
@@ -387,18 +388,18 @@ It is obvious here that the Free Energy minimization and the Saliency maximizati
 
 
 
-\subsection{Information Gain based metrics}\label{sec:info-gain}
+\subsection{View-based Information Gain metrics}\label{sec:info-gain}
 The structure of the problem (many views on the same scene) implies that {\color{Purple} different observations} should share a common information corresponding to the actual (covered) sensory scene.
 We take here benefit of the {\color{Purple} viewpoint-based} variational encoding setup
-{\color{Purple} (seen in section \ref{sec:conservation} and appendix \ref{app:VFE}) to propose a new quantification the \emph{mutual information} shared across different sensory fields, locally estimated with a viewpoint-based Information Gain metric. It is shown here that a rather straightforward approximation of the information gain,
-	known as the Compression Improvement, provide both a general setup to interpret most classic objective functions, and a baseline to provide effective and  principle-grounded objective functions.}
+{\color{Purple} (seen in section \ref{sec:conservation} and appendix \ref{app:VFE}) to propose a new quantification the \emph{mutual information} shared across different sensory fields, locally estimated with a view-based Information Gain metric. It is shown here that a rather straightforward approximation of the information gain,
+	known as the Compression Improvement, provide both a general setup to interpret most classic objective functions, and a baseline to provide new effective and  principle-grounded objective functions.}
 
 \subsubsection{Definitions}
 
-\paragraph{Mutual Information and Information Gain}
+\paragraph{View-based Mutual Information and Information Gain}
 The sharing of information between two sensory fields $\boldsymbol{x}|\boldsymbol{u}$ and $\boldsymbol{x}'|\boldsymbol{u}'$  should be quantified by their \emph{Mutual Information}. The general idea is that two samples may provide more insight about the hidden sensory scene than a single one (three samples should provide even more, etc.). 
 {\color{Purple} Consider $\boldsymbol{x}|\boldsymbol{u}$ as the initial sensory sample and $\boldsymbol{x}'|\boldsymbol{u}'$ as an additional sample providing new evidence about how interpret the initial view $\boldsymbol{x}$}.
-The mutual information writes:
+The view-based mutual information writes:
 \begin{align}
 	I((X| \boldsymbol{u}); (X'| \boldsymbol{u}')) &= H(X| \boldsymbol{u}) - H(X| \boldsymbol{u}, X', \boldsymbol{u}')\label{eq:mutual-info}\\
 	&\simeq \mathbb{E}_{X,X'} \left[-\log p(X| \boldsymbol{u}) + \log p(X| \boldsymbol{u}, X', \boldsymbol{u}')\right] 
@@ -409,7 +410,7 @@ with :
 	the \emph{post-sample} likelihood, i.e. the retrospective likelihood of having seen $\boldsymbol{x}$ at $\boldsymbol{u}$ knowing now that $\boldsymbol{x}'$ is observed at $\boldsymbol{u}'$, and
 	\item[($ii$)] 
 	$-\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ the post-sample
-	\emph{Information Gain} (see also \citet{tishby2011information}), that is a local estimator of the mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$, {\color{Purple} given the model $p$}:
+	\emph{Information Gain} (see also \citet{tishby2011information}), that is a local estimator of the views mutual information at $X = \boldsymbol{x}$ and $X' = \boldsymbol{x}'$, {\color{Purple} given the model $p$}:
 	\begin{align}
 		\text{IG}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') 
 		&= -\log p(\boldsymbol{x}| \boldsymbol{u}) + \log p(\boldsymbol{x}| \boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u}) \label{eq:info-gain}
@@ -437,7 +438,7 @@ which establishes $F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol
 From a variational perspective, the passing from $q(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u})$ to $q'(Z) \simeq p(Z|\boldsymbol{x}, \boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}')$ is the \emph{variational posterior update}, and the passing from $F(\boldsymbol{x}|\boldsymbol{u})$ toward   $F(\boldsymbol{x}|\boldsymbol{u}', \boldsymbol{x}', \boldsymbol{u})$ is the \emph{reconstruction cost update}. 
 
 \paragraph{Compression Improvement}
-An approximation of the Information Gain (IG), known as the \emph{Compression Improvement} (CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our setup, it
+An approximation of the Information Gain (IG), known as the \emph{Compression Improvement} (CI) was proposed in \citet{schmidhuber2007simple,houthooft2016vime}. In our view-based setup, it
 writes~:
 \begin{align}
 	\text{CI}(\boldsymbol{x},\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') = F(\boldsymbol{x}|\boldsymbol{u}) - F(\boldsymbol{x}|\boldsymbol{u}, \boldsymbol{x}', \boldsymbol{u}') \label{eq:CI-base}
@@ -587,7 +588,7 @@ The final set of metrics to be compared in next section are finally displayed in
 	\end{itemize} 
 }
 
-\subsubsection{Fovea-based scene decoding setup }\label{sec:fovea-based}
+\subsubsection{Fovea-based vision}\label{sec:fovea-based}
 
 \paragraph{Pyramidal fovea-based visual observation} 
 In superior vertebrates, two principal tricks are used to minimize sensory resource consumption in scene exploration. The first trick is the foveated retina, that concentrates the photoreceptors at the center of the retina, with a more scarce distribution at the periphery. A foveated retina allows both treating central high spatial frequencies, and peripheral low spatial frequencies at a single glance (i.e process several scales in parallel). The second trick is the sequential saccadic scene exploration, already mentioned, that allows to grab high spatial frequency information where it is necessary (serial processing).
@@ -663,7 +664,7 @@ The actual saccade exploration algorithm moreover adapts algorithm \ref{algo:sac
 \begin{figure}[t!]
 	\includegraphics[width=\linewidth]{img/frontiers_trajectories_0.pdf}
 
-	\caption{\textbf{Scene exploration through saccades in the foveated vision model}.\textbf{ Top left} : original MNIST sample to be decoded, with corresponding label. \textbf{Left panel} : Course of saccades for different action selection metrics. Leftmost is the policy name. For each row, the number of thumbnail images reflects the number of saccades.  The scene decoding reads from left to right: more wavelet coefficients are grabbed at each step, visually reflected in an increased reconstruction neatness. On overlay is the corresponding history of visual fixations (with rainbow time color code). The total number of saccades can vary for the different policies. Over the final thumbnail is the number of saccades and the final response. All decoding steps are shown except when $n>10$. \textbf{Right panel}: posterior update in function of the number of decoding steps, for $0 \leq n \leq 15$ (logarithmic scale, one color per competing label). Baseline model (eq.~\ref{eq:bernouilli-gated}); $H_\text{ref} = 10^{-4}$. }\label{fig:foveated-saccades}
+	\caption{\textbf{Scene exploration through saccades in the foveated vision model}.\textbf{ Top left} : original MNIST sample to be decoded, with corresponding label. \textbf{Left panel} : Course of saccades for different action selection metrics. Leftmost is the metric name. For each row, the number of thumbnail images reflects the number of saccades.  The scene decoding reads from left to right: more wavelet coefficients are grabbed at each step, visually reflected in an increased reconstruction neatness. On overlay is the corresponding history of visual fixations (with rainbow time color code). The total number of saccades can vary for the different policies. Over the final thumbnail is the number of saccades and the final response. All decoding steps are shown except when $n>10$. \textbf{Right panel}: posterior update in function of the number of decoding steps, for $0 \leq n \leq 15$ (y-logarithmic scale, one color per competing label). Baseline model (eq.~\ref{eq:bernouilli-gated}); $H_\text{ref} = 10^{-4}$. }\label{fig:foveated-saccades}
 
 \end{figure}
 
@@ -708,7 +709,7 @@ The CNN is biasless, uses a (2,2) stride for the convolutions \emph{without max-
 Rectified Linear Units are used in all layers, except for the final layer owning linear units. 
 
 The network was trained during about $10^6$ epochs with Tensorflow on a laptop.
-{\color{Purple} Sparse foveal-consistent inputs are used for the training. For each training example, many gaze orientation $(i_1,j_1), ..., (i_n,j_n)$ are chosen at random, mimicking a $n$-views foveal visual scan, with $n$ randomly set from interval $\{1,..,256\}$. The multi-level input maps are then fed with the corresponding wavelet coefficients triplets, “pyramidally” distilled from $h = 5$ to $h = 0$.} {\color{Purple} The final network is expected to perform recognition on \emph{compressed} images, for which some wavelet coefficients are kept and some wavelet coefficients are discarded.} With standard parameter tuning { \color{Purple}(Adam optimizer --~\citet{kingma2014adam}~-- with a learning rate equal to $10^{-4}$)}, the network attains a 99\% recognition rate on the test set with non-{\color{Purple}sparse} wavelet transformed inputs {\color{Purple}(full information case)}. 
+{\color{Purple} Sparse foveal-consistent inputs are used for the training. For each training example, many gaze orientation $(i_1,j_1), ..., (i_n,j_n)$ are chosen at random, mimicking a $n$-views foveal visual scan, with $n$ randomly set from interval $\{1,..,256\}$. The multi-level input maps are then fed with the corresponding wavelet coefficients triplets, “pyramidally” distilled from $h = 5$ to $h = 0$.} {\color{Purple} The final network is expected to perform recognition on \emph{compressed} images, for which some wavelet coefficients are kept and some wavelet coefficients are discarded.} With standard parameter tuning { \color{Purple}(Adam optimizer --~\citet{kingma2014adam}~-- with a learning rate equal to $10^{-4}$)}, the network attains a 99\% recognition rate on the test set with non-{\color{Purple}compressed} wavelet transformed inputs {\color{Purple}(full information case)}. 
 
 
 The cross-entropy loss used in training {\color{Purple} allows to interpret} the network output as {\color{Purple} approaching} the data log-likelihood {\color{Purple}(up to a constant), i.e. $\text{CNN}(\boldsymbol{x}_{i,j}) \simeq \log p(\boldsymbol{x}_{i,j}|Z,(i,j)) + c$}. For decoding a scene, the input layers are initialized at zero  and progressively filled with new wavelet coefficients {\color{Purple} obtained during the scene exploration}.
@@ -735,18 +736,18 @@ The faulty model allows here to nicely separate the different metrics with regar
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{img/frontiers_sal_maps.pdf}
-	\caption{\textbf{Pre-processed trajectories}. \textbf{Upper row (except rightmost map)}: color-coded pre-processed guess-consistent log-posterior maps for $\hat{\boldsymbol{z}} \in \{0,..,9\}$, and $\boldsymbol{u} \in \{0,..,15\}^2$, using the baseline generative model, from low (whitish) to high (brownish) log posteriors. \textbf{Upper row, rightmost map:} Class-independent expected IGLB map.
+	\caption{\textbf{Pre-processed trajectories}. \textbf{Upper row (except rightmost map)}: color-coded pre-processed guess-consistent action maps for $\hat{\boldsymbol{z}} \in \{0,..,9\}$, and $\boldsymbol{u} \in \{0,..,15\}^2$, using the baseline generative model, from low (whitish) to high (brownish) log posteriors. \textbf{Upper row, rightmost map:} Class-independent expected IGLB map.
 	\textbf{Lower row:} Corresponding pre-processed visual scan-path (the red ``+'' provides the initial gaze orientation). Only the 5 first saccades are shown, with average class prototype in the background. The rightmost background image is the average over all classes.}\label{fig:pre-processed}
 \end{figure}
 
 \subsubsection{Scaling up IG computation}
-The scaling of the model needs to be addressed when large control spaces are considered. All predictive policies rely on a mixed encoding setup that implies to consider all $\boldsymbol{u}$'s and all $\boldsymbol{z}$'s in the prediction, which scales like $O(|\mathcal{U}|\times|\mathcal{Z}|^2)$ when the predicted posterior is needed in the objective/loss calculation, which is the case for the Infomax, the Saliency, the VFE the CI and the IGUB (algorithm \ref{algo:saccade-policy}), and $O(|\mathcal{U}|\times|\mathcal{Z}|)$ in the {\color{Purple}IGLB} case for it can bypass the posterior calculation. A quadratic cost may still be considered too heavy in real-case applications, implying to consider cheaper setups. 
+The scaling of the model needs to be addressed when large control spaces are considered. All predictive policies rely on a mixed encoding setup that implies to consider all $\boldsymbol{u}$'s and all $\boldsymbol{z}$'s in the prediction, which scales like $O(|\mathcal{U}|\times|\mathcal{Z}|^2)$ when the predicted posterior is needed in the objective/loss calculation, which is the case for the Infomax, the Saliency, the VFE the CI and the IGUB (algorithm \ref{algo:saccade-policy}), and $O(|\mathcal{U}|\times|\mathcal{Z}|)$ in the {\color{Purple}IGLB} case for it can bypass the post-sample posterior calculation. A quadratic cost may still be considered too heavy in real-case applications, implying to consider cheaper setups. 
 
 \begin{itemize}
 	\item A first simplification, referred as the ``sharp'' IGLB in  figs.~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}, only samples a single $\boldsymbol{z}$ from $q^{(n-1)}$, i.e.: 
 	$$ \hat{\boldsymbol{z}} = \underset{\boldsymbol{z}}{\text{argmax }} q^{(n-1)}(\boldsymbol{z})$$
 	{\color{Purple}with $\hat{\boldsymbol{z}}$ the current \emph{guess}}, making the predictive policy scale like $O(|\mathcal{U}|)$ {\color{Purple}for the main loop of algorithm \ref{algo:saccade-policy} is now over the $\boldsymbol{u}$'s only}. 
-	\item An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:PCI-n-1}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model $p$, and for every guess $\hat{\boldsymbol{z}} \in \mathcal{Z}$, all the predictive log posteriors $\log p(\hat{\boldsymbol{z}}|\hat{\boldsymbol{x}}_{\hat{z},u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{\hat{z},u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\hat{\boldsymbol{z}}, \boldsymbol{u})$ as a sample. {\color{Purple} This results in a set of class-consistent log posterior maps providing, for each $\boldsymbol{u} \in \mathcal{U}$, the expected log posterior value $\log p(\hat{\boldsymbol{z}}|\hat{\boldsymbol{x}}_{\hat{z},u}, \boldsymbol{u})$, given prior assumption $\hat{\boldsymbol{z}} = \underset{\boldsymbol{\boldsymbol{z}}}{\text{ argmax }} q^{(n-1)}(\boldsymbol{z})$ (fig.~\ref{fig:pre-processed}, first row)}. Then, for each guess $\hat{\boldsymbol{z}}$,  a class-specific visual exploration strategy can be \emph{pre-processed}, following a log-posterior descending order over the $\boldsymbol{u}'s$, {\color{Purple} from higher IGLB values of toward lower IGLB values (brownish toward whitish in fig.~\ref{fig:pre-processed})}.  $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ are then calculated offline and stored  in ordered lists, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
+	\item An additional simplification can be obtained when considering the IGLB objective alone (eq.~\ref{eq:PCI-n-1}), for it is, on contrary to all other objectives, independent of the context $q^{(n-1)}$. For a given model $p$, and for every guess $\hat{\boldsymbol{z}} \in \mathcal{Z}$, all the predictive log posteriors $\log p(\hat{\boldsymbol{z}}|\hat{\boldsymbol{x}}_{\hat{z},u}, \boldsymbol{u})$ can be pre-processed using the \emph{mode} of the predicted visual field $\hat{\boldsymbol{x}}_{\hat{z},u} = \underset{\boldsymbol{x}}{\text{ argmax }} p(\boldsymbol{x}|\hat{\boldsymbol{z}}, \boldsymbol{u})$ as a sample. {\color{Purple} This results in a set of class-consistent \emph{action maps} providing, for each $\boldsymbol{u} \in \mathcal{U}$, the expected log posterior value $\log p(\hat{\boldsymbol{z}}|\hat{\boldsymbol{x}}_{\hat{z},u}, \boldsymbol{u})$, given $\hat{\boldsymbol{z}}$ (fig.~\ref{fig:pre-processed}, first row)}. Then, for each guess $\hat{\boldsymbol{z}}$,  a class-specific visual exploration strategy can be \emph{pre-processed}, following a log-posterior descending order over the $\boldsymbol{u}'s$, {\color{Purple} from higher IGLB values of toward lower IGLB values (brownish toward whitish in fig.~\ref{fig:pre-processed})}.  $|\mathcal{Z}|$ saccade trajectories of size $|\mathcal{U}|$ are then calculated offline and stored  in ordered lists, with a $O(|\mathcal{U}|\times|\mathcal{Z}|)$ memory load but only $\simeq O(1)$ readout computational cost. 
 	In practice, the viewpoint selected at step $n$ depends on the current guess $\hat{\boldsymbol{z}}$, with on-the-fly trajectory switch if the guess is revised during the course of saccades. This strategy is referred a the \emph{pre-processed trajectories} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}. 
 	\item For comparison, a \emph{generic} trajectory was also computed using \begin{align}
 	\overline{\text{IGLB}}(\boldsymbol{u})
@@ -755,7 +756,7 @@ The scaling of the model needs to be addressed when large control spaces are con
 	It is referred a the \emph{generic trajectory} in figs~\ref{fig:foveated-saccades}, \ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c}. {\color{Purple} This strategy is useful in the absence of a definite guess (uniform initial prior for instance).}
 \end{itemize}
 
-{\color{Purple} The log-posterior maps allow to analyze in detail the class-consistent orientations (that appear brownish) as opposed to the class-inconsistent orientations (pale orange to white). First to be noticed is the relative scarceness of the class-consistent orientations. 
+{\color{Purple} The action maps allow to analyze in detail the class-consistent orientations (that appear brownish) as opposed to the class-inconsistent orientations (pale orange to white). First to be noticed is the relative scarceness of the class-consistent orientations. 
 A small set of saccades is expected to provide most of the classification information while the rest of the image is putatively uninformative (or even counter informative if whitish). A second aspect is that the class-relevant locations are all located in the central part of the images, so there is very few chance for the saccades to explore the periphery of the image where little information is expected to be found. This indicates that the model has captured the essential concentration of class-relevant information in the central part of the images for that particular training set.}
 
 The different simplification strategies are compared in figs~\ref{fig:failed}\textbf{b} and \ref{fig:failed}\textbf{c} over the baseline and the faulty models. Both the sharp IGLB and the pre-processed trajectories are shown consistent with the CI objective on fig.~\ref{fig:failed}\textbf{b}, despite their considerably lower computational cost, while the generic trajectory strategy appears less effective. Interestingly, those computational simplifications also remain valid when robustness to model flaws is considered (fig.~\ref{fig:failed}\textbf{c}). 
@@ -763,14 +764,14 @@ Both the sharp IGLB and the pre-processed trajectories allow to reach both robus
 
 
 \section{Conclusion}
-{\color{Purple}Stemming from the} fovea-based scene decoding problem, {\color{Purple} a generic \emph{predictive} action selection setup} was presented which, accordingly with \citep{najemnik2005optimal}, rests on a predictive accuracy to choose action. An {\color{Purple}``active''} variational approach is adopted, which, accordingly with \citep{friston2012perceptions}, optimizes the data reconstruction cost by picking new sensory samples through action. In our case, the visual field is interpreted under a \emph{mixed emission} setup for the visual data is both generated by the viewpoint and the scene constituents. 
+{\color{Purple}Stemming from the} fovea-based scene decoding problem, {\color{Purple} a generic \emph{predictive} action selection framework} was presented which, accordingly with \citep{najemnik2005optimal}, rests on a predictive accuracy metric to choose action. An {\color{Purple}``active''} inference approach is also considered, which, accordingly with \citep{friston2012perceptions}, optimizes sensory samples selection through action. In our case, the visual field is interpreted under a \emph{mixed emission} model for the visual data is both generated by the viewpoint and the scene constituents. 
 This allows to unify the many objective functions proposed in the literature under a single metric referred as the Compression Improvement (CI) in \citep{schmidhuber2007simple}, that is shown to provide a consistent interpretation for most of the objective functions used in perception-driven control. 
 
 Two variants of the CI objective are then proposed, using either the pre-sample or the post-sample posterior in the approximation. In the pre-sample case, it is shown to be an Information Gain Lower Bound objective that always underestimate the actual Information Gain. The IGLB objective is {\color{Purple} said conservative for it should prevent from searching for conflicting visual data that may challenge the current interpretation}. On the other hand, it is expected to lower the risk of failed interpretation in the case of a (erroneous) conflicting predictions.
 Conversely, in the post-sample case, the approximate CI is shown to always \emph{overestimate} the actual Information Gain, 
 making it the Information Gain Upper Bound objective (IGUB) {\color{Purple} -- or ``optimistic'' IG objective}. Following the IGUB is expected to perform a more thorough scene exploration for it may preferentially head toward conflicting visual data that may challenge the current interpretation. On the other hand, it is also expected to increase the risk of failed interpretation in the case of (erroneous) conflicting predictions. 
 
-Remarkable is the fact that both the Saliency objective, the Infomax  objective and the Free Energy epistemic cost, that are classic metrics of the literature,  show a consistent inclusion in a more general approximate Information Gain maximization principle.  Using for instance the Variational Free Energy \citep{friston2015active} as a loss (instead of the IGLB) is expected to \emph{bias} the action selection in an even more conservative way. Conversely, using the Saliency objective \citep{itti2005bayesian} instead of the IGUB is moreover expected to \emph{bias} the action selection in an even more optimistic way, subsequently increasing the risk of a failed scene interpretation.
+Remarkable is the fact that both the Saliency objective, the Infomax  objective and the Free Energy epistemic cost, that are classic metrics of the literature,  show a consistent inclusion in a more general approximate Information Gain maximization principle.  Using for instance the Variational Free Energy \citep{friston2015active} as a loss (instead of the IGLB) is expected to \emph{bias} the action selection in an even more conservative way. Conversely, using the Saliency objective \citep{itti2005bayesian} instead of the IGUB is  expected to \emph{bias} the action selection in an even more optimistic way, subsequently increasing the risk of a failed scene interpretation.
 
 The presented numerical experiments thus highlight different aspects of the setup. 
 A first and principal result is that state-of-the-art recognition rates are obtained with sequential fovea-based computation using less than 10\% of the original signal. This strong input compression is made possible for the visual data owns lot of redundancies that are not used at their best in computer vision, doing useless computations over large parts of the visual scene. The satisfactory results obtained in that case reflect the advantage of mixing a predictive controller with accurate state-of-the-art predictors, here a deep neural network. 
@@ -784,7 +785,7 @@ This trade-off reflects a more general contradiction between exploiting at best 
 Last, a notorious drawback of the predictive setup is its computational cost scaling with the size of the actions sets, that may grow combinatorially fast with increasing degrees of freedom. Real-world predictive control is thus in need for computationally-effective predictive models, here attainable with the Information Gain Lower Bound (IGLB) objective, that, though maximizing the Information Gain in approximation, allow for {\color{Purple}low-complexity calculation when replacing the exact posterior with a single guess in the prediction}. In discrete latent spaces, it is thus possible to pre-process guess-specific offline trajectories, allowing to bypass computationally-demanding predictions. This dramatically simplified setup is shown efficient in our case, showing both competitive decoding compression rates and good robustness to model flaws. 
 
 {\color{Purple} IG-driven fovea-based sequential processing may finally be useful in the case of high dimensional input data (like in e.g. computer vision), and should be tested on more challenging computer vision setups. 
-	It is also to be determined how far IG-based action selection metrics may extend to more general partially observed environments, and whether they could challenge more established actions selection strategies in open-ended control setups.}
+	It is also to be determined how far IG-based action selection  may extend to more general partially observed environments, and whether they could challenge more established actions selection strategies in open-ended control setups.}
 
 \subsection*{Acknowledgements}
 The author is grateful to Laurent Perrinet and Anna Montagnini, from Institut de Neurosciences de la Timone, for inspiring ideas, valuable comments and human vision literature guidance.  He would also like to thank the reviewers for their valuable comments and suggestions to improve the article.
